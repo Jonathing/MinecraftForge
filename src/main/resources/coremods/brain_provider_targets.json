@@ -1,0 +1,16 @@
+[
+    "net/minecraft/world/entity/LivingEntity",
+    "net/minecraft/world/entity/animal/allay/Allay",
+    "net/minecraft/world/entity/animal/axolotl/Axolotl",
+    "net/minecraft/world/entity/animal/camel/CamelAi",
+    "net/minecraft/world/entity/animal/frog/Frog",
+    "net/minecraft/world/entity/animal/frog/Tadpole",
+    "net/minecraft/world/entity/animal/goat/Goat",
+    "net/minecraft/world/entity/animal/sniffer/Sniffer",
+    "net/minecraft/world/entity/monster/Zoglin",
+    "net/minecraft/world/entity/monster/hoglin/Hoglin",
+    "net/minecraft/world/entity/monster/piglin/Piglin",
+    "net/minecraft/world/entity/monster/piglin/PiglinBrute",
+    "net/minecraft/world/entity/monster/warden/WardenAi",
+    "net/minecraft/world/entity/npc/Villager"
+]

@@ -83,6 +83,9 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.DefaultAttributes;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.sensing.Sensor;
+import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.inventory.ClickAction;
@@ -1628,5 +1631,11 @@ public class ForgeHooks
 
         for (var entry : entries)
             output.accept(entry.getKey(), entry.getValue());
+    }
+
+    public static <E extends LivingEntity> Brain.Provider<E> onProviderBrain(Collection<? extends MemoryModuleType<?>> memories, Collection<? extends SensorType<? extends Sensor<? super E>>> sensors, E entity)
+    {
+        LOGGER.warn("BRAINPROVIDER REDIRECTED! ENTITY: {}", entity);
+        return Brain.provider(memories, sensors);
     }
 }

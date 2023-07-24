@@ -1,15 +1,32 @@
 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
 var Handle = Java.type('org.objectweb.asm.Handle');
+var VarInsnNode = Java.type('org.objectweb.asm.tree.VarInsnNode');
 var MethodInsnNode = Java.type('org.objectweb.asm.tree.MethodInsnNode');
 
 function finalizeSpawnNode(node){
-    return new MethodInsnNode(
-        Opcodes.INVOKESTATIC, 
-        "net/minecraftforge/event/ForgeEventFactory", 
-        "onFinalizeSpawn", 
-        "(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/MobSpawnType;Lnet/minecraft/world/entity/SpawnGroupData;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/SpawnGroupData;", 
-        false);
+    return [
+        new MethodInsnNode(
+            Opcodes.INVOKESTATIC,
+            "net/minecraftforge/event/ForgeEventFactory",
+            "onFinalizeSpawn",
+            "(Lnet/minecraft/world/entity/Mob;Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/MobSpawnType;Lnet/minecraft/world/entity/SpawnGroupData;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/SpawnGroupData;",
+            false
+        )
+    ]
+}
+
+function onProviderBrainNode(node) {
+    return [
+        new VarInsnNode(Opcodes.ALOAD, 0),
+        new MethodInsnNode(
+            Opcodes.INVOKESTATIC,
+            "net/minecraftforge/common/ForgeHooks",
+            "onProviderBrain",
+            "(Ljava/util/Collection;Ljava/util/Collection;Lnet/minecraft/world/entity/LivingEntity;)Lnet/minecraft/world/entity/ai/Brain$Provider;",
+            false
+        )
+    ]
 }
 
 function contains(list, target) {
@@ -36,6 +53,13 @@ var replacements = [
         'desc': '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/MobSpawnType;Lnet/minecraft/world/entity/SpawnGroupData;Lnet/minecraft/nbt/CompoundTag;)Lnet/minecraft/world/entity/SpawnGroupData;',
         'targets': 'coremods/finalize_spawn_targets.json',
         'factory': finalizeSpawnNode
+    },
+    {
+        'opcode': Opcodes.INVOKESTATIC,
+        'name': ASMAPI.mapMethod('m_21923_'),
+        'desc': '(Ljava/util/Collection;Ljava/util/Collection;)Lnet/minecraft/world/entity/ai/Brain$Provider;',
+        'targets': 'coremods/brain_provider_targets.json',
+        'factory': onProviderBrainNode
     }
 ];
 
@@ -66,7 +90,11 @@ function initializeCoreMod() {
                         var node = instr.get(ix);
                         var temp = search(classNode.name, node, replacements);
                         if (temp != null) {
-                            instr.set(node, temp.factory(node));
+                            var insns = temp.factory(node);
+                            for (var i = insns.length - 1; i >= 0; i--) {
+                                instr.insert(node, insns[i]);
+                            }
+                            instr.remove(node);
                         }
                     }
                 }
