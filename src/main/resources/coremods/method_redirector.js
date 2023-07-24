@@ -93,8 +93,10 @@ function initializeCoreMod() {
                             var insns = temp.factory(node);
                             for (var i = insns.length - 1; i >= 0; i--) {
                                 instr.insert(node, insns[i]);
+                                ix++;
                             }
                             instr.remove(node);
+                            ix--;
                         }
                     }
                 }
