@@ -156,6 +156,7 @@ import net.minecraftforge.event.entity.EntityTravelToDimensionEvent;
 import net.minecraftforge.event.entity.item.ItemTossEvent;
 import net.minecraftforge.event.entity.living.EnderManAngerEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingBrainBuildEvent;
 import net.minecraftforge.event.entity.living.LivingBreatheEvent;
 import net.minecraftforge.event.entity.living.LivingChangeTargetEvent;
 import net.minecraftforge.event.entity.living.LivingDamageEvent;
@@ -1635,7 +1636,10 @@ public class ForgeHooks
 
     public static <E extends LivingEntity> Brain.Provider<E> onProviderBrain(Collection<? extends MemoryModuleType<?>> memories, Collection<? extends SensorType<? extends Sensor<? super E>>> sensors, E entity)
     {
-        LOGGER.warn("BRAINPROVIDER REDIRECTED! ENTITY: {}", entity);
-        return Brain.provider(memories, sensors);
+        var event = new LivingBrainBuildEvent(memories, sensors, entity);
+        MinecraftForge.EVENT_BUS.post(event);
+        // TODO: This is VERY VERY VERY GROSS!!!! but I think it might be worth it for defining a custom function for a custom brain provider...
+        // ask Lex and others for feedback and if we should gut setting custom provider type
+        return (Brain.Provider<E>) event.getProviderType().apply(event.getMemories(), (Collection<? extends SensorType<? extends Sensor<LivingEntity>>>) event.getSensors());
     }
 }
