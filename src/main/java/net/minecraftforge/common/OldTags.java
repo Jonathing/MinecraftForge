@@ -18,7 +18,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.material.Fluid;
 
-public class Tags {
+public class OldTags {
     public static void init() {
         Blocks.init();
         EntityTypes.init();
@@ -174,7 +174,7 @@ public class Tags {
 
         private static TagKey<Block> tag(String name)
         {
-            return BlockTags.create(ResourceLocation.fromNamespaceAndPath("forge", name));
+            return BlockTags.create(new ResourceLocation("forge", name));
         }
     }
 
@@ -404,55 +404,55 @@ public class Tags {
         /**
          * A tag containing all existing tools.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS = tag("tools");
         /**
          * A tag containing all existing shields.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS_SHIELDS = tag("tools/shields");
         /**
          * A tag containing all existing bows.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS_BOWS = tag("tools/bows");
         /**
          * A tag containing all existing crossbows.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS_CROSSBOWS = tag("tools/crossbows");
         /**
          * A tag containing all existing fishing rods.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS_FISHING_RODS = tag("tools/fishing_rods");
         /**
          * A tag containing all existing tridents.
          *
-         * Note: This tag is not an alternative or a substitute to {@link net.minecraftforge.common.ToolActions}.
+         * Note: This tag is not an alternative or a substitute to {@link ToolActions}.
          *
-         * @see net.minecraftforge.common.ToolAction
-         * @see net.minecraftforge.common.ToolActions
+         * @see ToolAction
+         * @see ToolActions
          */
         public static final TagKey<Item> TOOLS_TRIDENTS = tag("tools/tridents");
         /**
