@@ -198,7 +198,14 @@ subprojects {
             }
         }
         repositories {
-            maven gradleutils.getPublishingForgeMaven()
+            maven {
+                name 'ModdingLegacyMaven'
+                url uri('https://maven.moddinglegacy.com/repository/modding-legacy')
+                credentials {
+                    username = project.findProperty('mlm.user') ?: System.getenv('ML_USERNAME')
+                    password = project.findProperty('mlm.key') ?: System.getenv('ML_TOKEN')
+                }
+            }
         }
     }
 }
@@ -865,7 +872,7 @@ project(':fmlonly') {
         publications {
             mavenJava(MavenPublication) {
                 artifact universalJar
-                artifact installerJar
+                //artifact installerJar
                 artifact userdevJar
                 artifact sourcesJar
             }
@@ -1697,9 +1704,9 @@ project(':forge') {
         publications {
             mavenJava(MavenPublication) {
                 artifact universalJar
-                artifact installerJar
+                //artifact installerJar
                 //TODO: installer-win
-                artifact makeMdk
+                //artifact makeMdk
                 artifact userdevJar
                 artifact sourcesJar
             }
