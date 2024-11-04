@@ -58,7 +58,7 @@ function applyMethodRedirects(clazz) {
 
             // if we can't find the method, get out now!
             if (method === null) {
-                ASMAPI.log('ERROR', 'Failed to redirect method call! Method {} not found in class {}! This is a Forge bug, and is likely due to a Minecraft update changing something.', methodString, clazz.name);
+                ASMAPI.log('ERROR', 'Failed to redirect method call for {}! Method {} not found in class {}! This is a Forge bug, and is likely due to a Minecraft update changing something.', replacement.name, methodString, clazz.name);
                 continue;
             }
 
