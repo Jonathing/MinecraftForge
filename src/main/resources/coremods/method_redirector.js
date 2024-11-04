@@ -50,6 +50,11 @@ function getTargets(classes) {
 
 function applyMethodRedirects(clazz) {
     const classReplacements = replacements.filter(r => contains(r.targets, clazz.name));
+    if (classReplacements.length === 0) {
+        reportNoTargetsError(clazz.name);
+        return clazz;
+    }
+
     let applied = 0;
     for (let method of clazz.methods) {
         for (let insn of method.instructions) {
@@ -64,10 +69,15 @@ function applyMethodRedirects(clazz) {
     }
 
     if (applied === 0) {
-        ASMAPI.log('ERROR', 'No Forge method redirections applied to class {}! This is a Forge bug, and is likely due to a Minecraft update changing something.', clazz.name)
+        reportNoTargetsError(clazz.name);
+        return clazz;
     }
 
     return clazz;
+}
+
+function reportNoTargetsError(className) {
+    ASMAPI.log('ERROR', 'No Forge method redirections found for class {}! This is a Forge bug, and is likely due to a Minecraft update changing something.', className);
 }
 
 
