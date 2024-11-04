@@ -9,12 +9,9 @@ function initReplacements() {
     ASMAPI.log('DEBUG', 'Gathering Forge method redirector replacements');
     replacements.push({
         // finalizeSpawn redirection to ForgeEventFactory.onFinalizeSpawn
-        // TODO BROKEN!!! Fix by using the newer descriptor in the below comment.
         'type': ASMAPI.MethodType.VIRTUAL,
         'name': 'finalizeSpawn',
-        'desc': '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/MobSpawnType;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;',
-               // TODO Fix the descriptor to match the actual method signature. Right now, this CoreMod doesn't apply at all.
-               //(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;
+        'desc': '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;',
         'targets': ASMAPI.loadData('coremods/finalize_spawn_targets.json'),
         'factory': function(insn) {
             return ASMAPI.buildMethodCall(
