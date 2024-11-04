@@ -1,6 +1,6 @@
 'use strict';
 
-var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
+const ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 
 const replacements = [
     {
