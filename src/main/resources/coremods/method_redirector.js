@@ -2,28 +2,6 @@
 
 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 
-/* HELPER FUNCTIONS FOR TARGET SEARCHING */
-
-function contains(list, target) {
-    for (let s of list) {
-        if (s === target) return true;
-    }
-
-    return false;
-}
-
-function search(className, node, replacements) {
-    for (let replacement of replacements){
-        if (contains(replacement.targets, className)
-            && node.getOpcode() === replacement.opcode
-            && node.name === replacement.name
-            && node.desc === replacement.desc) {
-            return r;
-        }
-    }
-    return null;
-}
-
 const replacements = [
     {
         // finalizeSpawn redirection to ForgeEventFactory.onFinalizeSpawn
@@ -76,4 +54,27 @@ function applyMethodRedirects(clazz) {
     }
 
     return clazz;
+}
+
+
+/* HELPER FUNCTIONS FOR TARGET SEARCHING */
+
+function search(className, node, replacements) {
+    for (let replacement of replacements){
+        if (contains(replacement.targets, className)
+            && node.getOpcode() === replacement.opcode
+            && node.name === replacement.name
+            && node.desc === replacement.desc) {
+            return r;
+        }
+    }
+    return null;
+}
+
+function contains(list, target) {
+    for (let s of list) {
+        if (s === target) return true;
+    }
+
+    return false;
 }
