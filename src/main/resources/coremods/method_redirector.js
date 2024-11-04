@@ -52,10 +52,11 @@ function getTargets(classes) {
 }
 
 function applyMethodRedirects(clazz) {
+    const classReplacements = replacements.filter(r => contains(r.targets, className));
     let applied = 0;
     for (let method of clazz.methods) {
         for (let insn of method.instructions) {
-            const replacement = search(clazz.name, insn, replacements);
+            const replacement = search(clazz.name, insn, classReplacements);
             if (replacement != null) {
                 const redirection = replacement.factory(insn);
                 ASMAPI.log('DEBUG', 'Redirecting method call {}{} to {}{} inside of {}.{}', insn.name, insn.desc, redirection.name, redirection.desc, clazz.name, method.name);
@@ -75,10 +76,9 @@ function applyMethodRedirects(clazz) {
 
 /* HELPER FUNCTIONS FOR TARGET SEARCHING */
 
-function search(className, insn, replacements) {
-    for (let replacement of replacements){
-        if (contains(replacement.targets, className)
-            && insn.getOpcode() === replacement.type.toOpcode()
+function search(className, insn, classReplacements) {
+    for (let replacement of classReplacements) {
+        if (insn.getOpcode() === replacement.type.toOpcode()
             && insn.name === replacement.name
             && insn.desc === replacement.desc) {
             return r;
