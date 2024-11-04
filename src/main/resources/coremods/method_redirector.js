@@ -6,6 +6,7 @@ const ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 // this function is called inside of initializeCoreMod
 const replacements = [];
 function initReplacements() {
+    ASMAPI.log('DEBUG', 'Gathering Forge method redirector replacements');
     replacements.push({
         // finalizeSpawn redirection to ForgeEventFactory.onFinalizeSpawn
         'type': ASMAPI.MethodType.VIRTUAL,
@@ -52,7 +53,9 @@ function applyMethodRedirects(clazz) {
         for (let insn of method.instructions) {
             const replacement = search(clazz.name, insn, replacements);
             if (replacement != null) {
-                ASMAPI.insertInsn(method, insn, replacement.factory(insn), ASMAPI.InsertMode.REMOVE_ORIGINAL);
+                const redirection = replacement.factory(insn);
+                ASMAPI.log('DEBUG', 'Redirecting method call {}{} to {}{} inside of {}.{}', insn.name, insn.desc, redirection.name, redirection.desc, clazz.name, method.name);
+                ASMAPI.insertInsn(method, insn, redirection, ASMAPI.InsertMode.REMOVE_ORIGINAL);
             }
         }
     }
