@@ -66,7 +66,7 @@ function applyMethodRedirects(clazz) {
     }
 
     if (applied === 0) {
-        ASMAPI.log('ERROR', 'No method redirections applied to class {}! This is likely due to a type change in a Minecraft update. Please check the implementation!', clazz.name)
+        ASMAPI.log('ERROR', 'No Forge method redirections applied to class {}! This is a Forge bug, and is likely due to a Minecraft update changing something.', clazz.name)
     }
 
     return clazz;
