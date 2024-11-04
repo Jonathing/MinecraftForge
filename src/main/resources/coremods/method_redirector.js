@@ -1,4 +1,4 @@
-'use strict'; // prevents us from making sloppy mistakes
+'use strict';
 
 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 
