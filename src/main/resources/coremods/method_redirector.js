@@ -49,7 +49,7 @@ function getTargets(classes) {
 }
 
 function applyMethodRedirects(clazz) {
-    const classReplacements = replacements.filter(r => contains(r.targets, className));
+    const classReplacements = replacements.filter(r => contains(r.targets, clazz.name));
     let applied = 0;
     for (let method of clazz.methods) {
         for (let insn of method.instructions) {
@@ -78,7 +78,7 @@ function search(className, insn, classReplacements) {
         if (insn.getOpcode() === replacement.type.toOpcode()
             && insn.name === replacement.name
             && insn.desc === replacement.desc) {
-            return r;
+            return replacement;
         }
     }
 
