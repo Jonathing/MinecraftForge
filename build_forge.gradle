@@ -147,6 +147,8 @@ dependencies {
 
     runtimeOnly(libs.bootstrap)
     runtimeOnly(libs.bootstrap.dev)
+
+    annotationProcessor(variantOf(libs.mixin) { classifier("processor") })
 }
 
 tasks.named('extractRangeMap').configure {
@@ -826,7 +828,8 @@ tasks.named('universalJar').configure {
             'Specification-Version':  SPEC_VERSION,
             'Implementation-Title':   project.group,
             'Implementation-Vendor': 'Forge Development LLC',
-            'Implementation-Version': FORGE_VERSION
+            'Implementation-Version': FORGE_VERSION,
+            'MixinConnector': 'net.minecraftforge.forge.ForgeMixinPlugin'
         ] as LinkedHashMap, 'net/minecraftforge/versions/forge/')
         attributes([
             'Specification-Title':   'Minecraft',
