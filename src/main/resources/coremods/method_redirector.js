@@ -1,3 +1,7 @@
+/*
+ * This CoreMod has been superceded by the Mixins found in net.minecraftforge.mixin.finalize_spawn
+ */
+
 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
 var Opcodes = Java.type('org.objectweb.asm.Opcodes');
 var Handle = Java.type('org.objectweb.asm.Handle');
