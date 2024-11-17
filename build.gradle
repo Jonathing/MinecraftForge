@@ -1,14 +1,3 @@
-buildscript {
-    repositories {
-        mavenLocal()
-        maven { url = 'https://maven.minecraftforge.net/' }
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:[5.1.39,5.2.0)'
-    }
-}
-
 import de.undercouch.gradle.tasks.download.Download
 import groovy.json.JsonBuilder
 import net.minecraftforge.forge.tasks.checks.CheckATs
@@ -39,6 +28,8 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'de.undercouch.download' version '5.1.3'
+    id 'net.minecraftforge.gradle.patcher' version '[6.0,6.2)' apply false
+    id 'net.minecraftforge.gradle.mcp' version '[6.0,6.2)' apply false
 }
 
 Util.init() //Init all our extension methods!
@@ -145,6 +136,10 @@ subprojects {
         maven {
             name = 'forge'
             url = 'https://maven.minecraftforge.net/'
+        }
+        maven {
+            name = 'minecraft'
+            url = 'https://libraries.minecraft.net/'
         }
     }
 
