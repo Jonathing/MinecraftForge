@@ -7,4 +7,11 @@
     "defaultRequire": 1
   },
   "plugin": "net.minecraftforge.mixin.ForgeMixinPlugin",
+  "mixins": [
+    "field_to_method.BiomeMixin",
+    "field_to_method.BucketItemMixin",
+    "field_to_method.FlowerPotBlockMixin",
+    "field_to_method.LiquidBlockMixin",
+    "field_to_method.MobEffectInstanceMixin",
+  ]
 }

@@ -1,3 +1,7 @@
+/*
+ * This CoreMod has been superceded by the Mixins found in net.minecraftforge.mixin.field_to_method
+ */
+
 var ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI')
 
 function initializeCoreMod() {
