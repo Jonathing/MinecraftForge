@@ -280,9 +280,6 @@ def sharedDeps = {
     installer 'org.openjdk.nashorn:nashorn-core:15.4'
     installer "net.minecraftforge:JarJarSelector:${JARJAR_VERSION}"
     installer "net.minecraftforge:JarJarMetadata:${JARJAR_VERSION}"
-    installer "org.apache.logging.log4j:log4j-slf4j-impl:2.19.0" // Bumped for CoreMods
-    installer "org.apache.logging.log4j:log4j-api:2.19.0" // Bumped for CoreMods
-    installer "org.apache.logging.log4j:log4j-core:2.19.0" // Bumped for CoreMods
     installer 'net.java.dev.jna:jna:5.12.1'
     installer 'net.java.dev.jna:jna-platform:5.12.1'
 
