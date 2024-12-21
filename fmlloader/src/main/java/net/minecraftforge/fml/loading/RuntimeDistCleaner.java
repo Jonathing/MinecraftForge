@@ -231,9 +231,15 @@ public class RuntimeDistCleaner implements ILaunchPluginService
     private static final EnumSet<Phase> NAY = EnumSet.noneOf(Phase.class);
 
     @Override
-    public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty)
-    {
-        return isEmpty ? NAY : YAY;
+    public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty) {
+        if (isEmpty)
+            return NAY;
+
+        String internalName = classType.getInternalName();
+        if (internalName.startsWith("net/minecraftforge/"))
+            return NAY;
+
+        return YAY;
     }
 
     private static class LambdaGatherer extends MethodVisitor {
