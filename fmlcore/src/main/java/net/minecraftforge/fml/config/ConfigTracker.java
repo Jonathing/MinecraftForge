@@ -55,6 +55,8 @@ public class ConfigTracker {
         }
     }
 
+    // TODO: [FML] This is only called for the server (outside of forceUnload)
+    // rethink config implementation for eventual FML rewrite
     public void unloadConfigs(ModConfig.Type type, Path configBasePath) {
         LOGGER.debug(CONFIG, "Unloading configs type {}", type);
         for (ModConfig config : this.configSets.get(type)) {
@@ -66,8 +68,8 @@ public class ConfigTracker {
     // If there is a better way to do this, please tell me. Because this is FUCKED
     public void forceUnload() {
         // This is how ModStateProvider handles loading configs. So we're doing the same but with unloadConfigs instead
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ConfigTracker.INSTANCE.unloadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get()));
-        ConfigTracker.INSTANCE.unloadConfigs(ModConfig.Type.COMMON, FMLPaths.CONFIGDIR.get());
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> this.unloadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get()));
+        this.unloadConfigs(ModConfig.Type.COMMON, FMLPaths.CONFIGDIR.get());
     }
 
     private static void openConfig(final ModConfig config, final Path configBasePath) {
