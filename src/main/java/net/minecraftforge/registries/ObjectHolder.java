@@ -25,7 +25,7 @@ import java.lang.annotation.Target;
  * public static final RegistryObject<Item> EXAMPLE_ITEM = ITEMS.register("example_item", () -> new Item(new Item.Properties()));
  *
  * // To get a RegistryObject that you didn't register yourself:
- * public static final RegistryObject<Block> DIRT = RegistryObject.create(ResourceLocation.withDefaultNamespace("dirt"), ForgeRegistries.BLOCKS);
+ * public static final RegistryObject<Block> DIRT = RegistryObject.create(new ResourceLocation("dirt"), ForgeRegistries.BLOCKS);
  * }</pre>
  */
 @Deprecated(since = "1.21.4", forRemoval = true)
