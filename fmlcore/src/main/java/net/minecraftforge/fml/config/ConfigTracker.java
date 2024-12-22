@@ -57,6 +57,7 @@ public class ConfigTracker {
         for (ModConfig config : this.configSets.get(type)) {
             closeConfig(config, configBasePath);
         }
+        ConfigFileTypeHandler.get(type).stopWatcher();
     }
 
     private static void openConfig(final ModConfig config, final Path configBasePath) {
