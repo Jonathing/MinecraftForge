@@ -39,7 +39,8 @@ public class ObjectHolderDefinalize implements ILaunchPluginService {
     private static final Set<String> VANILLA_OBJECT_HOLDER_CLASSES = VANILLA_OBJECT_HOLDERS.keySet().stream()
             .map(it -> it.replace('.', '/'))
             .collect(Collectors.toUnmodifiableSet());
-    private final String OBJECT_HOLDER = "Lnet/minecraftforge/registries/ObjectHolder;"; //Don't directly reference this to prevent class loading.
+    private static final String OBJECT_HOLDER = "Lnet/minecraftforge/registries/ObjectHolder;"; //Don't directly reference this to prevent class loading.
+    private static final int PUBLIC_STATIC_FINAL_FLAGS = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
 
     @Override
     public String name() {
@@ -72,8 +73,7 @@ public class ObjectHolderDefinalize implements ILaunchPluginService {
         return YAY;
     }
 
-    private boolean hasHolder(List<AnnotationNode> lst)
-    {
+    private boolean hasHolder(List<AnnotationNode> lst) {
         return lst != null && lst.stream().anyMatch(n -> n.desc.equals(OBJECT_HOLDER));
     }
 
@@ -97,10 +97,9 @@ public class ObjectHolderDefinalize implements ILaunchPluginService {
     {
         final AtomicBoolean changes = new AtomicBoolean();
         //Must be public static finals, and non-array objects
-        final int flags = Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC | Opcodes.ACC_FINAL;
 
         //Fix Annotated Fields before injecting from class level
-        classNode.fields.stream().filter(f -> ((f.access & flags) == flags) && f.desc.startsWith("L") && hasHolder(f.visibleAnnotations)).forEach(f ->
+        classNode.fields.stream().filter(f -> ((f.access & PUBLIC_STATIC_FINAL_FLAGS) == PUBLIC_STATIC_FINAL_FLAGS) && f.desc.startsWith("L") && hasHolder(f.visibleAnnotations)).forEach(f ->
         {
             int prev = f.access;
             f.access &= ~Opcodes.ACC_FINAL; //Strip final
@@ -110,7 +109,7 @@ public class ObjectHolderDefinalize implements ILaunchPluginService {
 
         if (VANILLA_OBJECT_HOLDERS.containsKey(classType.getClassName())) //Class level, de-finalize all fields and add @ObjectHolder to them!
         {
-            classNode.fields.stream().filter(f -> ((f.access & flags) == flags) && f.desc.startsWith("L")).forEach(f ->
+            classNode.fields.stream().filter(f -> ((f.access & PUBLIC_STATIC_FINAL_FLAGS) == PUBLIC_STATIC_FINAL_FLAGS) && f.desc.startsWith("L")).forEach(f ->
             {
                 int prev = f.access;
                 f.access &= ~Opcodes.ACC_FINAL;
