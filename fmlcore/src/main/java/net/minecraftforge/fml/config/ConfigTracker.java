@@ -70,6 +70,9 @@ public class ConfigTracker {
         // This is how ModStateProvider handles loading configs. So we're doing the same but with unloadConfigs instead
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> this.unloadConfigs(ModConfig.Type.CLIENT, FMLPaths.CONFIGDIR.get()));
         this.unloadConfigs(ModConfig.Type.COMMON, FMLPaths.CONFIGDIR.get());
+
+        // just in case server watcher is still alive somehow...
+        ConfigFileTypeHandler.get(ModConfig.Type.SERVER).stopWatcher();
     }
 
     private static void openConfig(final ModConfig config, final Path configBasePath) {
