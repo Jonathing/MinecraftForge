@@ -95,7 +95,7 @@ public class ConfigFileTypeHandler {
                     onFileNotFound((newfile, configFormat)-> setupConfigFile(c, newfile, configFormat)).
                     writingMode(WritingMode.REPLACE).
                     build();
-            LOGGER.debug(CONFIG, "Built TOML config for {}", configPath.toString());
+            LOGGER.debug(CONFIG, "Built TOML config for {}", configPath);
             try
             {
                 configData.load();
@@ -104,9 +104,9 @@ public class ConfigFileTypeHandler {
             {
                 throw new ConfigLoadingException(c, ex);
             }
-            LOGGER.debug(CONFIG, "Loaded TOML config file {}", configPath.toString());
+            LOGGER.debug(CONFIG, "Loaded TOML config file {}", configPath);
             this.getWatcher().addWatch(configPath, new ConfigWatcher(c, configData, Thread.currentThread().getContextClassLoader()));
-            LOGGER.debug(CONFIG, "Watching TOML config file {} for changes", configPath.toString());
+            LOGGER.debug(CONFIG, "Watching TOML config file {} for changes", configPath);
             return configData;
         };
     }
@@ -114,9 +114,9 @@ public class ConfigFileTypeHandler {
     public void unload(Path configBasePath, ModConfig config) {
         Path configPath = configBasePath.resolve(config.getFileName());
         try {
-            this.getWatcher().removeWatch(configBasePath.resolve(config.getFileName()));
+            this.getWatcher().removeWatch(configPath);
         } catch (RuntimeException e) {
-            LOGGER.error("Failed to remove config {} from tracker!", configPath.toString(), e);
+            LOGGER.error("Failed to remove config {} from tracker!", configPath, e);
         }
     }
 
