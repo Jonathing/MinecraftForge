@@ -30,6 +30,8 @@ public class ForgeConfig {
 
         public final BooleanValue advertiseDedicatedServerToLan;
 
+        public final BooleanValue useItemWithDurationZero;
+
         Server(ForgeConfigSpec.Builder builder) {
             builder.comment("Server configuration settings")
                    .push("server");
@@ -74,7 +76,16 @@ public class ForgeConfig {
                     .translation("forge.configgui.advertiseDedicatedServerToLan")
                     .define("advertiseDedicatedServerToLan", true);
 
+            useItemWithDurationZero = builder
+                    .comment("Set this to true to enable living entities to use items with durations of 0. Fixes being able to use Eyes of Ender repeatedly by holding down the use button. Disabled by default as it could change interactions with items of existing mods.")
+                    .translation("forge.configgui.useItemWithDurationZero")
+                    .define("useItemWithDurationZero", false);
+
             builder.pop();
+        }
+
+        public final int getUseItemDuration() {
+            return useItemWithDurationZero.get() ? 0 : 1;
         }
     }
 
