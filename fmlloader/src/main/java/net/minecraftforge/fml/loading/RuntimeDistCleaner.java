@@ -173,7 +173,7 @@ public class RuntimeDistCleaner implements ILaunchPluginService
         return unpacked;
     }
 
-    private boolean remove(final List<AnnotationNode> anns, final String side)
+    private static boolean remove(final List<AnnotationNode> anns, final String side)
     {
         var onlyIns = unpack(anns);
 
@@ -193,7 +193,7 @@ public class RuntimeDistCleaner implements ILaunchPluginService
         return false;
     }
 
-    private boolean hasOnlyInWithModAnnotation(final List<AnnotationNode> anns)
+    private static boolean hasOnlyInWithModAnnotation(final List<AnnotationNode> anns)
     {
         if (anns == null)
         {
@@ -231,9 +231,15 @@ public class RuntimeDistCleaner implements ILaunchPluginService
     private static final EnumSet<Phase> NAY = EnumSet.noneOf(Phase.class);
 
     @Override
-    public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty)
-    {
-        return isEmpty ? NAY : YAY;
+    public EnumSet<Phase> handlesClass(Type classType, boolean isEmpty) {
+        if (isEmpty)
+            return NAY;
+
+        String internalName = classType.getInternalName();
+        if (internalName.startsWith("net/minecraftforge/"))
+            return NAY;
+
+        return YAY;
     }
 
     private static class LambdaGatherer extends MethodVisitor {
