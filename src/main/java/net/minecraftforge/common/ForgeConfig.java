@@ -177,7 +177,7 @@ public class ForgeConfig {
         }
 
         public final boolean allowMipmapLowering() {
-            return clientSpec.isLoaded() ? allowMipmapLowering.get() : allowMipmapLowering.getDefault();
+            return clientSpec.isLoaded() && allowMipmapLowering.get();
         }
     }
 
