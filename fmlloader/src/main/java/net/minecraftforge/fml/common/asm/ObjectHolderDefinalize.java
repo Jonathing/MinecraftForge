@@ -59,7 +59,8 @@ public class ObjectHolderDefinalize implements ILaunchPluginService {
         String internalName = classType.getInternalName();
 
         // Forge classes that aren't in the debug package (that package is used for tests)
-        if (internalName.startsWith("net/minecraftforge/") && !internalName.substring(18).contains("debug"))
+        if (internalName.startsWith("net/minecraftforge/") && !internalName.substring(18).contains("debug")
+            && !internalName.equals("net/minecraftforge/common/crafting/ConditionalRecipe"))
             return NAY;
 
         // Vanilla classes that don't have object holders
