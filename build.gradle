@@ -255,6 +255,11 @@ if (!System.env.TEAMCITY_VERSION) {
                 }
             }
         }
+
+        // Disabling clean with CI causes an error if we don't have this...
+        compileJava {
+            dependsOn 'extractMapped'
+        }
     }
 }
 
@@ -878,6 +883,11 @@ project(':fmlonly') {
 
     // Since we need the modules in the bootstrap, we need to make sure they are compiled before we do each run
     afterEvaluate { prepareRuns.dependsOn(PACKED_DEPS) }
+
+    // Disabling clean with CI causes an error if we don't have this...
+    compileJava {
+        dependsOn 'extractMapped'
+    }
 }
 
 project(':forge') {
@@ -1720,6 +1730,11 @@ project(':forge') {
 
     tasks.withType(JavaCompile).configureEach {
         options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
+    }
+
+    // Disabling clean with CI causes an error if we don't have this...
+    compileJava {
+        dependsOn 'extractMapped'
     }
 }
 
