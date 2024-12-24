@@ -57,8 +57,9 @@ function applyMethodRedirects(clazz) {
     for (let replacement of replacements) {
         for (let methodString of getClassTargetMethods(clazz, replacement)) {
             // cut up the string since we've put both the name and desc as the target
-            const methodName = methodString.substring(0, methodString.indexOf('('));
-            const methodDesc = methodString.substring(methodString.indexOf('('));
+            const splitPos = methodString.indexOf('(');
+            const methodName = methodString.substring(0, splitPos);
+            const methodDesc = methodString.substring(splitPos);
             const method = ASMAPI.findMethodNode(clazz, methodName, methodDesc);
 
             // if we can't find the method, get out now!
