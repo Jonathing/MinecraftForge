@@ -1,5 +1,6 @@
 package net.minecraftforge.forge.tasks
 
+
 import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
@@ -12,13 +13,13 @@ abstract class BytecodePredicateFinder extends BytecodeFinder {
     @Internal
     abstract Property<Closure<Boolean>> getPredicate()
 
-    private final Set<String> matches = new HashSet<>()
+    private final Map<String, Set<String>> matches = new HashMap<>()
 
     @Override
     protected process(ClassNode parent, MethodNode node) {
         for (final current : node.instructions) {
             if (predicate.get().call(parent, node, current)) {
-                matches.add(parent.name)
+                matches.compute(parent.name, { k, v -> v ?: new HashSet<>() }).add(node.name + node.desc)
                 return
             }
         }
@@ -27,6 +28,15 @@ abstract class BytecodePredicateFinder extends BytecodeFinder {
     @Internal
     @Override
     protected Object getData() {
-        return matches.toSorted(Comparator.naturalOrder()) ?: {throw new RuntimeException('Failed to find any targets, please ensure that method names and descriptors are correct.')}()
+        var array = new ArrayList<Object>()
+        matches.forEach { c, m ->
+            {
+                array.add(
+                        'class': c,
+                        'methods': m
+                )
+            }
+        }
+        return array ?: { throw new RuntimeException('Failed to find any targets, please ensure that method names and descriptors are correct.') }()
     }
 }
