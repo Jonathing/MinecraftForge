@@ -381,13 +381,13 @@ tasks.register('extractInheritance', ExtractInheritance) {
     }
 }
 tasks.register("findFinalizeSpawnTargets", BytecodePredicateFinder) {
-    jar = createJoinedSRG.output
+    jar = createClientOfficial.output
     output = rootProject.file('src/main/resources/coremods/finalize_spawn_targets.json')
     predicate = {
         parent, node, insn ->
             return 'net/minecraft/world/level/BaseSpawner' != parent.name // Ignore this class as we special case it.
             && insn.getOpcode().equals(Opcodes.INVOKEVIRTUAL)
-            && insn.name == 'm_6518_'
+            && insn.name == 'finalizeSpawn'
             && insn.desc == '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;';
     }
 }
