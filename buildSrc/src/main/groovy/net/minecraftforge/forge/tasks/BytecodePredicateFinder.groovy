@@ -1,6 +1,5 @@
 package net.minecraftforge.forge.tasks
 
-
 import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
@@ -13,13 +12,13 @@ abstract class BytecodePredicateFinder extends BytecodeFinder {
     @Internal
     abstract Property<Closure<Boolean>> getPredicate()
 
-    private final Map<String, Set<String>> matches = new HashMap<>()
+    private final Map<String, List<String>> matches = new TreeMap<>(Comparator.naturalOrder())
 
     @Override
     protected process(ClassNode parent, MethodNode node) {
         for (final current : node.instructions) {
             if (predicate.get().call(parent, node, current)) {
-                matches.compute(parent.name, { k, v -> v ?: new HashSet<>() }).add(node.name + node.desc)
+                matches.compute(parent.name, { k, v -> v ?: new ArrayList<>() }).add(node.name + node.desc)
                 return
             }
         }
