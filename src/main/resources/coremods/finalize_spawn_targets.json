@@ -1,8 +1,32 @@
 [
     {
-        "class": "net/minecraft/world/entity/npc/CatSpawner",
+        "class": "net/minecraft/server/commands/RaidCommand",
         "methods": [
-            "spawnCat(Lnet/minecraft/core/BlockPos;Lnet/minecraft/server/level/ServerLevel;)I"
+            "spawnLeader(Lnet/minecraft/commands/CommandSourceStack;)I"
+        ]
+    },
+    {
+        "class": "net/minecraft/server/commands/SummonCommand",
+        "methods": [
+            "createEntity(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/core/Holder$Reference;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/nbt/CompoundTag;Z)Lnet/minecraft/world/entity/Entity;"
+        ]
+    },
+    {
+        "class": "net/minecraft/world/entity/EntityType",
+        "methods": [
+            "create(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;"
+        ]
+    },
+    {
+        "class": "net/minecraft/world/entity/ai/village/VillageSiege",
+        "methods": [
+            "trySpawn(Lnet/minecraft/server/level/ServerLevel;)V"
+        ]
+    },
+    {
+        "class": "net/minecraft/world/entity/animal/frog/Tadpole",
+        "methods": [
+            "lambda$ageUp$1(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/frog/Frog;)V"
         ]
     },
     {
@@ -13,16 +37,14 @@
         ]
     },
     {
-        "class": "net/minecraft/world/level/block/entity/trialspawner/TrialSpawner",
+        "class": "net/minecraft/world/entity/monster/Evoker$EvokerSummonSpellGoal",
         "methods": [
-            "spawnMob(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)Ljava/util/Optional;"
+            "performSpellCasting()V"
         ]
     },
     {
-        "class": "net/minecraft/world/entity/monster/Zombie",
+        "class": "net/minecraft/world/entity/monster/Spider",
         "methods": [
-            "lambda$convertVillagerToZombieVillager$2(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/npc/Villager;Lnet/minecraft/world/entity/monster/ZombieVillager;)V",
-            "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z",
             "finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;"
         ]
     },
@@ -33,28 +55,11 @@
         ]
     },
     {
-        "class": "net/minecraft/server/commands/SummonCommand",
+        "class": "net/minecraft/world/entity/monster/Zombie",
         "methods": [
-            "createEntity(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/core/Holder$Reference;Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/nbt/CompoundTag;Z)Lnet/minecraft/world/entity/Entity;"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/level/levelgen/structure/structures/WoodlandMansionPieces$WoodlandMansionPiece",
-        "methods": [
-            "handleDataMarker(Ljava/lang/String;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)V"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/level/levelgen/PatrolSpawner",
-        "methods": [
-            "spawnPatrolMember(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;Z)Z"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/entity/npc/Villager",
-        "methods": [
-            "lambda$thunderHit$9(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/monster/Witch;)V",
-            "getBreedOffspring(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/AgeableMob;)Lnet/minecraft/world/entity/npc/Villager;"
+            "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z",
+            "finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;",
+            "lambda$convertVillagerToZombieVillager$2(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/npc/Villager;Lnet/minecraft/world/entity/monster/ZombieVillager;)V"
         ]
     },
     {
@@ -64,40 +69,22 @@
         ]
     },
     {
-        "class": "net/minecraft/world/entity/EntityType",
+        "class": "net/minecraft/world/entity/npc/CatSpawner",
         "methods": [
-            "create(Lnet/minecraft/server/level/ServerLevel;Ljava/util/function/Consumer;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/EntitySpawnReason;ZZ)Lnet/minecraft/world/entity/Entity;"
+            "spawnCat(Lnet/minecraft/core/BlockPos;Lnet/minecraft/server/level/ServerLevel;)I"
         ]
     },
     {
-        "class": "net/minecraft/world/level/levelgen/structure/structures/OceanMonumentPieces$OceanMonumentPiece",
+        "class": "net/minecraft/world/entity/npc/Villager",
         "methods": [
-            "spawnElder(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;III)V"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/level/levelgen/PhantomSpawner",
-        "methods": [
-            "tick(Lnet/minecraft/server/level/ServerLevel;ZZ)I"
+            "getBreedOffspring(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/AgeableMob;)Lnet/minecraft/world/entity/npc/Villager;",
+            "lambda$thunderHit$9(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/monster/Witch;)V"
         ]
     },
     {
         "class": "net/minecraft/world/entity/raid/Raid",
         "methods": [
             "joinRaid(ILnet/minecraft/world/entity/raid/Raider;Lnet/minecraft/core/BlockPos;Z)V"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/entity/ai/village/VillageSiege",
-        "methods": [
-            "trySpawn(Lnet/minecraft/server/level/ServerLevel;)V"
-        ]
-    },
-    {
-        "class": "net/minecraft/world/level/levelgen/structure/structures/SwampHutPiece",
-        "methods": [
-            "spawnCat(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)V",
-            "postProcess(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/core/BlockPos;)V"
         ]
     },
     {
@@ -108,15 +95,27 @@
         ]
     },
     {
-        "class": "net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate",
+        "class": "net/minecraft/world/level/block/entity/trialspawner/TrialSpawner",
         "methods": [
-            "lambda$placeEntities$5(Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/phys/Vec3;ZLnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/entity/Entity;)V"
+            "spawnMob(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;)Ljava/util/Optional;"
         ]
     },
     {
-        "class": "net/minecraft/world/entity/monster/Evoker$EvokerSummonSpellGoal",
+        "class": "net/minecraft/world/level/levelgen/PatrolSpawner",
         "methods": [
-            "performSpellCasting()V"
+            "spawnPatrolMember(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;Z)Z"
+        ]
+    },
+    {
+        "class": "net/minecraft/world/level/levelgen/PhantomSpawner",
+        "methods": [
+            "tick(Lnet/minecraft/server/level/ServerLevel;ZZ)I"
+        ]
+    },
+    {
+        "class": "net/minecraft/world/level/levelgen/structure/structures/OceanMonumentPieces$OceanMonumentPiece",
+        "methods": [
+            "spawnElder(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;III)V"
         ]
     },
     {
@@ -126,21 +125,22 @@
         ]
     },
     {
-        "class": "net/minecraft/server/commands/RaidCommand",
+        "class": "net/minecraft/world/level/levelgen/structure/structures/SwampHutPiece",
         "methods": [
-            "spawnLeader(Lnet/minecraft/commands/CommandSourceStack;)I"
+            "postProcess(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/StructureManager;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;Lnet/minecraft/world/level/ChunkPos;Lnet/minecraft/core/BlockPos;)V",
+            "spawnCat(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)V"
         ]
     },
     {
-        "class": "net/minecraft/world/entity/animal/frog/Tadpole",
+        "class": "net/minecraft/world/level/levelgen/structure/structures/WoodlandMansionPieces$WoodlandMansionPiece",
         "methods": [
-            "lambda$ageUp$1(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/frog/Frog;)V"
+            "handleDataMarker(Ljava/lang/String;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/structure/BoundingBox;)V"
         ]
     },
     {
-        "class": "net/minecraft/world/entity/monster/Spider",
+        "class": "net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate",
         "methods": [
-            "finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;"
+            "lambda$placeEntities$5(Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/phys/Vec3;ZLnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/entity/Entity;)V"
         ]
     }
 ]
