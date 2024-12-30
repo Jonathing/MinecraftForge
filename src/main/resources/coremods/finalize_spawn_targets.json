@@ -26,7 +26,7 @@
     {
         "class": "net/minecraft/world/entity/animal/frog/Tadpole",
         "methods": [
-            "lambda$ageUp$1(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/animal/frog/Frog;)V"
+            
         ]
     },
     {
@@ -58,14 +58,13 @@
         "class": "net/minecraft/world/entity/monster/Zombie",
         "methods": [
             "hurtServer(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)Z",
-            "finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;",
-            "lambda$convertVillagerToZombieVillager$2(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/npc/Villager;Lnet/minecraft/world/entity/monster/ZombieVillager;)V"
+            "finalizeSpawn(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;"
         ]
     },
     {
         "class": "net/minecraft/world/entity/monster/ZombieVillager",
         "methods": [
-            "lambda$finishConversion$4(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/npc/Villager;)V"
+            
         ]
     },
     {
@@ -77,8 +76,7 @@
     {
         "class": "net/minecraft/world/entity/npc/Villager",
         "methods": [
-            "getBreedOffspring(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/AgeableMob;)Lnet/minecraft/world/entity/npc/Villager;",
-            "lambda$thunderHit$9(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/monster/Witch;)V"
+            "getBreedOffspring(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/AgeableMob;)Lnet/minecraft/world/entity/npc/Villager;"
         ]
     },
     {
@@ -140,7 +138,7 @@
     {
         "class": "net/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate",
         "methods": [
-            "lambda$placeEntities$5(Lnet/minecraft/world/level/block/Rotation;Lnet/minecraft/world/level/block/Mirror;Lnet/minecraft/world/phys/Vec3;ZLnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/entity/Entity;)V"
+            
         ]
     }
 ]
