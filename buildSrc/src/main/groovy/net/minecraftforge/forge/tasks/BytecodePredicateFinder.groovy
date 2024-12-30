@@ -3,6 +3,7 @@ package net.minecraftforge.forge.tasks
 import groovy.transform.CompileStatic
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
+import org.objectweb.asm.Opcodes
 import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodNode
 
@@ -18,7 +19,13 @@ abstract class BytecodePredicateFinder extends BytecodeFinder {
     protected process(ClassNode parent, MethodNode node) {
         for (final current : node.instructions) {
             if (predicate.get().call(parent, node, current)) {
-                matches.compute(parent.name, { k, v -> v ?: new ArrayList<>() }).add(node.name + node.desc)
+                var methods = matches.compute(parent.name, { k, v -> v ?: new ArrayList<>() })
+
+                // only add non-synthetic methods
+                if ((node.access & Opcodes.ACC_SYNTHETIC) == 0) {
+                    methods.add(node.name + node.desc)
+                }
+
                 return
             }
         }
