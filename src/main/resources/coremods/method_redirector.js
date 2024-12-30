@@ -6,6 +6,7 @@
 'use strict';
 
 const ASMAPI = Java.type('net.minecraftforge.coremod.api.ASMAPI');
+const Opcodes = Java.type('org.objectweb.asm.Opcodes');
 
 // we can't run ASMAPI.loadData in the global context, so we do it here
 // this function is called inside of initializeCoreMod
@@ -90,10 +91,24 @@ function shouldReplace(insn, replacement) {
         && insn.desc === replacement.desc;
 }
 
-function getClassTargetMethods(clazz, replacrement) {
-    for (let t of replacrement.targets) {
+function getClassTargetMethods(clazz, replacement) {
+    for (let t of replacement.targets) {
         if (t.class === clazz.name) {
-            return t.methods;
+            const targets = [];
+
+            // declared methods
+            for (let method of t.methods) {
+                targets.push(method);
+            }
+
+            // synthetic methods
+            for (let method of clazz.methods) {
+                if ((method.access & Opcodes.ACC_SYNTHETIC) != 0) {
+                    targets.push(method.name + method.desc);
+                }
+            }
+
+            return targets;
         }
     }
 }
