@@ -17,6 +17,9 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.versions.forge.ForgeVersion;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
+/**
+ * Controls the title screen brandings for the game.
+ */
 public final class BrandingControl {
     private BrandingControl() {}
 
@@ -43,6 +46,11 @@ public final class BrandingControl {
             return reverse ? brandingsNoMC.reversed() : brandingsNoMC;
     }
 
+    /**
+     * Gets the branding lines to display over the copyright line. This is usually a message when Forge has an update.
+     *
+     * @return The branding lines to display
+     */
     public static List<String> getOverCopyrightBrandings() {
         final class LazyInit {
             private static final List<String> INSTANCE = ForgeHooksClient.forgeStatusLine == null
@@ -55,22 +63,46 @@ public final class BrandingControl {
         return LazyInit.INSTANCE;
     }
 
+    /**
+     * Iterates over each branding line, passing the line and its index to the consumer.
+     *
+     * @param includeMC    Whether to include the Minecraft version line
+     * @param reverse      Whether to iterate in reverse order
+     * @param lineConsumer The consumer to accept each line and its index
+     */
     public static void forEachLine(boolean includeMC, boolean reverse, ObjIntConsumer<String> lineConsumer) {
         var brandings = getBrandings(includeMC, reverse);
         for (int idx = 0; idx < brandings.size(); idx++)
             lineConsumer.accept(brandings.get(idx), idx);
     }
 
+    /**
+     * Iterates over each branding line that should be displayed above the copyright line, passing the line and its
+     * index to the consumer.
+     *
+     * @param lineConsumer The consumer to accept each line and its index
+     */
     public static void forEachAboveCopyrightLine(ObjIntConsumer<String> lineConsumer) {
         var overCopyrightBrandings = getOverCopyrightBrandings();
         for (int idx = 0; idx < overCopyrightBrandings.size(); idx++)
             lineConsumer.accept(overCopyrightBrandings.get(idx), idx);
     }
 
+    /**
+     * Gets the branding to use in place of the default {@code "vanilla"} branding.
+     *
+     * @return The branding to use
+     */
     public static String getBranding() {
         return "forge";
     }
 
+    /**
+     * The reload listener for the branding control. On reload, the brandings are recomputed in
+     * {@link #computeBranding()}.
+     *
+     * @return The reload listener
+     */
     public static ResourceManagerReloadListener resourceManagerReloadListener() {
         return BrandingControl::onResourceManagerReload;
     }
