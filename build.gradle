@@ -273,7 +273,9 @@ def sharedDeps = {
     installer 'org.antlr:antlr4-runtime:4.9.1' //Dep of AccessTransformer
     installer "net.minecraftforge:eventbus:${EVENTBUS_VERSION}"
     installer "net.minecraftforge:forgespi:${SPI_VERSION}"
-    installer "net.minecraftforge:coremods:${COREMODS_VERSION}"
+    installer("net.minecraftforge:coremods:${COREMODS_VERSION}") {
+        transitive = false
+    }
     installer "cpw.mods:modlauncher:${MODLAUNCHER_VERSION}"
     installer 'net.minecraftforge:unsafe:0.2.+'
     installer 'com.electronwill.night-config:core:3.6.4'
