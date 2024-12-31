@@ -34,13 +34,12 @@ public final class BrandingControl {
             var list = new ArrayList<String>();
 
             // Forge
-            // TODO Red text for beta version. This will probably change some semantics.
             var forge = ForgeVersion.getVersion().split("-", 2);
 
             // I don't want to use VersionChecker to check for this, so I'm just going to use the version string.
             // We only have Forge Betas on the "XX.0.XX" versions anyways.
             boolean beta = "0".equals(forge[0].split("\\.")[1]);
-            var name = beta ? "§cForge Beta§f " : "§cForge§f ";
+            var name = beta ? "§eForge Beta§f " : "Forge ";
             list.add(name + forge[0] + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
 
             // Extra forge version info (like branch)
