@@ -100,6 +100,8 @@ public class ForgeConfig {
 
         public final BooleanValue allowMipmapLowering;
 
+        public final BooleanValue debugBrandingVersions;
+
         Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Client only settings, mostly things related to rendering")
                    .push("client");
@@ -118,6 +120,11 @@ public class ForgeConfig {
                 .comment("When enabled, Forge will allow mipmaps to be lowered in real-time. This is the default behavior in vanilla. Use this if you experience issues with resource packs that use textures lower than 8x8.")
                 .translation("forge.configgui.allowMipmapLowering")
                 .define("allowMipmapLowering", false);
+
+            debugBrandingVersions = builder
+                .comment("When enabled, Forge will show additional versions on the main menu (such as MCP).")
+                .translation("forge.configgui.debugBrandingVersions")
+                .define("debugBrandingVersions", false);
 
             builder.pop();
         }

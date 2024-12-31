@@ -13,6 +13,7 @@ import java.util.function.ObjIntConsumer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.ForgeI18n;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.versions.forge.ForgeVersion;
@@ -36,8 +37,10 @@ public final class BrandingControl {
             list.add("Forge " + ForgeVersion.getVersion() + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
 
             // additional debug versions
-            // TODO [Forge][FML] When FML is rewritten, add its version here.
-            list.add("MCP " + MCPVersion.getMCPVersion());
+            if (ForgeConfig.CLIENT.debugBrandingVersions.get()) {
+                // TODO [Forge][FML] When FML is rewritten, add its version here.
+                list.add("MCP " + MCPVersion.getMCPVersion());
+            }
 
             brandings = List.copyOf(list);
             brandingsNoMC = brandings.subList(1, brandings.size());
