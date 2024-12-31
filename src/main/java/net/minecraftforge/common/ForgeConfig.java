@@ -101,8 +101,6 @@ public class ForgeConfig {
 
         public final BooleanValue allowMipmapLowering;
 
-        public final BooleanValue debugBrandingVersions;
-
         Client(ForgeConfigSpec.Builder builder) {
             builder.comment("Client only settings, mostly things related to rendering")
                    .push("client");
@@ -122,11 +120,6 @@ public class ForgeConfig {
                 .translation("forge.configgui.allowMipmapLowering")
                 .define("allowMipmapLowering", false);
 
-            debugBrandingVersions = builder
-                .comment("When enabled, Forge will show additional versions on the main menu (such as MCP). In ForgeDev, this is always enabled regardless of the config value.")
-                .translation("forge.configgui.debugBrandingVersions")
-                .define("debugBrandingVersions", false);
-
             builder.pop();
         }
 
@@ -138,13 +131,6 @@ public class ForgeConfig {
 
         public final boolean allowMipmapLowering() {
             return clientSpec.isLoaded() ? allowMipmapLowering.get() : allowMipmapLowering.getDefault();
-        }
-
-        public final boolean showDebugBrandingVersions() {
-            // if we're in ForgeDev, we always want these, so always show them regardless of config
-            if (FMLLoader.launcherHandlerName().startsWith("forge_dev")) return true;
-
-            return clientSpec.isLoaded() ? debugBrandingVersions.get() : debugBrandingVersions.getDefault();
         }
     }
 
