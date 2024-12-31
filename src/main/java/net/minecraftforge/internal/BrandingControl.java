@@ -16,6 +16,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.common.ForgeConfig;
 import net.minecraftforge.common.ForgeI18n;
 import net.minecraftforge.fml.ModList;
+import net.minecraftforge.fml.VersionChecker;
 import net.minecraftforge.versions.forge.ForgeVersion;
 import net.minecraftforge.versions.mcp.MCPVersion;
 
@@ -32,18 +33,28 @@ public final class BrandingControl {
         if (brandings == null) {
             var list = new ArrayList<String>();
 
-            // always show these ones
-            list.add("Minecraft " + MCPVersion.getMCVersion());
-            list.add("Forge " + ForgeVersion.getVersion() + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
+            // Forge
+            // TODO Red text for beta version. This will probably change some semantics.
+            var forge = ForgeVersion.getVersion().split("-", 2);
 
-            // additional debug versions
-            if (ForgeConfig.CLIENT.showDebugBrandingVersions()) {
-                // TODO [Forge][FML] When FML is rewritten, add its version here.
-                list.add("MCP " + MCPVersion.getMCPVersion());
-            }
+            // I don't want to use VersionChecker to check for this, so I'm just going to use the version string.
+            // We only have Forge Betas on the "XX.0.XX" versions anyways.
+            boolean beta = "0".equals(forge[0].split("\\.")[1]);
+            var name = beta ? "§cForge Beta§f " : "§cForge§f ";
+            list.add(name + forge[0] + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
+
+            // Extra forge version info (like branch)
+            if (forge.length > 1) list.add("Forge Branch " + forge[1]);
+
+            // TODO [Forge][FML] When FML is rewritten, add its version here behind a config value to show it (debugBrandingVersions)
+            // this is how to check if we are in ForgeDev:
+            // (FMLLoader.launcherHandlerName().startsWith("forge_dev"));
+
+            // Minecraft
+            list.add("Minecraft " + MCPVersion.getMCVersion());
 
             brandings = List.copyOf(list);
-            brandingsNoMC = brandings.subList(1, brandings.size());
+            brandingsNoMC = brandings.subList(0, brandings.size() - 1);
         }
     }
 
