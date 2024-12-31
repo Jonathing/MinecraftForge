@@ -37,7 +37,7 @@ public final class BrandingControl {
             list.add("Forge " + ForgeVersion.getVersion() + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
 
             // additional debug versions
-            if (ForgeConfig.CLIENT.debugBrandingVersions.get()) {
+            if (ForgeConfig.CLIENT.showDebugBrandingVersions()) {
                 // TODO [Forge][FML] When FML is rewritten, add its version here.
                 list.add("MCP " + MCPVersion.getMCPVersion());
             }

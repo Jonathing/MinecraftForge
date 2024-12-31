@@ -8,6 +8,7 @@ package net.minecraftforge.common;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.Logging;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.minecraftforge.fml.loading.FMLLoader;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.logging.log4j.LogManager;
 
@@ -122,7 +123,7 @@ public class ForgeConfig {
                 .define("allowMipmapLowering", false);
 
             debugBrandingVersions = builder
-                .comment("When enabled, Forge will show additional versions on the main menu (such as MCP).")
+                .comment("When enabled, Forge will show additional versions on the main menu (such as MCP). In ForgeDev, this is always enabled regardless of the config value.")
                 .translation("forge.configgui.debugBrandingVersions")
                 .define("debugBrandingVersions", false);
 
@@ -137,6 +138,13 @@ public class ForgeConfig {
 
         public final boolean allowMipmapLowering() {
             return clientSpec.isLoaded() ? allowMipmapLowering.get() : allowMipmapLowering.getDefault();
+        }
+
+        public final boolean showDebugBrandingVersions() {
+            // if we're in ForgeDev, we always want these, so always show them regardless of config
+            if (FMLLoader.launcherHandlerName().startsWith("forge_dev")) return true;
+
+            return clientSpec.isLoaded() ? debugBrandingVersions.get() : debugBrandingVersions.getDefault();
         }
     }
 
