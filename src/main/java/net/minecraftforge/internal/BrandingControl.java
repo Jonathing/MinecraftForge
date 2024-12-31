@@ -28,13 +28,12 @@ public final class BrandingControl {
 
     private static void computeBranding() {
         if (brandings == null) {
-            brandings = List.of(
-                    "Forge " + ForgeVersion.getVersion(),
-                    "Minecraft " + MCPVersion.getMCVersion(),
-                    "MCP " + MCPVersion.getMCPVersion(),
-                    ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size())
-            );
-            brandingsNoMC = brandings.subList(1, brandings.size());
+            var forge = "Forge " + ForgeVersion.getVersion();
+            var mc = "Minecraft " + MCPVersion.getMCVersion();
+            var mcp = "MCP " + MCPVersion.getMCPVersion();
+            var modCount = ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size());
+            brandings = List.of(forge, mc, mcp, modCount);
+            brandingsNoMC = List.of(forge, mcp, modCount);
         }
     }
 
