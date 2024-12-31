@@ -49,7 +49,7 @@ ext {
     MCP_VERSION = '20220404.173914'
     SPI_VERSION = '4.0.15-4.x'
     ACCESSTRANSFORMERS_VERSION = '8.0.4'
-    COREMODS_VERSION = '5.2.4'
+    COREMODS_VERSION = '5.2.5'
     EVENTBUS_VERSION = '5.0.3'
     MODLAUNCHER_VERSION = '9.1.3'
     SECUREJARHANDLER_VERSION = '1.0.8'
@@ -273,9 +273,7 @@ def sharedDeps = {
     installer 'org.antlr:antlr4-runtime:4.9.1' //Dep of AccessTransformer
     installer "net.minecraftforge:eventbus:${EVENTBUS_VERSION}"
     installer "net.minecraftforge:forgespi:${SPI_VERSION}"
-    installer("net.minecraftforge:coremods:${COREMODS_VERSION}") {
-        transitive = false
-    }
+    installer("net.minecraftforge:coremods:${COREMODS_VERSION}")
     installer "cpw.mods:modlauncher:${MODLAUNCHER_VERSION}"
     installer 'net.minecraftforge:unsafe:0.2.+'
     installer 'com.electronwill.night-config:core:3.6.4'
