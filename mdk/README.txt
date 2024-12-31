@@ -17,7 +17,7 @@ Step 1: Open your command-line and browse to the folder where you extracted the 
 Step 2: You're left with a choice.
 If you prefer to use Eclipse:
 1. Run the following command: `./gradlew genEclipseRuns`
-2. Open Eclipse, Import > Existing Gradle Project > Select Folder
+2. Open Eclipse, Import > Existing Gradle Project > Select Folder 
    or run `gradlew eclipse` to generate the project.
 
 If you prefer to use IntelliJ:
