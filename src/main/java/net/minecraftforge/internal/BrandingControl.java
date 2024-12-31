@@ -41,11 +41,11 @@ public final class BrandingControl {
             list.add(name + forge[0] + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
 
             // Extra forge version info (like branch)
-            if (forge.length > 1) list.add("Forge Branch " + forge[1]);
+            if (forge.length > 1) list.add("Branch " + forge[1]);
 
             // TODO [Forge][FML] When FML is rewritten, add its version here behind a config value to show it (debugBrandingVersions)
             // this is how to check if we are in ForgeDev:
-            // (FMLLoader.launcherHandlerName().startsWith("forge_dev"));
+            // FMLLoader.launcherHandlerName().startsWith("forge_dev")
 
             // Minecraft
             list.add("Minecraft " + MCPVersion.getMCVersion());
