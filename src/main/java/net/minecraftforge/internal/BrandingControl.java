@@ -5,6 +5,7 @@
 
 package net.minecraftforge.internal;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.ObjIntConsumer;
@@ -28,12 +29,18 @@ public final class BrandingControl {
 
     private static void computeBranding() {
         if (brandings == null) {
-            var forge = "Forge " + ForgeVersion.getVersion();
-            var mc = "Minecraft " + MCPVersion.getMCVersion();
-            var mcp = "MCP " + MCPVersion.getMCPVersion();
-            var modCount = ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size());
-            brandings = List.of(forge, mc, mcp, modCount);
-            brandingsNoMC = List.of(forge, mcp, modCount);
+            var list = new ArrayList<String>();
+
+            // always show these ones
+            list.add("Minecraft " + MCPVersion.getMCVersion());
+            list.add("Forge " + ForgeVersion.getVersion() + " (" + ForgeI18n.parseMessage("fml.menu.loadingmods", ModList.get().size()) + ")");
+
+            // additional debug versions
+            // TODO [Forge][FML] When FML is rewritten, add its version here.
+            list.add("MCP " + MCPVersion.getMCPVersion());
+
+            brandings = List.copyOf(list);
+            brandingsNoMC = brandings.subList(1, brandings.size());
         }
     }
 
