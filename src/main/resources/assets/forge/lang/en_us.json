@@ -36,7 +36,7 @@
   "fml.menu.multiplayer.modsincompatible":"Server mod list is not compatible",
   "fml.menu.multiplayer.networkincompatible":"Server network message list is not compatible",
   "fml.menu.multiplayer.missingdatapackregistries":"Missing required datapack registries: {0}",
-  "fml.menu.loadingmods": "{0,choice,0#No mods|1#1 mod|1<{0} mods}",
+  "fml.menu.loadingmods": "{0,choice,0#No mods|1#1 mod|1<{0} mods} loaded",
   "fml.menu.notification.title": "Startup Notification",
   "fml.menu.accessdenied.title": "Server Access Denied",
   "fml.menu.accessdenied.message": "Forge Mod Loader could not connect to this server\nThe server {0} has forbidden modded access",
