@@ -353,6 +353,7 @@ public class ForgeHooksClient {
     }
 
     // NO-OP method, kept for bin-compat. Used in TitleScreen.java
+    @Deprecated(forRemoval = true, since = "1.21.4")
     public static void renderMainMenu(TitleScreen gui, GuiGraphics graphics, Font font, int width, int height, int alpha) {
         /*
         VersionChecker.Status status = getForgeVersionStatus();
