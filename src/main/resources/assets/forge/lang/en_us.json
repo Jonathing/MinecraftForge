@@ -141,8 +141,6 @@
   "commands.config.getwithtype": "Config for %s of type %s found at %s",
   "commands.config.noconfig": "Config for %s of type %s not found",
 
-  "forge.update.beta.1": "%sWARNING: %sForge Beta",
-  "forge.update.beta.2": "Major issues may arise, verify before reporting.",
   "forge.update.newversion": "New Forge version available: %s",
   "forge.menu.updatescreen.title": "Mod Update",
 
