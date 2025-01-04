@@ -13,18 +13,6 @@
     public static final double MAX_INTERACTION_DISTANCE = Mth.square(6.0D);
     private static final int NO_BLOCK_UPDATES_TO_ACK = -1;
     private static final int TRACKED_MESSAGE_DISCONNECT_THRESHOLD = 4096;
-@@ -414,9 +_,11 @@
-             }
- 
-             entity.absMoveTo(d3, d4, d5, f, f1);
-+            this.player.absMoveTo(d3, d4, d5, this.player.getYRot(), this.player.getXRot()); // Forge - Resync player position on vehicle moving
-             boolean flag3 = serverlevel.noCollision(entity, entity.getBoundingBox().deflate(0.0625D));
-             if (flag && (flag2 || !flag3)) {
-                entity.absMoveTo(d0, d1, d2, f, f1);
-+               this.player.absMoveTo(d3, d4, d5, this.player.getYRot(), this.player.getXRot()); // Forge - Resync player position on vehicle moving
-                this.send(new ClientboundMoveVehiclePacket(entity));
-                return;
-             }
 @@ -981,8 +_,10 @@
           case SWAP_ITEM_WITH_OFFHAND:
              if (!this.player.isSpectator()) {
