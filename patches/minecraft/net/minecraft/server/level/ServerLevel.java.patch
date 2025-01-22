@@ -82,6 +82,14 @@
        }
  
     }
+@@ -699,6 +_,7 @@
+          return BuiltInRegistries.ENTITY_TYPE.getKey(p_8648_.getType()).toString();
+       });
+       profilerfiller.incrementCounter("tickNonPassenger");
++      if (p_8648_.canUpdate())
+       p_8648_.tick();
+       this.getProfiler().pop();
+ 
 @@ -718,6 +_,7 @@
                 return BuiltInRegistries.ENTITY_TYPE.getKey(p_8664_.getType()).toString();
              });
