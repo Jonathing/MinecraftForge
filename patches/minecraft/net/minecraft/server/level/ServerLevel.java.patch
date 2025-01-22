@@ -84,6 +84,14 @@
        }
  
     }
+@@ -640,6 +_,7 @@
+          return Registry.f_122826_.m_7981_(p_8648_.m_6095_()).toString();
+       });
+       profilerfiller.m_6174_("tickNonPassenger");
++      if (p_8648_.canUpdate())
+       p_8648_.m_8119_();
+       this.m_46473_().m_7238_();
+ 
 @@ -656,9 +_,10 @@
              ++p_8664_.f_19797_;
              ProfilerFiller profilerfiller = this.m_46473_();
