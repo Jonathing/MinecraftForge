@@ -118,7 +118,7 @@ dependencies {
     bootstrap(libs.unsafe)        // Needed by securemodules
     bootstrap(libs.bundles.asm)   // Needed by securemodules
 
-    implementation(libs.jopt.simple) { version { strictly '5.0.4' } }
+    implementation(libs.jopt.simple)
 
     installer(libs.bootstrap)
     installer(libs.bootstrap.api) // Needed by securemodules
