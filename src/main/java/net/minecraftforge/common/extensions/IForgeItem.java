@@ -499,7 +499,7 @@ public interface IForgeItem {
      * @return True if this ItemStack can disable the shield in question.
      */
     default boolean canDisableShield(ItemStack stack, ItemStack shield, LivingEntity entity, LivingEntity attacker) {
-        return this instanceof AxeItem;
+        return attacker.canDisableShield();
     }
 
     /**
