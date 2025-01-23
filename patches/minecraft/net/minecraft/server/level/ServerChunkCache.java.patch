@@ -11,6 +11,19 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
+@@ -374,6 +_,12 @@
+                 p_368970_.add(levelchunk);
+             }
+         });
++        this.chunkMap.forEachForcedChunk(holder -> {
++            LevelChunk levelchunk = holder.getTickingChunk();
++            if (levelchunk != null) {
++                p_368970_.add(levelchunk);
++            }
++        });
+     }
+ 
+     private void tickChunks(ProfilerFiller p_368327_, long p_362313_, List<LevelChunk> p_366274_) {
 @@ -466,11 +_,19 @@
      }
  
