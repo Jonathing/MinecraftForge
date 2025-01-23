@@ -19,6 +19,8 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.server.level.ServerPlayer;
@@ -26,35 +28,49 @@ import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraftforge.common.ForgeI18n;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.Event;
 
 public interface IForgeGameTestHelper {
     private GameTestHelper self() {
-        return (GameTestHelper)this;
+        return (GameTestHelper) this;
+    }
+
+    default void say(String message) {
+        this.say(message, Style.EMPTY);
+    }
+
+    default void say(String message, Style style) {
+        var component = ForgeI18n.getPattern(message) != null ? Component.translatable(message) : Component.literal(message);
+        this.say(component.withStyle(style));
+    }
+
+    default void say(Component component) {
+        this.self().getLevel().players().forEach(p -> p.sendSystemMessage(component));
     }
 
     default void assertTrue(boolean value, Supplier<String> message) {
-       if (!value)
-          throw new GameTestAssertException(message.get());
+        if (!value)
+            throw new GameTestAssertException(message.get());
     }
 
     default void assertFalse(boolean value, Supplier<String> message) {
-       if (value)
-          throw new GameTestAssertException(message.get());
+        if (value)
+            throw new GameTestAssertException(message.get());
     }
 
     default ServerPlayer makeMockServerPlayer() {
         var level = self().getLevel();
         var cookie = CommonListenerCookie.createInitial(new GameProfile(UUID.randomUUID(), "test-mock-player"), false);
         var player = new ServerPlayer(level.getServer(), level, cookie.gameProfile(), cookie.clientInformation()) {
-           public boolean isSpectator() {
-              return false;
-           }
+            public boolean isSpectator() {
+                return false;
+            }
 
-           public boolean isCreative() {
-              return true;
-           }
+            public boolean isCreative() {
+                return true;
+            }
         };
         var connection = new Connection(PacketFlow.SERVERBOUND);
         @SuppressWarnings("unused") // The constructor has side effects
@@ -103,8 +119,8 @@ public interface IForgeGameTestHelper {
     default void makeFloor(Block block, int height) {
         var bounds = self().getBounds();
         var pos = new BlockPos.MutableBlockPos();
-        for (int x = 0; x < (int)bounds.getXsize(); x++) {
-            for (int y = 0; y < (int)bounds.getZsize(); y++) {
+        for (int x = 0; x < (int) bounds.getXsize(); x++) {
+            for (int y = 0; y < (int) bounds.getZsize(); y++) {
                 pos.set(x, height, y);
                 if (self().getBlockState(pos).is(Blocks.AIR))
                     self().setBlock(pos, block);
