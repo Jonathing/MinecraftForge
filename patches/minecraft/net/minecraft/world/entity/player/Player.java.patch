@@ -129,7 +129,7 @@
          super.blockUsingShield(p_36295_);
          ItemStack itemstack = this.getItemBlockingWith();
 -        if (p_36295_.canDisableShield() && itemstack != null) {
-+        if (itemstack != null && itemstack.canDisableShield(this.useItem, this, p_36295_)) {
++        if (itemstack != null && p_36295_.getWeaponItem().canDisableShield(itemstack, this, p_36295_)) {
              this.disableShield(itemstack);
          }
      }
