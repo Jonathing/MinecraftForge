@@ -33,3 +33,23 @@
              EntityType<?> entitytype = p_140200_.getType();
              int i = entitytype.clientTrackingRange() * 16;
              if (i != 0) {
+@@ -1344,6 +_,19 @@
+         public void updatePlayers(List<ServerPlayer> p_140488_) {
+             for (ServerPlayer serverplayer : p_140488_) {
+                 this.updatePlayer(serverplayer);
++            }
++        }
++    }
++
++    // Copy of forEachSpawnCandidateChunk, but with forced chunks
++    void forEachForcedChunk(Consumer<ChunkHolder> p_364582_) {
++        LongIterator longiterator = this.distanceManager.forcedTickets.keySet().iterator();
++
++        while (longiterator.hasNext()) {
++            long i = longiterator.nextLong();
++            ChunkHolder chunkholder = this.visibleChunkMap.get(i);
++            if (chunkholder != null) {
++                p_364582_.accept(chunkholder);
+             }
+         }
+     }
