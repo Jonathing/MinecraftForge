@@ -93,7 +93,7 @@ public interface IForgeGameTestHelper {
     /**
      * Registers an event listener that will be unregistered when the test is finished running.
      */
-    default <E extends Event> void registerEventListener(Object handler) {
+    default void registerEventListener(Object handler) {
         MinecraftForge.EVENT_BUS.register(handler);
         self().addCleanup(success -> MinecraftForge.EVENT_BUS.unregister(handler));
     }
@@ -210,7 +210,7 @@ public interface IForgeGameTestHelper {
         }
 
         public boolean getBool() {
-            return this.value == null ? false : this.value;
+            return this.value != null && this.value;
         }
 
         public void assertEquals(boolean expected) {
