@@ -1,0 +1,36 @@
+--- a/net/minecraft/gametest/framework/GameTestHelper.java
++++ b/net/minecraft/gametest/framework/GameTestHelper.java
+@@ -49,7 +_,7 @@
+ import net.minecraft.world.phys.BlockHitResult;
+ import net.minecraft.world.phys.Vec3;
+ 
+-public class GameTestHelper {
++public class GameTestHelper implements net.minecraftforge.common.extensions.IForgeGameTestHelper {
+    private final GameTestInfo f_127595_;
+    private boolean f_177099_;
+ 
+@@ -796,5 +_,24 @@
+       BlockHitResult blockhitresult = new BlockHitResult(Vec3.m_82512_(blockpos), p_262008_, blockpos, false);
+       UseOnContext useoncontext = new UseOnContext(p_261595_, InteractionHand.MAIN_HAND, blockhitresult);
+       p_262007_.m_41661_(useoncontext);
++   }
++
++   /**
++    * Adds a cleanup handler that will be called when the test is done, pass or fail.
++    */
++   public void addCleanup(Consumer<Boolean> handler) {
++      this.f_127595_.m_127624_(new GameTestListener() {
++         @Override
++         public void m_142378_(GameTestInfo info) {
++            handler.accept(true);
++         }
++
++         @Override
++         public void m_8066_(GameTestInfo info) {
++            handler.accept(false);
++         }
++
++         @Override public void m_8073_(GameTestInfo info) { }
++      });
+    }
+ }
