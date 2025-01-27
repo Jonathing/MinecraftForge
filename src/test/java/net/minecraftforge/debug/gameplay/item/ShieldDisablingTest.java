@@ -64,10 +64,10 @@ public final class ShieldDisablingTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        player.hurtServer(helper.getLevel(), enemy.damageSources().mobAttack(enemy), 5.0F);
+        player.hurt(enemy.damageSources().mobAttack(enemy), 5.0F);
 
         // shield on cooldown?
-        helper.assertTrue(player.getCooldowns().isOnCooldown(shield), "shield should be on cooldown");
+        helper.assertTrue(player.getCooldowns().isOnCooldown(shield.getItem()), "shield should be on cooldown");
         helper.succeed();
     }
 }
