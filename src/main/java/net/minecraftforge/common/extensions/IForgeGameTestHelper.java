@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.authlib.GameProfile;
@@ -57,6 +59,26 @@ public interface IForgeGameTestHelper {
     default void assertFalse(boolean value, Supplier<String> message) {
         if (value)
             throw new GameTestAssertException(message.get());
+    }
+
+    // Backported from 1.20.6
+    default Player makeMockPlayer(final GameType p_333981_) {
+        return new Player(this.self().getLevel(), BlockPos.ZERO, 0.0F, new GameProfile(UUID.randomUUID(), "test-mock-player")) {
+            @Override
+            public boolean isSpectator() {
+                return p_333981_ == GameType.SPECTATOR;
+            }
+
+            @Override
+            public boolean isCreative() {
+                return p_333981_.isCreative();
+            }
+
+            @Override
+            public boolean isLocalPlayer() {
+                return true;
+            }
+        };
     }
 
     default ServerPlayer makeMockServerPlayer() {
