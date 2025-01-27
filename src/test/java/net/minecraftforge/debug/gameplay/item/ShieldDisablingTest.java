@@ -24,9 +24,7 @@ import java.util.function.Function;
 public final class ShieldDisablingTest extends BaseTestMod {
     public static final String MOD_ID = "shield_disabling";
 
-    public ShieldDisablingTest(FMLJavaModLoadingContext context) {
-        super(context);
-    }
+    public ShieldDisablingTest() { }
 
     @GameTest(template = "forge:empty3x3x3")
     public static void player_shield_disabled_by_axe(GameTestHelper helper) {
