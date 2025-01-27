@@ -50,13 +50,10 @@ public class ItemCapabilityTest extends BaseTestMod {
                     .build()
     );
 
-    public ItemCapabilityTest(FMLJavaModLoadingContext context) {
-        super(context);
-
+    public ItemCapabilityTest() {
         MinecraftForge.EVENT_BUS.addGenericListener(ItemStack.class, this::onEvent);
         MinecraftForge.EVENT_BUS.addListener(this::tooltipEvent);
         MinecraftForge.EVENT_BUS.addListener(this::onTick);
-
     }
 
     public void onTick(TickEvent.PlayerTickEvent event) {
