@@ -9,6 +9,8 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.authlib.GameProfile;
@@ -42,12 +44,23 @@ public interface IForgeGameTestHelper {
     }
 
     default void say(String message, Style style) {
-        var component = ForgeI18n.getPattern(message) != null ? Component.translatable(message) : Component.literal(message);
-        this.say(component.withStyle(style));
+        this.say(this.getMessage(message).withStyle(style));
+    }
+
+    default void say(String message, ChatFormatting style) {
+        this.say(this.getMessage(message).withStyle(style));
+    }
+
+    default void say(String message, int color) {
+        this.say(this.getMessage(message).withColor(color));
     }
 
     default void say(Component component) {
         this.self().getLevel().players().forEach(p -> p.sendSystemMessage(component));
+    }
+
+    private MutableComponent getMessage(String message) {
+        return ForgeI18n.getPattern(message) != null ? Component.translatable(message) : Component.literal(message);
     }
 
     default void assertTrue(boolean value, Supplier<String> message) {
