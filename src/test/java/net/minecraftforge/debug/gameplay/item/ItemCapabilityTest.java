@@ -53,10 +53,6 @@ public class ItemCapabilityTest extends BaseTestMod {
                     .build()
     );
 
-    public ItemCapabilityTest(FMLJavaModLoadingContext context) {
-        super(context);
-    }
-
     @SubscribeEvent
     public static void onEvent(AttachCapabilitiesEvent<ItemStack> event) {
         if (event.getObject().getItem() == Items.COPPER_INGOT) {
