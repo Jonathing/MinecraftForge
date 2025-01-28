@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.Nullable;
 
@@ -149,6 +150,14 @@ public interface IForgeGameTestHelper {
         return new IntFlag(name);
     }
 
+    default IntFlag intFlag(String name, int value) {
+        return this.intFlag(name, (long) value);
+    }
+
+    default IntFlag intFlag(String name, long value) {
+        return Util.make(new IntFlag(name), flag -> flag.set(value));
+    }
+
     default BoolFlag boolFlag(String name) {
         return new BoolFlag(name);
     }
@@ -195,6 +204,32 @@ public interface IForgeGameTestHelper {
 
         public void set(long value) {
             super.set(value);
+        }
+
+        public void increment() {
+            this.decrement(1L);
+        }
+
+        public void increment(int amount) {
+            this.decrement((long) amount);
+        }
+
+        public void increment(long amount) {
+            if (this.value != null)
+                this.set(this.value + amount);
+        }
+
+        public void decrement() {
+            this.decrement(1L);
+        }
+
+        public void decrement(int amount) {
+            this.decrement((long) amount);
+        }
+
+        public void decrement(long amount) {
+            if (this.value != null)
+                this.set(this.value - amount);
         }
 
         public byte getByte() {
