@@ -33,6 +33,14 @@
              if (player != null && interactionresult.indicateItemUse()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
+@@ -411,6 +_,7 @@
+     }
+ 
+     public void hurtAndBreak(int p_220158_, RandomSource p_220159_, @Nullable ServerPlayer p_220160_, Runnable p_331215_) {
++        p_220158_ = this.damageItem(p_220158_, p_220159_, p_220160_, p_331215_);
+         if (this.isDamageableItem()) {
+             if (p_220158_ > 0) {
+                 int i = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.UNBREAKING, this);
 @@ -447,6 +_,10 @@
              }
  
