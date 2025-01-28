@@ -33,13 +33,25 @@
              if (player != null && interactionresult.indicateItemUse()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
-@@ -447,6 +_,10 @@
-             }
+@@ -468,6 +_,7 @@
+     }
  
-             this.hurtAndBreak(p_41623_, p_41624_.getRandom(), p_41624_ instanceof ServerPlayer serverplayer ? serverplayer : null, () -> {
-+                if (p_41624_ instanceof Player player) {
-+                    net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, this, p_335324_);
-+                    player.stopUsingItem(); // Forge: fix MC-168573
+     public void hurtAndBreak(int p_220158_, ServerLevel p_342197_, @Nullable ServerPlayer p_220160_, Consumer<Item> p_343361_) {
++        p_220158_ = this.damageItem(p_220158_, p_342197_, p_220160_, p_343361_);
+         int i = this.processDurabilityChange(p_220158_, p_342197_, p_220160_);
+         if (i != 0) {
+             this.applyDamage(this.getDamageValue() + i, p_220160_, p_343361_);
+@@ -516,7 +_,13 @@
+                 p_41623_,
+                 serverlevel,
+                 p_41624_ instanceof ServerPlayer serverplayer ? serverplayer : null,
+-                p_341563_ -> p_41624_.onEquippedItemBroken(p_341563_, p_335324_)
++                p_341563_ -> {
++                    if (p_41624_ instanceof Player player) {
++                        net.minecraftforge.event.ForgeEventFactory.onPlayerDestroyItem(player, this, p_335324_);
++                        player.stopUsingItem(); // Forge: fix MC-168573
++                    }
++                    p_41624_.onEquippedItemBroken(p_341563_, p_335324_);
 +                }
                  p_41624_.broadcastBreakEvent(p_335324_);
                  Item item = this.getItem();
