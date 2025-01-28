@@ -6,6 +6,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -32,17 +33,16 @@ public class PreventItemDamageTest extends BaseTestMod {
     static final String MOD_ID = "prevent_item_damage";
 
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MOD_ID);
-    private static final RegistryObject<Item> FAKE_SHIELD = ITEMS.register("fake_shield", () -> new ShieldItem(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10)) {
+    private static final RegistryObject<Item> FAKE_SHIELD = ITEMS.register("fake_shield", () -> new ShieldItem(new Item.Properties().durability(10)) {
         @Override
-        public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, Consumer<Item> onBroken) {
-            onBroken.accept(this);
+        public int damageItem(ItemStack stack, int damage, RandomSource level, @Nullable ServerPlayer player, Runnable onBroken) {
+            onBroken.run();
             return 0;
         }
     });
 
-    public PreventItemDamageTest(FMLJavaModLoadingContext context) {
-        super(context);
-        this.testItem(lookup -> new ItemStack(FAKE_SHIELD.get()));
+    public PreventItemDamageTest() {
+        this.testItem(() -> new ItemStack(FAKE_SHIELD.get()));
     }
 
     @GameTest(template = "forge:empty3x3x3")
@@ -70,7 +70,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        player.hurtServer(helper.getLevel(), enemy.damageSources().mobAttack(enemy), 5.0F);
+        player.hurt(enemy.damageSources().mobAttack(enemy), 5.0F);
 
         // shield on cooldown?
         helper.assertTrue(initialDamage == shield.getDamageValue(), "Fake shield took damage! Expected: " + initialDamage + ", Actual: " + shield.getDamageValue());
