@@ -5,11 +5,15 @@
 
 package net.minecraftforge.debug.gameplay.item;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
@@ -24,8 +28,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTestHolder;
@@ -52,21 +55,10 @@ public class ItemCapabilityTest extends BaseTestMod {
 
     public ItemCapabilityTest(FMLJavaModLoadingContext context) {
         super(context);
-
-        MinecraftForge.EVENT_BUS.addGenericListener(ItemStack.class, this::onEvent);
-        MinecraftForge.EVENT_BUS.addListener(this::tooltipEvent);
-        MinecraftForge.EVENT_BUS.addListener(this::onTick);
-
     }
 
-    public void onTick(TickEvent.PlayerTickEvent event) {
-        if (event.player.level().isClientSide) return;
-        event.player.getMainHandItem().getCapability(ForgeCapabilities.ENERGY).ifPresent(s -> {
-            s.receiveEnergy(1, false);
-        });
-    }
-
-    public void onEvent(AttachCapabilitiesEvent<ItemStack> event) {
+    @SubscribeEvent
+    public static void onEvent(AttachCapabilitiesEvent<ItemStack> event) {
         if (event.getObject().getItem() == Items.COPPER_INGOT) {
             event.addCapability(
                     ResourceLocation.fromNamespaceAndPath("forge", "test"),
@@ -75,15 +67,11 @@ public class ItemCapabilityTest extends BaseTestMod {
         }
     }
 
-    public void tooltipEvent(ItemTooltipEvent event) {
-        var item = event.getItemStack();
-        item.getCapability(ForgeCapabilities.ENERGY).ifPresent(storage -> {
-            event.getToolTip().add(Component.literal("Energy: " + storage.getEnergyStored()));
-        });
-    }
-
     @GameTest(template = "forge:empty3x3x3")
     public static void testItemCap(GameTestHelper helper) {
+
+        helper.registerEventListener(ItemCapabilityTest.class);
+
         ItemStack stack = new ItemStack(Items.COPPER_INGOT);
         AtomicReference<IEnergyStorage> storageAtomicReference = new AtomicReference<>();
 
@@ -95,6 +83,20 @@ public class ItemCapabilityTest extends BaseTestMod {
         helper.assertTrue(
                 storageAtomicReference.get() != null,
                 "Unable to find ForgeCapabilities.ENERGY Capability"
+        );
+
+        var registry = RegistryFriendlyByteBuf.decorator(helper.getLevel().registryAccess()).apply(new FriendlyByteBuf(Unpooled.buffer()));
+
+        ItemStack.STREAM_CODEC.encode(registry, stack);
+        var stackOverWire = ItemStack.STREAM_CODEC.decode(registry);
+
+        AtomicReference<IEnergyStorage> storage = new AtomicReference<>();
+        stackOverWire.getCapability(ForgeCapabilities.ENERGY).ifPresent(storage::set);
+
+        helper.assertValueEqual(
+                storage.get() == null ? -1 : storage.get().getEnergyStored(),
+                11,
+                "Value did not Sync to client"
         );
 
         helper.succeed();
