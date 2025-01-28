@@ -33,7 +33,15 @@
              if (player != null && interactionresult instanceof InteractionResult.Success interactionresult$success && interactionresult$success.wasItemInteraction()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
-@@ -507,7 +_,13 @@
+@@ -468,6 +_,7 @@
+     }
+ 
+     public void hurtAndBreak(int p_220158_, ServerLevel p_342197_, @Nullable ServerPlayer p_220160_, Consumer<Item> p_343361_) {
++        p_220158_ = this.damageItem(p_220158_, p_342197_, p_220160_, p_343361_);
+         int i = this.processDurabilityChange(p_220158_, p_342197_, p_220160_);
+         if (i != 0) {
+             this.applyDamage(this.getDamageValue() + i, p_220160_, p_343361_);
+@@ -516,7 +_,13 @@
                  p_41623_,
                  serverlevel,
                  p_41624_ instanceof ServerPlayer serverplayer ? serverplayer : null,
