@@ -137,7 +137,18 @@
              if (!this.level().isClientSide) {
                  this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
              }
-@@ -937,10 +_,13 @@
+@@ -932,8 +_,9 @@
+             if (p_36383_ >= 3.0F) {
+                 int i = 1 + Mth.floor(p_36383_);
+                 InteractionHand interactionhand = this.getUsedItemHand();
++                ItemStack currentItem = this.useItem;
+                 this.useItem.hurtAndBreak(i, this, getSlotForHand(interactionhand));
+-                if (this.useItem.isEmpty()) {
++                if (currentItem.isEmpty()) {
+                     if (interactionhand == InteractionHand.MAIN_HAND) {
+                         this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
+                     } else {
+@@ -950,10 +_,13 @@
      @Override
      protected void actuallyHurt(DamageSource p_36312_, float p_36313_) {
          if (!this.isInvulnerableTo(p_36312_)) {
