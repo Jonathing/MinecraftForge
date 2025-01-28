@@ -20,7 +20,7 @@
 +        this.chunkMap.forEachForcedChunk(this.getChunkCollector(p_368970_, chunk -> true));
 +    }
 +
-+    // FORGE: isolate chunk collection callback
++    /** FORGE: Isolate chunk collection callback */
 +    private Consumer<ChunkHolder> getChunkCollector(List<LevelChunk> p_368970_, java.util.function.Predicate<LevelChunk> predicate) {
 +        return (p_358696_ -> {
              LevelChunk levelchunk = p_358696_.getTickingChunk();
