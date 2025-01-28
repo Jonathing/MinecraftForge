@@ -11,16 +11,22 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
-@@ -374,6 +_,12 @@
+@@ -368,12 +_,17 @@
+     }
+ 
+     private void collectTickingChunks(List<LevelChunk> p_368970_) {
+-        this.chunkMap.forEachSpawnCandidateChunk(p_358696_ -> {
++        // FORGE: isolate callback into its own variable for use in both forEachSpawnCandidateChunk and forEachForcedChunk
++        Consumer<ChunkHolder> callback = (p_358696_ -> {
+             LevelChunk levelchunk = p_358696_.getTickingChunk();
+             if (levelchunk != null && this.level.isNaturalSpawningAllowed(p_358696_.getPos())) {
++                // FORGE: Do not add duplicate chunks to list
++                if (!p_368970_.contains(levelchunk))
                  p_368970_.add(levelchunk);
              }
          });
-+        this.chunkMap.forEachForcedChunk(holder -> {
-+            LevelChunk levelchunk = holder.getTickingChunk();
-+            if (levelchunk != null) {
-+                p_368970_.add(levelchunk);
-+            }
-+        });
++        this.chunkMap.forEachSpawnCandidateChunk(callback);
++        this.chunkMap.forEachForcedChunk(callback);
      }
  
      private void tickChunks(ProfilerFiller p_368327_, long p_362313_, List<LevelChunk> p_366274_) {
