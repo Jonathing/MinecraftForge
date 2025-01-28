@@ -21,7 +21,7 @@ import net.minecraftforge.test.BaseTestMod;
 @GameTestHolder("forge." + ForcedChunkLoadingTest.MOD_ID)
 @Mod(ForcedChunkLoadingTest.MOD_ID)
 public class ForcedChunkLoadingTest extends BaseTestMod {
-    static final String MOD_ID = "forced_chunk_loading_test";
+    static final String MOD_ID = "forced_chunk_loading";
 
     public ForcedChunkLoadingTest(FMLJavaModLoadingContext context) {
         super(context);
