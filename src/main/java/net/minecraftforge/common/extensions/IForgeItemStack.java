@@ -385,15 +385,17 @@ public interface IForgeItemStack {
      * Called from {@link ItemStack#hurtAndBreak(int, ServerLevel, ServerPlayer, Consumer)} when an item is to be
      * damaged.
      *
-     * @param damage The amount of damage the item will take
-     * @param level  The level where the damage is taking place
-     * @param player The player holding the item
+     * @param damage   The amount of damage the item will take
+     * @param level    The level where the damage is taking place
+     * @param player   The player holding the item
+     * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
+     *                 break an item)
      * @return The amount of damage the item should take
      *
-     * @see IForgeItem#damageItem(ItemStack, int, ServerLevel, ServerPlayer)
+     * @see IForgeItem#damageItem(ItemStack, int, ServerLevel, ServerPlayer, Consumer)
      */
-    default int damageItem(int damage, ServerLevel level, @Nullable ServerPlayer player) {
-        return self().getItem().damageItem(self(), damage, level, player);
+    default int damageItem(int damage, ServerLevel level, @Nullable ServerPlayer player, Consumer<Item> onBroken) {
+        return self().getItem().damageItem(self(), damage, level, player, onBroken);
     }
 
     /**
