@@ -11,12 +11,18 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
-@@ -368,9 +_,19 @@
+@@ -368,9 +_,25 @@
      }
  
      private void collectTickingChunks(List<LevelChunk> p_368970_) {
 -        this.chunkMap.forEachSpawnCandidateChunk(p_358696_ -> {
-+        // FORGE: Use a LinkedHashSet to preserve order
++        // FORGE: If there are no forced chunks, just do the vanilla logic
++        if (!this.chunkMap.hasForcedChunks()) {
++            this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(p_368970_, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
++            return;
++        }
++
++        // FORGE: We have forced chunks? Ok, use a linked hash set to preserve order
 +        Set<LevelChunk> set = new java.util.LinkedHashSet<>();
 +        this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(set, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
 +        this.chunkMap.forEachForcedChunk(this.getChunkCollector(set, chunk -> true));
