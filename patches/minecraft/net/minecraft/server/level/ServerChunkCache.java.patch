@@ -11,23 +11,25 @@
                  ChunkAccess chunkaccess1 = chunkholder.getChunkIfPresent(ChunkStatus.FULL);
                  if (chunkaccess1 != null) {
                      this.storeInCache(i, chunkaccess1, ChunkStatus.FULL);
-@@ -368,9 +_,17 @@
+@@ -368,9 +_,19 @@
      }
  
      private void collectTickingChunks(List<LevelChunk> p_368970_) {
 -        this.chunkMap.forEachSpawnCandidateChunk(p_358696_ -> {
-+        this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(p_368970_, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
-+        this.chunkMap.forEachForcedChunk(this.getChunkCollector(p_368970_, chunk -> true));
++        // FORGE: Use a LinkedHashSet to preserve order
++        Set<LevelChunk> set = new java.util.LinkedHashSet<>();
++        this.chunkMap.forEachSpawnCandidateChunk(this.getChunkCollector(set, chunk -> this.level.isNaturalSpawningAllowed(chunk.getPos())));
++        this.chunkMap.forEachForcedChunk(this.getChunkCollector(set, chunk -> true));
++        p_368970_.addAll(set);
 +    }
 +
 +    /** FORGE: Isolate chunk collection callback */
-+    private Consumer<ChunkHolder> getChunkCollector(List<LevelChunk> p_368970_, java.util.function.Predicate<LevelChunk> predicate) {
++    private Consumer<ChunkHolder> getChunkCollector(java.util.Collection<LevelChunk> p_368970_, java.util.function.Predicate<LevelChunk> predicate) {
 +        return (p_358696_ -> {
              LevelChunk levelchunk = p_358696_.getTickingChunk();
 -            if (levelchunk != null && this.level.isNaturalSpawningAllowed(p_358696_.getPos())) {
++            // FORGE: Use custom predicate instead of only checking isNaturalSpawningAllowed
 +            if (levelchunk != null && predicate.test(levelchunk)) {
-+                // FORGE: Do not add duplicate chunks to list
-+                if (!p_368970_.contains(levelchunk))
                  p_368970_.add(levelchunk);
              }
          });
