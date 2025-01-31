@@ -174,6 +174,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -730,6 +731,12 @@ public class ForgeHooksClient {
 
     public static void onRegisterKeyMappings(Options options) {
         ModLoader.get().postEvent(new RegisterKeyMappingsEvent(options));
+    }
+
+    public static void onRegisterAdditionalModels(Set<ModelResourceLocation> existingModels) {
+        Set<ModelResourceLocation> additionalModels = new HashSet<>();
+        ModLoader.get().postEvent(new ModelEvent.RegisterAdditional(additionalModels));
+        existingModels.addAll(additionalModels);
     }
 
     @Nullable

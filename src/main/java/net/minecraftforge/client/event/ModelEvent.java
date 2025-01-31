@@ -21,6 +21,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Houses events related to models.
@@ -112,6 +113,31 @@ public abstract class ModelEvent extends Event {
          */
         public ModelBakery getModelBakery() {
             return modelBakery;
+        }
+    }
+
+    /**
+     * Fired when the {@link net.minecraft.client.resources.model.ModelDiscovery} is notified of the resource manager reloading.
+     * Allows developers to register models to be loaded, along with their dependencies.
+     *
+     * <p>This event is not {@linkplain Cancelable cancellable}, and does not {@linkplain HasResult have a result}.</p>
+     *
+     * <p>This event is fired on the {@linkplain FMLJavaModLoadingContext#getModEventBus() mod-specific event bus},
+     * only on the {@linkplain LogicalSide#CLIENT logical client}.</p>
+     */
+    public static class RegisterAdditional extends ModelEvent implements IModBusEvent {
+        private final Set<ModelResourceLocation> models;
+
+        @ApiStatus.Internal
+        public RegisterAdditional(Set<ModelResourceLocation> models) {
+            this.models = models;
+        }
+
+        /**
+         * Registers a model to be loaded, along with its dependencies.
+         */
+        public void register(ModelResourceLocation model) {
+            models.add(model);
         }
     }
 
