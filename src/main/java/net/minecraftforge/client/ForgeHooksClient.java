@@ -734,9 +734,7 @@ public class ForgeHooksClient {
     }
 
     public static void onRegisterAdditionalModels(Set<ModelResourceLocation> existingModels) {
-        Set<ModelResourceLocation> additionalModels = new HashSet<>();
-        ModLoader.get().postEvent(new ModelEvent.RegisterAdditional(additionalModels));
-        existingModels.addAll(additionalModels);
+        ModLoader.get().postEvent(new ModelEvent.RegisterAdditional(existingModels));
     }
 
     @Nullable
