@@ -381,20 +381,25 @@ public interface IForgeItemStack {
     }
 
     /**
-     * Called from {@link ItemStack#hurtAndBreak(int, ServerLevel, ServerPlayer, Consumer)} when an item is to be
-     * damaged.
+     * Called when this item is to be damaged, such as use a tool being used or a shield blocking damage. The damage
+     * parameter has not yet been processed, so enchantments are not taken into account.
      *
-     * @param damage   The amount of damage the item will take
+     * @param damage   The amount of damage the item will take before processing
      * @param level    The level where the damage is taking place
      * @param player   The player holding the item
+     * @param canBreak If the item can break from this damage instance ({@code true} if this is called from
+     *                 {@link ItemStack#hurtAndBreak(int, ServerLevel, ServerPlayer, Consumer)}, {@code false} if from
+     *                 {@link ItemStack#hurtWithoutBreaking(int, Player)})
      * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
      *                 break an item)
      * @return The amount of damage the item should take
      *
-     * @see IForgeItem#damageItem(ItemStack, int, ServerLevel, ServerPlayer, Consumer)
+     * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable} or the player
+     * {@linkplain Player#hasInfiniteMaterials() has infinite materials}, this method will not be called.
+     * @see IForgeItem#damageItem(ItemStack, int, ServerLevel, ServerPlayer, boolean, Consumer)
      */
-    default int damageItem(int damage, ServerLevel level, @Nullable ServerPlayer player, Consumer<Item> onBroken) {
-        return self().getItem().damageItem(self(), damage, level, player, onBroken);
+    default int damageItem(int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
+        return self().getItem().damageItem(self(), damage, level, player, canBreak, onBroken);
     }
 
     /**
