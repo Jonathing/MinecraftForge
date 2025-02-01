@@ -30,6 +30,7 @@ import net.minecraftforge.test.BaseTestMod;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
+import java.util.function.IntUnaryOperator;
 
 @Mod(PreventItemDamageTest.MOD_ID)
 @GameTestHolder("forge." + PreventItemDamageTest.MOD_ID)
@@ -80,5 +81,17 @@ public class PreventItemDamageTest extends BaseTestMod {
         // shield on cooldown?
         helper.assertTrue(initialDamage == shield.getDamageValue(), "Fake shield took damage! Expected: " + initialDamage + ", Actual: " + shield.getDamageValue());
         helper.succeed();
+    }
+
+    private static final class FakeShieldItem extends ShieldItem {
+        public FakeShieldItem() {
+            super(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10));
+        }
+
+        @Override
+        public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
+            onBroken.accept(this);
+            return 1;
+        }
     }
 }
