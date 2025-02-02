@@ -45,9 +45,8 @@
          }
      }
  
-+    @Deprecated // use context-sensitive sister: processDurabilityChange(int, ServerLevel, ServerPlayer, boolean, Consumer<Item>)
      private int processDurabilityChange(int p_362423_, ServerLevel p_364910_, @Nullable ServerPlayer p_365570_) {
-+        return this.processDurabilityChange(p_362423_, p_364910_, p_365570_, false, item -> { });
++        return this.processDurabilityChange(p_362423_, p_364910_, p_365570_, false, p_359411_ -> { });
 +    }
 +
 +    /** FORGE: context-sensitive sister of processDurabilityChange that calls IForgeItem.damageItem */
@@ -62,27 +61,6 @@
              return p_362423_ > 0 ? EnchantmentHelper.processDurabilityChange(p_364910_, this, p_362423_) : p_362423_;
          }
      }
-@@ -499,14 +_,17 @@
- 
-     public void hurtWithoutBreaking(int p_363289_, Player p_369700_) {
-         if (p_369700_ instanceof ServerPlayer serverplayer) {
--            int i = this.processDurabilityChange(p_363289_, serverplayer.serverLevel(), serverplayer);
-+            // FORGE: move empty callback into its own variable so we don't have two of them
-+            Consumer<Item> onBreak = p_359411_ -> { };
-+            // FORGE: use context-sensitive sister of processDurabilityChange that calls IForgeItem.damageItem
-+            int i = this.processDurabilityChange(p_363289_, serverplayer.serverLevel(), serverplayer, false, onBreak);
-             if (i == 0) {
-                 return;
-             }
- 
-             int j = Math.min(this.getDamageValue() + i, this.getMaxDamage() - 1);
--            this.applyDamage(j, serverplayer, p_359411_ -> {
--            });
-+            // FORGE: use isolated empty callback
-+            this.applyDamage(j, serverplayer, onBreak);
-         }
-     }
- 
 @@ -516,7 +_,13 @@
                  p_41623_,
                  serverlevel,
