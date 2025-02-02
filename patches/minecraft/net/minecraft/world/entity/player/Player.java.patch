@@ -137,13 +137,15 @@
              if (!this.level().isClientSide) {
                  this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
              }
-@@ -932,8 +_,9 @@
+@@ -931,8 +_,11 @@
              if (p_36383_ >= 3.0F) {
                  int i = 1 + Mth.floor(p_36383_);
                  InteractionHand interactionhand = this.getUsedItemHand();
++                // FORGE: cache this.useItem -- if this.stopUsingItem() is called, it will be set to ItemStack.EMPTY
 +                ItemStack currentItem = this.useItem;
                  this.useItem.hurtAndBreak(i, this, getSlotForHand(interactionhand));
 -                if (this.useItem.isEmpty()) {
++                // FORGE: use cached item since this.useItem could be ItemStack.EMPTY
 +                if (currentItem.isEmpty()) {
                      if (interactionhand == InteractionHand.MAIN_HAND) {
                          this.setItemSlot(EquipmentSlot.MAINHAND, ItemStack.EMPTY);
