@@ -9,8 +9,8 @@ import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -20,15 +20,12 @@ import net.minecraft.world.level.GameType;
 import net.minecraftforge.event.entity.living.LivingEntityUseItemEvent;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.function.Consumer;
 
 @Mod(PreventItemDamageTest.MOD_ID)
 @GameTestHolder("forge." + PreventItemDamageTest.MOD_ID)
@@ -38,9 +35,8 @@ public class PreventItemDamageTest extends BaseTestMod {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MOD_ID);
     private static final RegistryObject<FakeShieldItem> FAKE_SHIELD = ITEMS.register("fake_shield", FakeShieldItem::new);
 
-    public PreventItemDamageTest(FMLJavaModLoadingContext context) {
-        super(context);
-        this.testItem(lookup -> FAKE_SHIELD.get().getDefaultInstance());
+    public PreventItemDamageTest() {
+        this.testItem(() -> FAKE_SHIELD.get().getDefaultInstance());
     }
 
     @GameTest(template = "forge:empty3x3x3")
@@ -86,7 +82,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        player.hurtServer(helper.getLevel(), enemy.damageSources().mobAttack(enemy), 5.0F);
+        player.hurt(enemy.damageSources().mobAttack(enemy), 5.0F);
 
         // ok, run the tests
         firedLivingEntityUseItem.assertEquals(true);
@@ -108,15 +104,18 @@ public class PreventItemDamageTest extends BaseTestMod {
         int initialDamage = shield.getDamageValue();
 
         // test hurt and break
-        var damaged = helper.<Item>flag("damaged shield");
-        shield.hurtAndBreak(1, helper.getLevel(), player, damaged::set);
-        damaged.assertEquals(FAKE_SHIELD.get(), "Fake shield was not damaged! Check IForgeItem#damageItem.");
+        var damaged = helper.boolFlag("damaged shield");
+        shield.hurtAndBreak(1, helper.getLevel().random, player, () -> damaged.set(true));
+        damaged.assertEquals(true, "Fake shield was not damaged! Check IForgeItem#damageItem.");
         helper.assertValueEqual(initialDamage + 1, shield.getDamageValue(), "shield damage value", "Fake shield did not take precisely 1 damage! Check IForgeItem#damageItem.");
 
+        // HURT WITHOUT BREAK WAS ADDED IN 1.21.3
+        /*
         // test hurt without breaking
         initialDamage = shield.getDamageValue();
         shield.hurtWithoutBreaking(1, player);
         helper.assertValueEqual(initialDamage, shield.getDamageValue(), "shield damage value", "Fake shield took damage even though hurtWithoutBreak test should set damage taken to 0! Check FakeShieldItem or IForgeItem#damageItem.");
+        */
 
         // finished
         helper.succeed();
@@ -124,17 +123,13 @@ public class PreventItemDamageTest extends BaseTestMod {
 
     private static final class FakeShieldItem extends ShieldItem {
         public FakeShieldItem() {
-            super(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10));
+            super(new Item.Properties().durability(10));
         }
 
         @Override
-        public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
-            if (canBreak) {
-                onBroken.accept(this);
-                return 1;
-            }
-
-            return 0;
+        public int damageItem(ItemStack stack, int damage, RandomSource random, @Nullable ServerPlayer player, Runnable onBroken) {
+            onBroken.run();
+            return 1;
         }
     }
 }

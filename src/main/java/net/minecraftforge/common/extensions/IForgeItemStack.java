@@ -7,6 +7,7 @@ package net.minecraftforge.common.extensions;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Inventory;
@@ -407,21 +408,18 @@ public interface IForgeItemStack {
      * parameter has not yet been processed, so enchantments are not taken into account.
      *
      * @param damage   The amount of damage the item will take before processing
-     * @param level    The level where the damage is taking place
+     * @param random   The random used where the damage is taking place (typically from the level)
      * @param player   The player holding the item
-     * @param canBreak If the item can break from this damage instance ({@code true} if this is called from
-     *                 {@link ItemStack#hurtAndBreak(int, ServerLevel, ServerPlayer, Consumer)}, {@code false} if from
-     *                 {@link ItemStack#hurtWithoutBreaking(int, Player)})
      * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
      *                 break an item)
      * @return The amount of damage the item should take
      *
-     * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable} or the player
-     * {@linkplain Player#hasInfiniteMaterials() has infinite materials}, this method will not be called.
-     * @see IForgeItem#damageItem(ItemStack, int, ServerLevel, ServerPlayer, boolean, Consumer)
+     * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable}, this method will not be
+     * called.
+     * @see IForgeItem#damageItem(ItemStack, int, RandomSource, ServerPlayer, Runnable)
      */
-    default int damageItem(int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
-        return self().getItem().damageItem(self(), damage, level, player, canBreak, onBroken);
+    default int damageItem(int damage, RandomSource random, @Nullable ServerPlayer player, Runnable onBroken) {
+        return self().getItem().damageItem(self(), damage, random, player, onBroken);
     }
 
     /**
