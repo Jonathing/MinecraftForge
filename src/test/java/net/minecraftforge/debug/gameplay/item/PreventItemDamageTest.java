@@ -44,7 +44,7 @@ public class PreventItemDamageTest extends BaseTestMod {
     }
 
     @GameTest(template = "forge:empty3x3x3")
-    public static void player_fake_shield_took_no_damage(GameTestHelper helper) {
+    public static void player_fake_shield_took_modified_damage(GameTestHelper helper) {
         helper.makeFloor();
 
         // setup player
@@ -96,6 +96,32 @@ public class PreventItemDamageTest extends BaseTestMod {
         helper.succeed();
     }
 
+    @GameTest(template = "forge:empty3x3x3")
+    public static void fake_shield_damage_item_impl(GameTestHelper helper) {
+        helper.makeFloor();
+
+        // setup player
+        var player = helper.makeMockServerPlayer();
+
+        // setup shield
+        var shield = FAKE_SHIELD.get().getDefaultInstance();
+        int initialDamage = shield.getDamageValue();
+
+        // test hurt and break
+        var damaged = helper.<Item>flag("damaged shield");
+        shield.hurtAndBreak(1, helper.getLevel(), player, damaged::set);
+        damaged.assertEquals(FAKE_SHIELD.get(), "Fake shield was not damaged! Check IForgeItem#damageItem.");
+        helper.assertValueEqual(initialDamage + 1, shield.getDamageValue(), "shield damage value", "Fake shield did not take precisely 1 damage! Check IForgeItem#damageItem.");
+
+        // test hurt without breaking
+        initialDamage = shield.getDamageValue();
+        shield.hurtWithoutBreaking(1, player);
+        helper.assertValueEqual(initialDamage, shield.getDamageValue(), "shield damage value", "Fake shield took damage even though hurtWithoutBreak test should set damage taken to 0! Check FakeShieldItem or IForgeItem#damageItem.");
+
+        // finished
+        helper.succeed();
+    }
+
     private static final class FakeShieldItem extends ShieldItem {
         public FakeShieldItem() {
             super(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10));
@@ -103,8 +129,12 @@ public class PreventItemDamageTest extends BaseTestMod {
 
         @Override
         public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
-            onBroken.accept(this);
-            return 1;
+            if (canBreak) {
+                onBroken.accept(this);
+                return 1;
+            }
+
+            return 0;
         }
     }
 }
