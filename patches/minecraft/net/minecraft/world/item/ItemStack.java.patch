@@ -57,6 +57,7 @@
          } else if (p_365570_ != null && p_365570_.hasInfiniteMaterials()) {
              return 0;
          } else {
++            // FORGE: modify the base damage based on the item's impl of IForgeItem.damageItem
 +            p_362423_ = this.damageItem(p_362423_, p_364910_, p_365570_, canBreak, onBreak);
              return p_362423_ > 0 ? EnchantmentHelper.processDurabilityChange(p_364910_, this, p_362423_) : p_362423_;
          }
