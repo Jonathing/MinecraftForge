@@ -142,7 +142,7 @@
              if (!this.level().isClientSide) {
                  this.awardStat(Stats.ITEM_USED.get(this.useItem.getItem()));
              }
-@@ -931,8 +_,11 @@
+@@ -932,8 +_,11 @@
              if (p_36383_ >= 3.0F) {
                  int i = 1 + Mth.floor(p_36383_);
                  InteractionHand interactionhand = this.getUsedItemHand();

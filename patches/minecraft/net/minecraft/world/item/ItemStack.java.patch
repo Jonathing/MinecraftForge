@@ -33,35 +33,16 @@
              if (player != null && interactionresult.indicateItemUse()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
-@@ -468,18 +_,26 @@
-     }
- 
+@@ -425,6 +_,8 @@
      public void hurtAndBreak(int p_220158_, ServerLevel p_342197_, @Nullable ServerPlayer p_220160_, Consumer<Item> p_343361_) {
--        int i = this.processDurabilityChange(p_220158_, p_342197_, p_220160_);
-+        // FORGE: use context-sensitive sister of processDurabilityChange that calls IForgeItem.damageItem
-+        int i = this.processDurabilityChange(p_220158_, p_342197_, p_220160_, true, p_343361_);
-         if (i != 0) {
-             this.applyDamage(this.getDamageValue() + i, p_220160_, p_343361_);
-         }
-     }
- 
-     private int processDurabilityChange(int p_362423_, ServerLevel p_364910_, @Nullable ServerPlayer p_365570_) {
-+        return this.processDurabilityChange(p_362423_, p_364910_, p_365570_, false, p_359411_ -> { });
-+    }
-+
-+    /** FORGE: context-sensitive sister of processDurabilityChange that calls IForgeItem.damageItem */
-+    private int processDurabilityChange(int p_362423_, ServerLevel p_364910_, @Nullable ServerPlayer p_365570_, boolean canBreak, Consumer<Item> onBreak) {
-         if (!this.isDamageableItem()) {
-             return 0;
-         } else if (p_365570_ != null && p_365570_.hasInfiniteMaterials()) {
-             return 0;
-         } else {
-+            // FORGE: modify the base damage based on the item's impl of IForgeItem.damageItem
-+            p_362423_ = this.damageItem(p_362423_, p_364910_, p_365570_, canBreak, onBreak);
-             return p_362423_ > 0 ? EnchantmentHelper.processDurabilityChange(p_364910_, this, p_362423_) : p_362423_;
-         }
-     }
-@@ -516,7 +_,13 @@
+         if (this.isDamageableItem()) {
+             if (p_220160_ == null || !p_220160_.hasInfiniteMaterials()) {
++                // FORGE: modify the base damage based on the item's impl of IForgeItem.damageItem
++                p_220158_ = this.damageItem(p_220158_, p_342197_, p_220160_, p_343361_);
+                 if (p_220158_ > 0) {
+                     p_220158_ = EnchantmentHelper.processDurabilityChange(p_342197_, this, p_220158_);
+                     if (p_220158_ <= 0) {
+@@ -453,7 +_,13 @@
                  p_41623_,
                  serverlevel,
                  p_41624_ instanceof ServerPlayer serverplayer ? serverplayer : null,

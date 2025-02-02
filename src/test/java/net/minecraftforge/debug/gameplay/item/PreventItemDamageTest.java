@@ -86,7 +86,7 @@ public class PreventItemDamageTest extends BaseTestMod {
         player.lookAt(EntityAnchorArgument.Anchor.EYES, enemy.position());
 
         // hit the player
-        player.hurtServer(helper.getLevel(), enemy.damageSources().mobAttack(enemy), 5.0F);
+        player.hurt(enemy.damageSources().mobAttack(enemy), 5.0F);
 
         // ok, run the tests
         firedLivingEntityUseItem.assertEquals(true);
@@ -113,10 +113,13 @@ public class PreventItemDamageTest extends BaseTestMod {
         damaged.assertEquals(FAKE_SHIELD.get(), "Fake shield was not damaged! Check IForgeItem#damageItem.");
         helper.assertValueEqual(initialDamage + 1, shield.getDamageValue(), "shield damage value", "Fake shield did not take precisely 1 damage! Check IForgeItem#damageItem.");
 
+        // HURT WITHOUT BREAK WAS ADDED IN 1.21.3
+        /*
         // test hurt without breaking
         initialDamage = shield.getDamageValue();
         shield.hurtWithoutBreaking(1, player);
         helper.assertValueEqual(initialDamage, shield.getDamageValue(), "shield damage value", "Fake shield took damage even though hurtWithoutBreak test should set damage taken to 0! Check FakeShieldItem or IForgeItem#damageItem.");
+        */
 
         // finished
         helper.succeed();
@@ -124,17 +127,13 @@ public class PreventItemDamageTest extends BaseTestMod {
 
     private static final class FakeShieldItem extends ShieldItem {
         public FakeShieldItem() {
-            super(new Item.Properties().setId(ITEMS.key("fake_shield")).durability(10));
+            super(new Item.Properties().durability(10));
         }
 
         @Override
-        public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
-            if (canBreak) {
-                onBroken.accept(this);
-                return 1;
-            }
-
-            return 0;
+        public int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, Consumer<Item> onBroken) {
+            onBroken.accept(this);
+            return 1;
         }
     }
 }

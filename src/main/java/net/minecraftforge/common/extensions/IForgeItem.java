@@ -510,9 +510,6 @@ public interface IForgeItem {
      * @param damage   The amount of damage the item will take before processing
      * @param level    The level where the damage is taking place
      * @param player   The player holding the item
-     * @param canBreak If the item can break from this damage instance ({@code true} if this is called from
-     *                 {@link ItemStack#hurtAndBreak(int, ServerLevel, ServerPlayer, Consumer)}, {@code false} if from
-     *                 {@link ItemStack#hurtWithoutBreaking(int, Player)})
      * @param onBroken The callback for when an item is broken (use this if you plan on cancelling damage that will
      *                 break an item)
      * @return The amount of damage the item should take, after processing
@@ -520,7 +517,7 @@ public interface IForgeItem {
      * @apiNote If the item stack is not {@linkplain ItemStack#isDamageableItem() damageable} or the player
      * {@linkplain Player#hasInfiniteMaterials() has infinite materials}, this method will not be called.
      */
-    default int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, boolean canBreak, Consumer<Item> onBroken) {
+    default int damageItem(ItemStack stack, int damage, ServerLevel level, @Nullable ServerPlayer player, Consumer<Item> onBroken) {
         return damage;
     }
 
