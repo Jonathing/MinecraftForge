@@ -33,7 +33,7 @@
              if (player != null && interactionresult instanceof InteractionResult.Success interactionresult$success && interactionresult$success.wasItemInteraction()) {
                  player.awardStat(Stats.ITEM_USED.get(item));
              }
-@@ -468,18 +_,26 @@
+@@ -459,18 +_,26 @@
      }
  
      public void hurtAndBreak(int p_220158_, ServerLevel p_342197_, @Nullable ServerPlayer p_220160_, Consumer<Item> p_343361_) {
@@ -61,7 +61,7 @@
              return p_362423_ > 0 ? EnchantmentHelper.processDurabilityChange(p_364910_, this, p_362423_) : p_362423_;
          }
      }
-@@ -516,7 +_,13 @@
+@@ -507,7 +_,13 @@
                  p_41623_,
                  serverlevel,
                  p_41624_ instanceof ServerPlayer serverplayer ? serverplayer : null,
