@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import org.jetbrains.annotations.Nullable;
 
 import com.mojang.authlib.GameProfile;
@@ -92,6 +94,10 @@ public interface IForgeGameTestHelper {
     default <N> void assertValueEqual(N[] expected, N[] actual, String name, Supplier<String> message) {
         if (!Objects.deepEquals(expected, actual))
             throw new GameTestAssertException("%s -- Expected %s to be %s, but was %s".formatted(message.get(), name, Arrays.toString(expected), Arrays.toString(actual)));
+    }
+
+    default <E> Registry<E> registryLookup(ResourceKey<? extends Registry<? extends E>> registryKey) {
+        return this.self().getLevel().registryAccess().lookupOrThrow(registryKey);
     }
 
     default ServerPlayer makeMockServerPlayer() {
