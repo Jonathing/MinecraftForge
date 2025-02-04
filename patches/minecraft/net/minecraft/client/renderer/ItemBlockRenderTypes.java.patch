@@ -43,7 +43,7 @@
      public static RenderType getRenderType(BlockState p_364446_) {
          RenderType rendertype = getChunkRenderType(p_364446_);
          return rendertype == RenderType.translucent() ? Sheets.translucentItemSheet() : Sheets.cutoutBlockSheet();
-@@ -390,12 +_,77 @@
+@@ -390,12 +_,81 @@
          }
      }
  
@@ -57,6 +57,10 @@
  
      public static void setFancy(boolean p_109292_) {
          renderCutout = p_109292_;
++    }
++
++    public static boolean isFancy() {
++        return renderCutout;
 +    }
 +
 +    private static final net.minecraftforge.client.ChunkRenderTypeSet CUTOUT_MIPPED = net.minecraftforge.client.ChunkRenderTypeSet.of(RenderType.cutoutMipped());
