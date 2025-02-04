@@ -43,7 +43,7 @@ import java.util.function.Consumer;
 @GameTestHolder("forge." + ItemCapabilityTest.MOD_ID)
 @Mod(ItemCapabilityTest.MOD_ID)
 public class ItemCapabilityTest extends BaseTestMod {
-    public static final String MOD_ID = "item_caps_test";
+    public static final String MOD_ID = "item_caps";
 
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MOD_ID);
     public static final RegistryObject<DataComponentType<Integer>> STORAGE = DATA_COMPONENTS.register("energy_storage", () ->
