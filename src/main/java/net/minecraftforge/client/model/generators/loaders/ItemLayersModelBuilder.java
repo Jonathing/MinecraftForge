@@ -76,7 +76,7 @@ public class ItemLayersModelBuilder<T extends ModelBuilder<T>> extends CustomLoa
         return renderType(asLoc, layers);
     }
 
-    public ItemLayerModelBuilder<T> renderType(String renderType, String renderTypeFast, int... layers)
+    public ItemLayersModelBuilder<T> renderType(String renderType, String renderTypeFast, int... layers)
     {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         Preconditions.checkNotNull(renderTypeFast, "Fast graphics render type must not be null");
@@ -122,7 +122,7 @@ public class ItemLayersModelBuilder<T extends ModelBuilder<T>> extends CustomLoa
         return this;
     }
 
-    public ItemLayerModelBuilder<T> renderType(ResourceLocation renderType, ResourceLocation renderTypeFast, int... layers)
+    public ItemLayersModelBuilder<T> renderType(ResourceLocation renderType, ResourceLocation renderTypeFast, int... layers)
     {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         Preconditions.checkNotNull(renderTypeFast, "Fast graphics render type must not be null");
