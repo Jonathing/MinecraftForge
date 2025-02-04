@@ -171,6 +171,7 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     public T renderType(ResourceLocation renderType) {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         this.renderType = renderType.toString();
+        this.renderTypeFast = null;
         return self();
     }
 
