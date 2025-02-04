@@ -24,13 +24,13 @@
 +        if (this.customData.getCustomGeometry() != null)
 +            return this.customData.getCustomGeometry().bake(customData, p_378458_, p_378598_, p_111453_);
 +
-+        var wrapped = net.minecraftforge.client.ForgeHooksClient.wrapRenderType(p_378458_, this.customData.getRenderType());
++        var wrapped = net.minecraftforge.client.ForgeHooksClient.wrapRenderType(p_378458_, this.customData.getRenderType(), this.customData.getRenderTypeFast());
 +
          return this.elements.isEmpty() && this.parent != null
 -            ? this.parent.bake(p_378598_, p_378458_, p_111453_, p_111455_, p_377435_, p_378085_)
 -            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_);
 +            ? this.parent.bake(p_378598_, wrapped, p_111453_, p_111455_, p_377435_, p_378085_)
-+            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_, wrapped.renderType());
++            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_, wrapped.renderType(), wrapped.renderTypeFast());
      }
  
      @Nullable

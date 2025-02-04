@@ -37,10 +37,18 @@ public class ItemLayerModel implements IUnbakedGeometry<ItemLayerModel> {
     @Nullable
     private ImmutableList<Material> textures;
     private final Int2ObjectMap<ResourceLocation> renderTypeNames;
+    private final Int2ObjectMap<ResourceLocation> renderTypeFastNames;
 
     private ItemLayerModel(@Nullable ImmutableList<Material> textures, Int2ObjectMap<ResourceLocation> renderTypeNames) {
         this.textures = textures;
         this.renderTypeNames = renderTypeNames;
+        this.renderTypeFastNames = new Int2ObjectOpenHashMap<>();
+    }
+
+    private ItemLayerModel(@Nullable ImmutableList<Material> textures, Int2ObjectMap<ResourceLocation> renderTypeNames, Int2ObjectMap<ResourceLocation> renderTypeFastNames) {
+        this.textures = textures;
+        this.renderTypeNames = renderTypeNames;
+        this.renderTypeFastNames = renderTypeFastNames;
     }
 
     @Override
@@ -69,7 +77,9 @@ public class ItemLayerModel implements IUnbakedGeometry<ItemLayerModel> {
             var quads = UnbakedGeometryHelper.bakeElements(unbaked, $ -> sprite, modelState);
             var renderTypeName = renderTypeNames.get(i);
             var renderTypes = renderTypeName != null ? context.getRenderType(renderTypeName) : null;
-            builder.addQuads(renderTypes != null ? renderTypes : normalRenderTypes, quads);
+            var renderTypeFastName = renderTypeFastNames.get(i);
+            var renderTypesFast = renderTypeFastName != null ? context.getRenderType(renderTypeFastName) : null;
+            builder.addQuads(renderTypes != null ? renderTypes : normalRenderTypes, renderTypesFast != null ? renderTypesFast : RenderTypeGroup.EMPTY, quads);
         }
 
         return builder.build();
@@ -91,10 +101,25 @@ public class ItemLayerModel implements IUnbakedGeometry<ItemLayerModel> {
                 }
             }
 
-            return new ItemLayerModel(null, renderTypeNames);
+            var renderTypeFastNames = new Int2ObjectOpenHashMap<ResourceLocation>();
+            if (jsonObject.has("render_types_fast")) {
+                var renderTypes = jsonObject.getAsJsonObject("render_types_fast");
+                for (var entry : renderTypes.entrySet()) {
+                    var renderType = ResourceLocation.parse(entry.getKey());
+                    for (var layer : entry.getValue().getAsJsonArray())
+                        if (renderTypeFastNames.put(layer.getAsInt(), renderType) != null)
+                            throw new JsonParseException("Registered duplicate render type for layer " + layer);
+                }
+            }
+
+            return new ItemLayerModel(null, renderTypeNames, renderTypeFastNames);
         }
 
         protected void readLayerData(JsonObject jsonObject, String name, Int2ObjectOpenHashMap<ResourceLocation> renderTypeNames, Int2ObjectMap<ForgeFaceData> layerData, boolean logWarning) {
+            this.readLayerData(jsonObject, name, renderTypeNames, new Int2ObjectOpenHashMap<>(), layerData, logWarning);
+        }
+
+        protected void readLayerData(JsonObject jsonObject, String name, Int2ObjectOpenHashMap<ResourceLocation> renderTypeNames, Int2ObjectOpenHashMap<ResourceLocation> renderTypeFastNames, Int2ObjectMap<ForgeFaceData> layerData, boolean logWarning) {
             if (!jsonObject.has(name))
                 return;
 

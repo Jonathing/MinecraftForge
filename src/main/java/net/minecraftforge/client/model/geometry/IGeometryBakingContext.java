@@ -54,6 +54,13 @@ public interface IGeometryBakingContext {
     ResourceLocation getRenderTypeHint();
 
     /**
+     * @return a hint of the {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics} render type this model
+     * should use. Custom loaders may ignore this.
+     */
+    @Nullable
+    default ResourceLocation getRenderTypeFastHint() { return null; }
+
+    /**
      * Queries the visibility of a component of this model.
      *
      * @param component The component for which to query visibility
@@ -74,6 +81,14 @@ public interface IGeometryBakingContext {
      */
     default RenderTypeGroup getRenderType() {
         var hint = getRenderTypeHint();
+        return hint == null ? RenderTypeGroup.EMPTY : getRenderType(hint);
+    }
+
+    /**
+     * {@return a {@link RenderTypeGroup} from the {@link #getRenderTypeHint()}, or the empty group if not found.}
+     */
+    default RenderTypeGroup getRenderTypeFast() {
+        var hint = getRenderTypeFastHint();
         return hint == null ? RenderTypeGroup.EMPTY : getRenderType(hint);
     }
 }

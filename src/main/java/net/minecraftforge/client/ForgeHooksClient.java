@@ -906,6 +906,11 @@ public class ForgeHooksClient {
             model.customData.setRenderTypeHint(ResourceLocation.parse(renderTypeHintName));
         }
 
+        if (json.has("render_type_fast")) {
+            var renderTypeHintName = GsonHelper.getAsString(json, "render_type_fast");
+            model.customData.setRenderTypeFastHint(ResourceLocation.parse(renderTypeHintName));
+        }
+
         if (json.has("visibility")) {
             var visibility = GsonHelper.getAsJsonObject(json, "visibility");
             for (var part : visibility.entrySet())
@@ -922,11 +927,26 @@ public class ForgeHooksClient {
         return new WrapedModelBaker(parent, group);
     }
 
+    public static ModelBaker wrapRenderType(ModelBaker parent, RenderTypeGroup group, RenderTypeGroup groupFast) {
+        if (group == null || group == RenderTypeGroup.EMPTY || parent.renderType() != null)
+            return parent;
+        return new WrapedModelBaker(parent, group, groupFast);
+    }
+
     // a record for performance reasons
-    private record WrapedModelBaker(ModelBaker parent, RenderTypeGroup group) implements ModelBaker {
+    private record WrapedModelBaker(ModelBaker parent, RenderTypeGroup group, RenderTypeGroup groupFast) implements ModelBaker {
+        private WrapedModelBaker(ModelBaker parent, RenderTypeGroup group) {
+            this(parent, group, RenderTypeGroup.EMPTY);
+        }
+
         @Override
         public RenderTypeGroup renderType() {
             return group;
+        }
+
+        @Override
+        public RenderTypeGroup renderTypeFast() {
+            return groupFast;
         }
 
         @Override

@@ -23,7 +23,7 @@ public abstract class SimpleUnbakedGeometry<T extends SimpleUnbakedGeometry<T>> 
         var particle = baker.sprites().maybeMissing(textures, "particle");
 
         IModelBuilder<?> builder = IModelBuilder.of(context.useAmbientOcclusion(), context.useBlockLight(), context.isGui3d(),
-                context.getTransforms(), particle, context.getRenderType());
+                context.getTransforms(), particle, context.getRenderType(), context.getRenderTypeFast());
 
         addQuads(context, builder, baker, textures, modelState);
 
