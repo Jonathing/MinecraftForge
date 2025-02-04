@@ -65,6 +65,7 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     protected final ExistingFileHelper existingFileHelper;
 
     protected String renderType = null;
+    protected String renderTypeFast = null;
     protected boolean ambientOcclusion = true;
     protected GuiLight guiLight = null;
 
@@ -166,6 +167,11 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
         return renderType(ResourceLocation.parse(renderType));
     }
 
+    public T renderType(String renderType, String renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        return renderType(ResourceLocation.parse(renderType), ResourceLocation.parse(renderTypeFast));
+    }
+
     /**
      * Set the render type for this model.
      *
@@ -177,6 +183,15 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     public T renderType(ResourceLocation renderType) {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         this.renderType = renderType.toString();
+        this.renderTypeFast = null;
+        return self();
+    }
+
+    public T renderType(ResourceLocation renderType, ResourceLocation renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        Preconditions.checkNotNull(renderTypeFast, "Fast graphics render type must not be null");
+        this.renderType = renderType.toString();
+        this.renderTypeFast = renderType.toString();
         return self();
     }
 
