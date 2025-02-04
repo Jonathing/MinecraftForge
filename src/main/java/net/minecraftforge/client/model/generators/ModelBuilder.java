@@ -55,6 +55,7 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     protected final ExistingFileHelper existingFileHelper;
 
     protected String renderType = null;
+    protected String renderTypeFast = null;
     protected boolean ambientOcclusion = true;
     protected GuiLight guiLight = null;
 
@@ -153,6 +154,12 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
         return renderType(new ResourceLocation(renderType));
     }
 
+    public T renderType(String renderType, String renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        Preconditions.checkNotNull(renderTypeFast, "Render type for fast graphics must not be null");
+        return renderType(new ResourceLocation(renderType), new ResourceLocation(renderTypeFast));
+    }
+
     /**
      * Set the render type for this model.
      *
@@ -164,6 +171,14 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
     public T renderType(ResourceLocation renderType) {
         Preconditions.checkNotNull(renderType, "Render type must not be null");
         this.renderType = renderType.toString();
+        return self();
+    }
+
+    public T renderType(ResourceLocation renderType, ResourceLocation renderTypeFast) {
+        Preconditions.checkNotNull(renderType, "Render type must not be null");
+        Preconditions.checkNotNull(renderTypeFast, "Render type for fast graphics must not be null");
+        this.renderType = renderType.toString();
+        this.renderTypeFast = renderTypeFast.toString();
         return self();
     }
 
@@ -241,6 +256,10 @@ public class ModelBuilder<T extends ModelBuilder<T>> extends ModelFile {
 
         if (this.renderType != null) {
             root.addProperty("render_type", this.renderType);
+        }
+
+        if (this.renderTypeFast != null) {
+            root.addProperty("render_type_fast", this.renderType);
         }
 
         Map<TransformType, ItemTransform> transforms = this.transforms.build();
