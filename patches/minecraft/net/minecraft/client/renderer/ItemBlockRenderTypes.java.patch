@@ -43,7 +43,7 @@
      public static RenderType getRenderType(BlockState p_364446_) {
          RenderType rendertype = getChunkRenderType(p_364446_);
          return rendertype == RenderType.translucent() ? Sheets.translucentItemSheet() : Sheets.cutoutBlockSheet();
-@@ -390,12 +_,81 @@
+@@ -385,12 +_,81 @@
          }
      }
  

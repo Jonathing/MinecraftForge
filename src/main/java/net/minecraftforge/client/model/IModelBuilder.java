@@ -61,20 +61,22 @@ public interface IModelBuilder<T extends IModelBuilder<T>> {
     class Simple implements IModelBuilder<Simple> {
         private final SimpleBakedModel.Builder builder;
         private final RenderTypeGroup renderTypes;
+        private final RenderTypeGroup renderTypesFast;
 
         private Simple(boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
                        ItemTransforms transforms, TextureAtlasSprite particle, RenderTypeGroup renderTypes
         ) {
             this.builder = new SimpleBakedModel.Builder(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms).particle(particle);
             this.renderTypes = renderTypes;
+            this.renderTypesFast = RenderTypeGroup.EMPTY;
         }
 
-        private Simple(
-            boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
-            ItemTransforms transforms, TextureAtlasSprite particle, RenderTypeGroup renderTypes, RenderTypeGroup renderTypesFast
+        private Simple(boolean hasAmbientOcclusion, boolean usesBlockLight, boolean isGui3d,
+                       ItemTransforms transforms, TextureAtlasSprite particle, RenderTypeGroup renderTypes, RenderTypeGroup renderTypesFast
         ) {
             this.builder = new SimpleBakedModel.Builder(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms).particle(particle);
-            this.builder.renderTypes(renderTypes, renderTypesFast);
+            this.renderTypes = renderTypes;
+            this.renderTypesFast = renderTypesFast;
         }
 
         @Override

@@ -122,8 +122,7 @@ public class BlockGeometryBakingContext implements IGeometryBakingContext {
     public ResourceLocation getRenderTypeFastHint() {
         if (renderTypeFastHint != null)
             return renderTypeFastHint;
-        var pctx = parentContext();
-        return pctx == null ? null: pctx.getRenderTypeFastHint();
+        return owner.parent != null ? owner.parent.customData.getRenderTypeFastHint() : null;
     }
 
     public void setRenderTypeHint(ResourceLocation renderTypeHint) {
