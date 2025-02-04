@@ -13,16 +13,16 @@
      }
  
      private ItemStack(ItemLike p_331826_, int p_332766_, PatchedDataComponentMap p_333722_) {
-+        super(ItemStack.class, false);
++        super(ItemStack.class, true);
          this.item = p_331826_.asItem();
          this.count = p_332766_;
          this.components = p_333722_;
          this.getItem().verifyComponentsAfterLoad(this);
-+        gatherCapabilities();
++        gatherCapabilities(() -> this.item.getCapabilityProvider());
      }
  
      private ItemStack(@Nullable Void p_282703_) {
-+        super(ItemStack.class, true);
++        super(ItemStack.class, false);
          this.item = null;
          this.components = new PatchedDataComponentMap(DataComponentMap.EMPTY);
      }
