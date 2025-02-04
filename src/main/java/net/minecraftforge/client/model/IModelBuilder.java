@@ -83,7 +83,7 @@ public interface IModelBuilder<T extends IModelBuilder<T>>
         {
             this.builder = new SimpleBakedModel.Builder(hasAmbientOcclusion, usesBlockLight, isGui3d, transforms, overrides).particle(particle);
             this.renderTypes = renderTypes;
-            this.renderTypesFast = renderTypes;
+            this.renderTypesFast = renderTypesFast;
         }
 
         @Override
