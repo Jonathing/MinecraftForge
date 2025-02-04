@@ -24,6 +24,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 import net.minecraftforge.test.BaseTestMod;
+import net.minecraftforge.unsafe.UnsafeHacks;
 
 import java.util.Map;
 
@@ -58,7 +59,8 @@ public class VillagerTypeTestMod extends BaseTestMod {
         helper.succeed();
     }
 
-    /** Test verifies NPE not thrown when looking up a villager type in the trade that doesn't contain that type.*/
+    /* THIS TEST DOESN'T WORK IN 1.20.4 BECAUSE VillagerTrades.EmeraldsForVillagerTypeItem IS PACKAGE PRIVATE
+    /** Test verifies NPE not thrown when looking up a villager type in the trade that doesn't contain that type.* /
     @GameTest(template = "forge:empty3x3x3")
     public static void emeralds_for_villager_type(GameTestHelper helper) {
         var trade = new VillagerTrades.EmeraldsForVillagerTypeItem(1, 12, 30, Map.of(TEST_VILLAGER_TYPE.get(), Items.DIRT));
@@ -77,4 +79,5 @@ public class VillagerTypeTestMod extends BaseTestMod {
 
         helper.succeed();
     }
+     */
 }
