@@ -6,32 +6,10 @@
     protected ResourceLocation parentLocation;
 +   public final net.minecraftforge.client.model.geometry.BlockGeometryBakingContext customData = new net.minecraftforge.client.model.geometry.BlockGeometryBakingContext(this);
  
-     public static BlockModel fromStream(Reader p_111462_) {
-         return GsonHelper.fromJson(GSON, p_111462_, BlockModel.class);
-@@ -85,6 +_,8 @@
-     @Override
-     public void resolveDependencies(ResolvableModel.Resolver p_377823_) {
-         if (this.parentLocation != null) {
-+            if (customData.hasCustomGeometry())
-+                customData.getCustomGeometry().resolveDependencies(p_377823_, customData);
-             this.parent = p_377823_.resolve(this.parentLocation);
-         }
-     }
-@@ -110,14 +_,20 @@
-     public BakedModel bake(
-         TextureSlots p_378598_, ModelBaker p_378458_, ModelState p_111453_, boolean p_111455_, boolean p_377435_, ItemTransforms p_378085_
-     ) {
-+        if (this.customData.getCustomGeometry() != null)
-+            return this.customData.getCustomGeometry().bake(customData, p_378458_, p_378598_, p_111453_);
-+
-+        var wrapped = net.minecraftforge.client.ForgeHooksClient.wrapRenderType(p_378458_, this.customData.getRenderType(), this.customData.getRenderTypeFast());
-+
-         return this.elements.isEmpty() && this.parent != null
--            ? this.parent.bake(p_378598_, p_378458_, p_111453_, p_111455_, p_377435_, p_378085_)
--            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_);
-+            ? this.parent.bake(p_378598_, wrapped, p_111453_, p_111455_, p_377435_, p_378085_)
-+            : SimpleBakedModel.bakeElements(this.elements, p_378598_, p_378458_.sprites(), p_111453_, p_111455_, p_377435_, true, p_378085_, wrapped.renderType(), wrapped.renderTypeFast());
-     }
+    public static BlockModel fromStream(Reader p_111462_) {
+-      return GsonHelper.fromJson(GSON, p_111462_, BlockModel.class);
++      return GsonHelper.fromJson(net.minecraftforge.client.model.ExtendedBlockModelDeserializer.INSTANCE, p_111462_, BlockModel.class);
+    }
  
     public static BlockModel fromString(String p_111464_) {
 @@ -87,10 +_,15 @@
