@@ -28,10 +28,8 @@ public abstract class SimpleUnbakedGeometry<T extends SimpleUnbakedGeometry<T>> 
     {
         TextureAtlasSprite particle = spriteGetter.apply(context.getMaterial("particle"));
 
-        var renderTypeHint = context.getRenderTypeHint();
-        var renderTypes = renderTypeHint != null ? context.getRenderType(renderTypeHint) : RenderTypeGroup.EMPTY;
         IModelBuilder<?> builder = IModelBuilder.of(context.useAmbientOcclusion(), context.useBlockLight(), context.isGui3d(),
-                context.getTransforms(), overrides, particle, renderTypes);
+                context.getTransforms(), particle, context.getRenderType(), context.getRenderTypeFast());
 
         addQuads(context, builder, baker, spriteGetter, modelState);
 
