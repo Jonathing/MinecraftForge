@@ -54,6 +54,8 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
     private final Transformation rootTransform;
     @Nullable
     private final ResourceLocation renderTypeHint;
+    @Nullable
+    private final ResourceLocation renderTypeFastHint;
     private final BiPredicate<String, Boolean> visibilityTest;
 
     private StandaloneGeometryBakingContext(ResourceLocation modelName, Predicate<String> materialCheck,
@@ -61,6 +63,18 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
                                             boolean useBlockLight, boolean useAmbientOcclusion,
                                             ItemTransforms transforms, Transformation rootTransform,
                                             @Nullable ResourceLocation renderTypeHint,
+                                            BiPredicate<String, Boolean> visibilityTest)
+    {
+        this(modelName, materialCheck, materialLookup, isGui3d, useBlockLight, useAmbientOcclusion,
+                transforms, rootTransform, renderTypeHint, null, visibilityTest);
+    }
+
+    private StandaloneGeometryBakingContext(ResourceLocation modelName, Predicate<String> materialCheck,
+                                            Function<String, Material> materialLookup, boolean isGui3d,
+                                            boolean useBlockLight, boolean useAmbientOcclusion,
+                                            ItemTransforms transforms, Transformation rootTransform,
+                                            @Nullable ResourceLocation renderTypeHint,
+                                            @Nullable ResourceLocation renderTypeFastHint,
                                             BiPredicate<String, Boolean> visibilityTest)
     {
         this.modelName = modelName;
@@ -72,6 +86,7 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
         this.transforms = transforms;
         this.rootTransform = rootTransform;
         this.renderTypeHint = renderTypeHint;
+        this.renderTypeFastHint = renderTypeFastHint;
         this.visibilityTest = visibilityTest;
     }
 
@@ -130,6 +145,12 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
         return renderTypeHint;
     }
 
+    @Nullable
+    @Override
+    public ResourceLocation getRenderTypeFastHint() {
+        return renderTypeFastHint;
+    }
+
     @Override
     public boolean isComponentVisible(String component, boolean fallback)
     {
@@ -158,6 +179,8 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
         private Transformation rootTransform = Transformation.identity();
         @Nullable
         private ResourceLocation renderTypeHint;
+        @Nullable
+        private ResourceLocation renderTypeFastHint;
         private BiPredicate<String, Boolean> visibilityTest = (c, def) -> def;
 
         private Builder()
@@ -174,6 +197,7 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
             this.transforms = parent.getTransforms();
             this.rootTransform = parent.getRootTransform();
             this.renderTypeHint = parent.getRenderTypeHint();
+            this.renderTypeFastHint = parent.getRenderTypeFastHint();
             this.visibilityTest = parent::isComponentVisible;
         }
 
@@ -229,6 +253,14 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
         public Builder withRenderTypeHint(ResourceLocation renderTypeHint)
         {
             this.renderTypeHint = renderTypeHint;
+            this.renderTypeFastHint = null;
+            return this;
+        }
+
+        public Builder withRenderTypeHint(ResourceLocation renderTypeHint, ResourceLocation renderTypeFastHint)
+        {
+            this.renderTypeHint = renderTypeHint;
+            this.renderTypeFastHint = renderTypeFastHint;
             return this;
         }
 
@@ -240,7 +272,7 @@ public class StandaloneGeometryBakingContext implements IGeometryBakingContext
 
         public StandaloneGeometryBakingContext build(ResourceLocation modelName)
         {
-            return new StandaloneGeometryBakingContext(modelName, materialCheck, materialLookup, isGui3d, useBlockLight, useAmbientOcclusion, transforms, rootTransform, renderTypeHint, visibilityTest);
+            return new StandaloneGeometryBakingContext(modelName, materialCheck, materialLookup, isGui3d, useBlockLight, useAmbientOcclusion, transforms, rootTransform, renderTypeHint, renderTypeFastHint, visibilityTest);
         }
     }
 }
