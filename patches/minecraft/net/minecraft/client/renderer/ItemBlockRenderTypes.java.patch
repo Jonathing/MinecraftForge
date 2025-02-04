@@ -52,7 +52,7 @@
     public static RenderType m_109279_(ItemStack p_109280_, boolean p_109281_) {
        Item item = p_109280_.m_41720_();
        if (item instanceof BlockItem) {
-@@ -365,8 +_,78 @@
+@@ -362,8 +_,78 @@
     }
  
     public static RenderType m_109287_(FluidState p_109288_) {
