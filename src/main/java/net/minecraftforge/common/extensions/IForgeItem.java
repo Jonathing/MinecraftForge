@@ -619,7 +619,7 @@ public interface IForgeItem {
      * @deprecated Use the itemstack-sensitive version instead: {@link #getCapabilityProvider(ItemStack)}
      */
     @Nullable
-    @Deprecated(forRemoval = true)
+    @Deprecated(forRemoval = true, since = "1.21.4")
     default ICapabilityProvider getCapabilityProvider() {
         return null;
     }
