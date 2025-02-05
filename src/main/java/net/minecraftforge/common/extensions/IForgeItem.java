@@ -590,10 +590,10 @@ public interface IForgeItem {
     }
 
     /**
-     * @return The Default Capability Provider for this item, if any.
+     * @return The Default Capability Provider for this item, if any, accounting for the given itemstack.
      */
     @Nullable
-    default ICapabilityProvider getCapabilityProvider() {
+    default ICapabilityProvider getCapabilityProvider(ItemStack stack) {
         return null;
     }
 }

@@ -18,7 +18,7 @@
          this.count = p_332766_;
          this.components = p_333722_;
          this.getItem().verifyComponentsAfterLoad(this);
-+        gatherCapabilities(() -> this.item.getCapabilityProvider());
++        gatherCapabilities(() -> this.item.getCapabilityProvider(this));
      }
  
      private ItemStack(@Nullable Void p_282703_) {
