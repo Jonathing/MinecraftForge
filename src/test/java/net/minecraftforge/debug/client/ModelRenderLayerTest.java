@@ -133,11 +133,11 @@ public class ModelRenderLayerTest extends BaseTestMod {
 
         ItemBlockRenderTypes.setFancy(true);
         var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(RenderType.cutout()), "Block model does not contain the current render type for fancy graphics. Expected: cutout");
+        helper.assertTrue(layer.contains(RenderType.cutout()), "Block model does not contain the correct render type for fancy graphics. Expected: cutout");
 
         ItemBlockRenderTypes.setFancy(false);
         layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
+        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the correct render type for fast graphics. Expected: solid");
 
         helper.succeed();
     }
@@ -157,11 +157,11 @@ public class ModelRenderLayerTest extends BaseTestMod {
 
         ItemBlockRenderTypes.setFancy(true);
         var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(RenderType.cutoutMipped()), "Block model does not contain the current render type for fancy graphics. Expected: cutout_mipped");
+        helper.assertTrue(layer.contains(RenderType.cutoutMipped()), "Block model does not contain the correct render type for fancy graphics. Expected: cutout_mipped");
 
         ItemBlockRenderTypes.setFancy(false);
         layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
+        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the correct render type for fast graphics. Expected: solid");
 
         helper.succeed();
     }
