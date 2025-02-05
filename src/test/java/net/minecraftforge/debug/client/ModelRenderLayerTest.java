@@ -14,6 +14,7 @@ import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
@@ -34,6 +35,7 @@ import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -112,6 +114,7 @@ public class ModelRenderLayerTest extends BaseTestMod {
         event.getGenerator().addProvider(event.includeClient(), new ModelProvider(out));
     }
 
+    // TODO Would it be safe to change the graphics setting? I don't know if tests run in parallel.
     @SuppressWarnings("resource")
     @GameTest(template = "forge:empty3x3x3")
     public static void type_from_model(GameTestHelper helper) {
@@ -126,25 +129,28 @@ public class ModelRenderLayerTest extends BaseTestMod {
         var state = BLOCK.get().defaultBlockState();
         var random = helper.getLevel().random;
         var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutout() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.useFancyGraphics() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout() : RenderType.solid()));
+        helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutout() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.useFancyGraphics() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout().toString() : RenderType.solid().toString()));
 
         helper.succeed();
     }
 
+    // TODO Would it be safe to change the graphics setting? I don't know if tests run in parallel.
     @GameTest(template = "forge:empty3x3x3")
     public static void old_leaves_render_type(GameTestHelper helper) {
         var manager = Minecraft.getInstance().getModelManager();
 
-        var key = new ModelResourceLocation(rl(OLD_LEAVES_NAME), "");
-        var model = manager.getModel(key);
+        var key = rl(OLD_LEAVES_NAME);
+        var models = manager.getModels().entrySet().stream().filter(ml -> ml.getKey().id().equals(key)).map(Map.Entry::getValue).toArray(BakedModel[]::new);
 
-        if (model == manager.getMissingModel())
-            helper.fail("Failed to retreive " + key + " block model");
+        if (models.length == 0)
+            helper.fail("Failed to retrieve any block models for " + key);
 
         var state = OLD_LEAVES.get().defaultBlockState();
         var random = helper.getLevel().random;
-        var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutoutMipped() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.useFancyGraphics() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout() : RenderType.solid()));
+        for (var model : models) {
+            var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
+            helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutoutMipped() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.getInstance().options.graphicsMode().get().name() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout().toString() : RenderType.solid().toString()));
+        }
 
         helper.succeed();
     }
