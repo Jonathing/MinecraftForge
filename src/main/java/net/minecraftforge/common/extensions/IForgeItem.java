@@ -615,9 +615,18 @@ public interface IForgeItem {
 
     /**
      * @return The Default Capability Provider for this item, if any.
+     *
+     * @deprecated Use the itemstack-sensitive version instead: {@link #getCapabilityProvider(ItemStack)}
      */
     @Nullable
+    @Deprecated(forRemoval = true)
     default ICapabilityProvider getCapabilityProvider() {
         return null;
+    }
+
+    /** @return The Default Capability Provider for this item, if any, accounting for the given itemstack. */
+    @Nullable
+    default ICapabilityProvider getCapabilityProvider(ItemStack stack) {
+        return this.getCapabilityProvider();
     }
 }
