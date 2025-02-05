@@ -1,0 +1,19 @@
+package net.minecraftforge.common.extensions;
+
+import net.minecraft.world.level.storage.LevelSummary;
+
+public interface IForgeLevelSummary {
+    private LevelSummary self() {
+        return (LevelSummary) this;
+    }
+
+    /**
+     * Checks if the Forge lifecycle of this level is experimental. This is used to render the experimental warning
+     * tooltip on the level select screen.
+     *
+     * @return {@code true} if the level is experimental
+     */
+    default boolean isLifecycleExperimental() {
+        return this.self().getSettings().getLifecycle().equals(com.mojang.serialization.Lifecycle.experimental());
+    }
+}
