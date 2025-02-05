@@ -29,10 +29,11 @@
     public String toDebugFileName() {
        return this.toString().replace('/', '_').replace(':', '_');
     }
-@@ -244,5 +_,15 @@
+@@ -243,6 +_,55 @@
+ 
        public JsonElement serialize(ResourceLocation p_135855_, Type p_135856_, JsonSerializationContext p_135857_) {
           return new JsonPrimitive(p_135855_.toString());
-       }
++      }
 +   }
 +
 +   /** Forge: Backport of Vanilla 1.21 method */
@@ -43,5 +44,44 @@
 +   /** Forge: Backport of Vanilla 1.21 method */
 +   public static ResourceLocation parse(String location) {
 +      return new ResourceLocation(location);
++   }
++
++   /** Forge: Backport of Vanilla 1.21 method */
++   public static ResourceLocation withDefaultNamespace(String path) {
++      return new ResourceLocation(DEFAULT_NAMESPACE, assertValidPath(DEFAULT_NAMESPACE, path), null);
++   }
++
++   /** Forge: Backport of Vanilla 1.21 method */
++   public static ResourceLocation bySeparator(String p_342228_, char p_344234_) {
++      int i = p_342228_.indexOf(p_344234_);
++      if (i >= 0) {
++         String s = p_342228_.substring(i + 1);
++         if (i != 0) {
++            String s1 = p_342228_.substring(0, i);
++            return new ResourceLocation(s1, s);
++         } else {
++            return withDefaultNamespace(s);
++         }
++      } else {
++         return withDefaultNamespace(p_342228_);
++      }
++   }
++
++   /** Forge: Backport of Vanilla 1.21 method */
++   public static @Nullable ResourceLocation tryBySeparator(String p_344079_, char p_344067_) {
++      int i = p_344079_.indexOf(p_344067_);
++      if (i >= 0) {
++         String s = p_344079_.substring(i + 1);
++         if (!isValidPath(s)) {
++            return null;
++         } else if (i != 0) {
++            String s1 = p_344079_.substring(0, i);
++            return isValidNamespace(s1) ? new ResourceLocation(s1, s, null) : null;
++         } else {
++            return new ResourceLocation(DEFAULT_NAMESPACE, s, null);
++         }
++      } else {
++         return isValidPath(p_344079_) ? new ResourceLocation(DEFAULT_NAMESPACE, p_344079_, null) : null;
+       }
     }
  }
