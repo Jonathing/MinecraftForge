@@ -42,9 +42,7 @@ public class ItemLayerModel implements IUnbakedGeometry<ItemLayerModel> {
     private final Int2ObjectMap<ResourceLocation> renderTypeFastNames;
 
     private ItemLayerModel(@Nullable ImmutableList<Material> textures, Int2ObjectMap<ResourceLocation> renderTypeNames) {
-        this.textures = textures;
-        this.renderTypeNames = renderTypeNames;
-        this.renderTypeFastNames = new Int2ObjectOpenHashMap<>();
+        this(textures, renderTypeNames, new Int2ObjectOpenHashMap<>());
     }
 
     private ItemLayerModel(@Nullable ImmutableList<Material> textures, Int2ObjectMap<ResourceLocation> renderTypeNames, Int2ObjectMap<ResourceLocation> renderTypeFastNames) {
@@ -90,36 +88,28 @@ public class ItemLayerModel implements IUnbakedGeometry<ItemLayerModel> {
 
         @Override
         public ItemLayerModel read(JsonObject jsonObject, JsonDeserializationContext deserializationContext) {
+            var renderTypeNames = readRenderTypeNames(jsonObject, "render_types");
+            var renderTypeFastNames = readRenderTypeNames(jsonObject, "render_types_fast");
+            return new ItemLayerModel(null, renderTypeNames, renderTypeFastNames);
+        }
+
+        private static Int2ObjectMap<ResourceLocation> readRenderTypeNames(JsonObject jsonObject, String key) {
             var renderTypeNames = new Int2ObjectOpenHashMap<ResourceLocation>();
-            if (jsonObject.has("render_types")) {
-                var renderTypes = jsonObject.getAsJsonObject("render_types");
+            if (jsonObject.has(key)) {
+                var renderTypes = jsonObject.getAsJsonObject(key);
                 for (var entry : renderTypes.entrySet()) {
                     var renderType = ResourceLocation.parse(entry.getKey());
                     for (var layer : entry.getValue().getAsJsonArray())
                         if (renderTypeNames.put(layer.getAsInt(), renderType) != null)
-                            throw new JsonParseException("Registered duplicate render type for layer " + layer);
+                            throw new JsonParseException("Registered duplicate " + key + " for layer " + layer);
                 }
             }
 
-            var renderTypeFastNames = new Int2ObjectOpenHashMap<ResourceLocation>();
-            if (jsonObject.has("render_types_fast")) {
-                var renderTypes = jsonObject.getAsJsonObject("render_types_fast");
-                for (var entry : renderTypes.entrySet()) {
-                    var renderType = ResourceLocation.parse(entry.getKey());
-                    for (var layer : entry.getValue().getAsJsonArray())
-                        if (renderTypeFastNames.put(layer.getAsInt(), renderType) != null)
-                            throw new JsonParseException("Registered duplicate render type for layer " + layer);
-                }
-            }
-
-            return new ItemLayerModel(null, renderTypeNames, renderTypeFastNames);
+            return renderTypeNames;
         }
 
+        @Deprecated(forRemoval = true, since = "1.21.4")
         protected void readLayerData(JsonObject jsonObject, String name, Int2ObjectOpenHashMap<ResourceLocation> renderTypeNames, Int2ObjectMap<ForgeFaceData> layerData, boolean logWarning) {
-            this.readLayerData(jsonObject, name, renderTypeNames, new Int2ObjectOpenHashMap<>(), layerData, logWarning);
-        }
-
-        protected void readLayerData(JsonObject jsonObject, String name, Int2ObjectOpenHashMap<ResourceLocation> renderTypeNames, Int2ObjectOpenHashMap<ResourceLocation> renderTypeFastNames, Int2ObjectMap<ForgeFaceData> layerData, boolean logWarning) {
             if (!jsonObject.has(name))
                 return;
 

@@ -50,7 +50,7 @@ public class EmptyModel extends SimpleUnbakedGeometry<EmptyModel> {
         private static final Material MISSING_TEXTURE = new Material(InventoryMenu.BLOCK_ATLAS, MissingTextureAtlasSprite.getLocation());
 
         public Baked() {
-            super(List.of(), Map.of(), false, false, false, UnitTextureAtlasSprite.INSTANCE, ItemTransforms.NO_TRANSFORMS, RenderTypeGroup.EMPTY);
+            super(List.of(), Map.of(), false, false, false, UnitTextureAtlasSprite.INSTANCE, ItemTransforms.NO_TRANSFORMS, RenderTypeGroup.EMPTY, RenderTypeGroup.EMPTY);
         }
 
         @Override
