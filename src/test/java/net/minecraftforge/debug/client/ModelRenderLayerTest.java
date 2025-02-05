@@ -13,6 +13,7 @@ import net.minecraft.client.data.models.model.ItemModelUtils;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
 import net.minecraft.client.data.models.model.ModelTemplates;
 import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -21,6 +22,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -114,7 +116,6 @@ public class ModelRenderLayerTest extends BaseTestMod {
         event.getGenerator().addProvider(event.includeClient(), new ModelProvider(out));
     }
 
-    // TODO Would it be safe to change the graphics setting? I don't know if tests run in parallel.
     @SuppressWarnings("resource")
     @GameTest(template = "forge:empty3x3x3")
     public static void type_from_model(GameTestHelper helper) {
@@ -122,36 +123,46 @@ public class ModelRenderLayerTest extends BaseTestMod {
 
         var key = new ModelResourceLocation(rl(BLOCK_NAME), "stage=0");
         var model = manager.getModel(key);
-
         if (model == manager.getMissingModel())
-            helper.fail("Failed to retreive " + key + " block model");
+            helper.fail("Failed to retreive block model for" + key);
 
         var state = BLOCK.get().defaultBlockState();
         var random = helper.getLevel().random;
-        var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-        helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutout() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.useFancyGraphics() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout().toString() : RenderType.solid().toString()));
+        boolean originalRenderState = ItemBlockRenderTypes.isFancy();
 
+        ItemBlockRenderTypes.setFancy(true);
+        var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
+        helper.assertTrue(layer.contains(RenderType.cutout()), "Block model does not contain the current render type for fancy graphics. Expected: cutout");
+
+        ItemBlockRenderTypes.setFancy(false);
+        layer = model.getRenderTypes(state, random, ModelData.EMPTY);
+        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
+
+        ItemBlockRenderTypes.setFancy(originalRenderState);
         helper.succeed();
     }
 
-    // TODO Would it be safe to change the graphics setting? I don't know if tests run in parallel.
     @GameTest(template = "forge:empty3x3x3")
     public static void old_leaves_render_type(GameTestHelper helper) {
         var manager = Minecraft.getInstance().getModelManager();
 
         var key = rl(OLD_LEAVES_NAME);
-        var models = manager.getModels().entrySet().stream().filter(ml -> ml.getKey().id().equals(key)).map(Map.Entry::getValue).toArray(BakedModel[]::new);
-
-        if (models.length == 0)
-            helper.fail("Failed to retrieve any block models for " + key);
+        var models = manager.getModels().entrySet().stream().filter(ml -> ml.getKey().id().equals(key)).map(Map.Entry::getValue).findAny();
+        var model = models.orElseThrow(() -> new GameTestAssertException("Failed to retrieve any block models for " + key));
 
         var state = OLD_LEAVES.get().defaultBlockState();
         var random = helper.getLevel().random;
-        for (var model : models) {
-            var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
-            helper.assertTrue(layer.contains(Minecraft.useFancyGraphics() ? RenderType.cutoutMipped() : RenderType.solid()), "Block model does not contain the current render type for the current graphics settings. Setting: " + Minecraft.getInstance().options.graphicsMode().get().name() + " Expected: " + (Minecraft.useFancyGraphics() ? RenderType.cutout().toString() : RenderType.solid().toString()));
-        }
+        boolean originalRenderState = ItemBlockRenderTypes.isFancy();
 
+        ItemBlockRenderTypes.setFancy(true);
+        var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
+        helper.assertTrue(layer.contains(RenderType.cutoutMipped()), "Block model does not contain the current render type for fancy graphics. Expected: cutout_mipped");
+
+        ItemBlockRenderTypes.setFancy(false);
+        layer = model.getRenderTypes(state, random, ModelData.EMPTY);
+        helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
+
+        ItemBlockRenderTypes.setFancy(originalRenderState);
         helper.succeed();
     }
 
