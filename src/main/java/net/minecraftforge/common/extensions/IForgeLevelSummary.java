@@ -14,6 +14,9 @@ public interface IForgeLevelSummary {
      * @return {@code true} if the level is experimental
      */
     default boolean isLifecycleExperimental() {
-        return this.self().getSettings().getLifecycle().equals(com.mojang.serialization.Lifecycle.experimental());
+        // NOTE: Because CorruptedLevelSummary and SymlinkLevelSummary can have null settings, we need to check it
+        var settings = this.self().getSettings();
+
+        return settings != null && settings.getLifecycle().equals(com.mojang.serialization.Lifecycle.experimental());
     }
 }
