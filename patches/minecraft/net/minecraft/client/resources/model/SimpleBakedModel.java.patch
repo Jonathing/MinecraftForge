@@ -54,7 +54,7 @@
 +        boolean hasRenderTypes = renderTypes != null && !renderTypes.isEmpty();
 +        boolean hasRenderTypesFast = renderTypesFast != null && !renderTypesFast.isEmpty();
 +        this.blockRenderTypes = hasRenderTypes ? net.minecraftforge.client.ChunkRenderTypeSet.of(renderTypes.block()) : null;
-+        this.blockRenderTypesFast = hasRenderTypesFast ? net.minecraftforge.client.ChunkRenderTypeSet.of(renderTypes.block()) : null;
++        this.blockRenderTypesFast = hasRenderTypesFast ? net.minecraftforge.client.ChunkRenderTypeSet.of(renderTypesFast.block()) : null;
 +        /*
 +        this.itemRenderTypes = hasRenderTypes ? List.of(renderTypes.entity()) : null;
 +        this.itemRenderTypesFast = hasRenderTypesFast ? List.of(renderTypesFast.entity()) : null;
