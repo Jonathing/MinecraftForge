@@ -129,6 +129,7 @@ public class ModelRenderLayerTest extends BaseTestMod {
         var state = BLOCK.get().defaultBlockState();
         var random = helper.getLevel().random;
         boolean originalRenderState = ItemBlockRenderTypes.isFancy();
+        helper.addCleanup(passed -> ItemBlockRenderTypes.setFancy(originalRenderState));
 
         ItemBlockRenderTypes.setFancy(true);
         var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
@@ -138,7 +139,6 @@ public class ModelRenderLayerTest extends BaseTestMod {
         layer = model.getRenderTypes(state, random, ModelData.EMPTY);
         helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
 
-        ItemBlockRenderTypes.setFancy(originalRenderState);
         helper.succeed();
     }
 
@@ -153,6 +153,7 @@ public class ModelRenderLayerTest extends BaseTestMod {
         var state = OLD_LEAVES.get().defaultBlockState();
         var random = helper.getLevel().random;
         boolean originalRenderState = ItemBlockRenderTypes.isFancy();
+        helper.addCleanup(passed -> ItemBlockRenderTypes.setFancy(originalRenderState));
 
         ItemBlockRenderTypes.setFancy(true);
         var layer = model.getRenderTypes(state, random, ModelData.EMPTY);
@@ -162,7 +163,6 @@ public class ModelRenderLayerTest extends BaseTestMod {
         layer = model.getRenderTypes(state, random, ModelData.EMPTY);
         helper.assertTrue(layer.contains(RenderType.solid()), "Block model does not contain the current render type for fast graphics. Expected: solid");
 
-        ItemBlockRenderTypes.setFancy(originalRenderState);
         helper.succeed();
     }
 
