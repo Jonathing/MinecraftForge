@@ -1,15 +1,23 @@
 --- a/net/minecraft/client/resources/model/SimpleBakedModel.java
 +++ b/net/minecraft/client/resources/model/SimpleBakedModel.java
-@@ -29,6 +_,25 @@
+@@ -29,7 +_,33 @@
      private final boolean usesBlockLight;
      private final TextureAtlasSprite particleIcon;
      private final ItemTransforms transforms;
+-
++    /** Forge: Block render types to be used with {@linkplain net.minecraft.client.GraphicsStatus#FANCY fancy graphics} */
 +    protected final net.minecraftforge.client.ChunkRenderTypeSet blockRenderTypes;
++    /** Forge: Block render types to be used with {@linkplain net.minecraft.client.GraphicsStatus#FANCY fast graphics} */
 +    protected final net.minecraftforge.client.ChunkRenderTypeSet blockRenderTypesFast;
 +    /*
++    /** Forge: Item render types to be used with {@linkplain net.minecraft.client.GraphicsStatus#FANCY fancy graphics} * /
 +    protected final List<net.minecraft.client.renderer.RenderType> itemRenderTypes;
++    /** Forge: Item render types to be used with {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics} * /
++    protected final List<net.minecraft.client.renderer.RenderType> itemRenderTypesFast;
++    /** Forge: Item render types to be used with {@linkplain net.minecraft.client.GraphicsStatus#FABULOUS fabulous graphics} * /
 +    protected final List<net.minecraft.client.renderer.RenderType> fabulousItemRenderTypes;
 +    */
++    /** Forge: If this model's {@linkplain #blockRenderTypes block render types} are rendering cutout, to account for older leaves model JSONs */
 +    protected final boolean isRenderingCutout;
 +
 +    /** @deprecated Forge: Use {@linkplain #SimpleBakedModel(List, Map, boolean, boolean, boolean, TextureAtlasSprite, ItemTransforms, net.minecraftforge.client.RenderTypeGroup, net.minecraftforge.client.RenderTypeGroup) variant with RenderTypeGroup} **/
@@ -18,14 +26,15 @@
 +        this(p_119489_, p_119490_, p_119491_, p_119492_, p_119493_, p_119494_, p_119495_, net.minecraftforge.client.RenderTypeGroup.EMPTY);
 +    }
 +
-+    /** @deprecated Forge: Use {@linkplain #SimpleBakedModel(List, Map, boolean, boolean, boolean, TextureAtlasSprite, ItemTransforms, net.minecraftforge.client.RenderTypeGroup, net.minecraftforge.client.RenderTypeGroup) variant with RenderTypeGroup} **/
-+    @Deprecated
++    /** Forge: Consider using {@linkplain #SimpleBakedModel(List, Map, boolean, boolean, boolean, TextureAtlasSprite, ItemTransforms, net.minecraftforge.client.RenderTypeGroup, net.minecraftforge.client.RenderTypeGroup) variant with RenderTypeGroup for fast graphics} **/
 +    public SimpleBakedModel(List<BakedQuad> p_119489_, Map<Direction, List<BakedQuad>> p_119490_, boolean p_119491_, boolean p_119492_, boolean p_119493_, TextureAtlasSprite p_119494_, ItemTransforms p_119495_, net.minecraftforge.client.RenderTypeGroup renderTypes) {
 +        this(p_119489_, p_119490_, p_119491_, p_119492_, p_119493_, p_119494_, p_119495_, renderTypes, net.minecraftforge.client.RenderTypeGroup.EMPTY);
 +    }
- 
++
++    /** Constructor with {@link net.minecraftforge.client.RenderTypeGroup RenderTypeGroup} for fancy and fast graphics. Preferred over {@link net.minecraft.client.renderer.ItemBlockRenderTypes#setRenderLayer(net.minecraft.world.level.block.Block, net.minecraft.client.renderer.RenderType) ItemBlockRenderTypes.setRenderLayer(Block, RenderType)}. */
      public SimpleBakedModel(
          List<BakedQuad> p_119489_,
+         Map<Direction, List<BakedQuad>> p_119490_,
 @@ -37,7 +_,9 @@
          boolean p_119492_,
          boolean p_119493_,
@@ -37,7 +46,7 @@
      ) {
          this.unculledFaces = p_119489_;
          this.culledFaces = p_119490_;
-@@ -46,6 +_,24 @@
+@@ -46,6 +_,25 @@
          this.usesBlockLight = p_119492_;
          this.particleIcon = p_119494_;
          this.transforms = p_119495_;
@@ -48,6 +57,7 @@
 +        this.blockRenderTypesFast = hasRenderTypesFast ? net.minecraftforge.client.ChunkRenderTypeSet.of(renderTypes.block()) : null;
 +        /*
 +        this.itemRenderTypes = hasRenderTypes ? List.of(renderTypes.entity()) : null;
++        this.itemRenderTypesFast = hasRenderTypesFast ? List.of(renderTypesFast.entity()) : null;
 +        this.fabulousItemRenderTypes = hasRenderTypes ? List.of(renderTypes.entityFabulous()) : null;
 +        */
 +        this.isRenderingCutout = hasRenderTypes && (renderTypes.block() == net.minecraft.client.renderer.RenderType.cutout() || renderTypes.block() == net.minecraft.client.renderer.RenderType.cutoutMipped());
@@ -77,8 +87,8 @@
              }
          }
  
-+        if (renderType != null) {
-+            if (renderTypeFast != null)
++        if (renderType != null && !renderType.isEmpty()) {
++            if (renderTypeFast != null && !renderTypeFast.isEmpty())
 +                simplebakedmodel$builder.renderTypes(renderType, renderTypeFast);
 +            else
 +                simplebakedmodel$builder.renderTypes(renderType);
@@ -87,11 +97,12 @@
          return simplebakedmodel$builder.build();
      }
  
-@@ -123,6 +_,35 @@
+@@ -123,6 +_,41 @@
          return this.transforms;
      }
  
 +    private static final net.minecraftforge.client.ChunkRenderTypeSet SOLID_BLOCK = net.minecraftforge.client.ChunkRenderTypeSet.of(net.minecraft.client.renderer.RenderType.solid());
++    //private static final List<net.minecraft.client.renderer.RenderType> SOLID_BLOCK_ITEM = List.of(net.minecraft.client.renderer.RenderType.solid());
 +
 +    @Override
 +    public net.minecraftforge.client.ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource rand, net.minecraftforge.client.model.data.ModelData data) {
@@ -107,34 +118,61 @@
 +    /*
 +    @Override
 +    public List<net.minecraft.client.renderer.RenderType> getRenderTypes(net.minecraft.world.item.ItemStack itemStack, boolean fabulous) {
-+       if (!fabulous) {
-+          if (itemRenderTypes != null) {
-+              return itemRenderTypes;
-+          }
-+       } else {
-+          if (fabulousItemRenderTypes != null) {
-+              return fabulousItemRenderTypes;
-+          }
-+       }
-+       return BakedModel.super.getRenderTypes(itemStack, fabulous);
++        if (!fabulous) {
++            if (!net.minecraft.client.renderer.ItemBlockRenderTypes.isFancy()) {
++                if (itemRenderTypesFast != null)
++                    return itemRenderTypesFast;
++                if (isRenderingCutout && itemStack.getItem() instanceof net.minecraft.world.item.BlockItem blockItem && blockItem.getBlock() instanceof net.minecraft.world.level.block.LeavesBlock)
++                    return SOLID_BLOCK_ITEM;
++            }
++            if (itemRenderTypes != null)
++                return itemRenderTypes;
++        } else {
++            if (fabulousItemRenderTypes != null) {
++                return fabulousItemRenderTypes;
++            }
++        }
++        return BakedModel.super.getRenderTypes(itemStack, fabulous);
 +    }
 +    */
 +
      @OnlyIn(Dist.CLIENT)
      public static class Builder {
          private final ImmutableList.Builder<BakedQuad> unculledFaces = ImmutableList.builder();
-@@ -164,13 +_,27 @@
+@@ -164,13 +_,50 @@
              return this;
          }
  
 +        private net.minecraftforge.client.RenderTypeGroup renderTypes = net.minecraftforge.client.RenderTypeGroup.EMPTY;
 +        private net.minecraftforge.client.RenderTypeGroup renderTypesFast = net.minecraftforge.client.RenderTypeGroup.EMPTY;
 +
++        /**
++         * Sets the render type to be used for this model, and will be used for any graphics setting.
++         * <p>
++         * If you need to set a specific render type for
++         * {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}, consider using
++         * {@link #renderTypes(net.minecraftforge.client.RenderTypeGroup, net.minecraftforge.client.RenderTypeGroup)
++         * renderTypes(RenderTypeGroup, RenderTypeGroup)} instead which allows choosing render types for both fancy and
++         * fast graphics.
++         *
++         * @apiNote If this model is for {@linkplain net.minecraft.world.level.block.LeavesBlock leaves} and if the
++         * given render type is either {@linkplain net.minecraft.client.renderer.RenderType#cutout() cutout} or
++         * {@linkplain net.minecraft.client.renderer.RenderType#cutoutMipped() cutout mipped}, it will be overridden
++         * with {@linkplain net.minecraft.client.renderer.RenderType#solid() solid} when fast graphics is enabled.
++         * @see #renderTypes(net.minecraftforge.client.RenderTypeGroup, net.minecraftforge.client.RenderTypeGroup)
++         * renderTypes(RenderTypeGroup, RenderTypeGroup)
++         */
 +        public SimpleBakedModel.Builder renderTypes(net.minecraftforge.client.RenderTypeGroup renderTypes) {
-+            this.renderTypes = renderTypes;
-+            return this;
++            return this.renderTypes(renderTypes, net.minecraftforge.client.RenderTypeGroup.EMPTY);
 +        }
 +
++        /**
++         * Sets the render types to be used for this model: one for
++         * {@linkplain net.minecraft.client.GraphicsStatus#FANCY fancy graphics} and one for
++         * {@linkplain net.minecraft.client.GraphicsStatus#FAST fast graphics}.
++         *
++         * @see #renderTypes(net.minecraftforge.client.RenderTypeGroup)
++         */
 +        public SimpleBakedModel.Builder renderTypes(net.minecraftforge.client.RenderTypeGroup renderTypes, net.minecraftforge.client.RenderTypeGroup renderTypesFast) {
 +            this.renderTypes = renderTypes;
 +            this.renderTypesFast = renderTypesFast;
@@ -148,6 +186,7 @@
                  Map<Direction, List<BakedQuad>> map = Maps.transformValues(this.culledFaces, ImmutableList.Builder::build);
                  return new SimpleBakedModel(
 -                    this.unculledFaces.build(), new EnumMap<>(map), this.hasAmbientOcclusion, this.usesBlockLight, this.isGui3d, this.particleIcon, this.transforms
++                    // Forge: Account for render types in model JSONs
 +                    this.unculledFaces.build(), new EnumMap<>(map), this.hasAmbientOcclusion, this.usesBlockLight, this.isGui3d, this.particleIcon, this.transforms, this.renderTypes, this.renderTypesFast
                  );
              }

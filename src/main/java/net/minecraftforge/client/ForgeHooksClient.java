@@ -934,7 +934,7 @@ public class ForgeHooksClient {
     }
 
     // a record for performance reasons
-    private record WrapedModelBaker(ModelBaker parent, RenderTypeGroup group, RenderTypeGroup groupFast) implements ModelBaker {
+    private record WrapedModelBaker(ModelBaker parent, RenderTypeGroup group, RenderTypeGroup renderTypeFast) implements ModelBaker {
         private WrapedModelBaker(ModelBaker parent, RenderTypeGroup group) {
             this(parent, group, RenderTypeGroup.EMPTY);
         }
@@ -942,11 +942,6 @@ public class ForgeHooksClient {
         @Override
         public RenderTypeGroup renderType() {
             return group;
-        }
-
-        @Override
-        public RenderTypeGroup renderTypeFast() {
-            return groupFast;
         }
 
         @Override
