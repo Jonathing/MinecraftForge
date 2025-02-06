@@ -1,10 +1,11 @@
 --- a/net/minecraft/server/Bootstrap.java
 +++ b/net/minecraft/server/Bootstrap.java
-@@ -54,6 +_,8 @@
+@@ -54,6 +_,9 @@
                 CauldronInteraction.m_175649_();
                 BuiltInRegistries.m_257498_();
                 CreativeModeTabs.m_280019_();
 +               net.minecraftforge.registries.GameData.vanillaSnapshot();
++               net.minecraftforge.network.NetworkHooks.init();
 +               if (false) // skip redirectOutputToLog, Forge already redirects stdout and stderr output to log so that they print with more context
                 m_135890_();
                 f_285608_.set(Duration.between(instant, Instant.now()).toMillis());
