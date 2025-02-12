@@ -720,8 +720,8 @@ public final class ForgeEventFactory {
         return fire(new AddReloadListenerEvent(serverResources, registryAccess)).getListeners();
     }
 
-    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, LayeredRegistryAccess<RegistryLayer> layeredRegistryAccess, HolderLookup.Provider lookupProvider, @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess) {
-        return fire(new AddReloadListenerEvent(serverResources, layeredRegistryAccess, lookupProvider, registryAccess)).getListeners();
+    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, HolderLookup.Provider lookupProvider, @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess) {
+        return fire(new AddReloadListenerEvent(serverResources, lookupProvider, registryAccess)).getListeners();
     }
 
     public static void onCommandRegister(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection environment, CommandBuildContext context) {
