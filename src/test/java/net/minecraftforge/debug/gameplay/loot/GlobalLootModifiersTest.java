@@ -232,6 +232,7 @@ public class GlobalLootModifiersTest extends BaseTestMod {
             // This has no game test because it relies on random number generation and I can't be bothered to try and force that right now.
             add("wheat_harvest", new WheatSeedsConverterModifier(
                 new LootItemCondition[] {
+                    // the #c:tools_shear tag is used here to test parsing of tags in LootModiferManager
                     MatchTool.toolMatches(ItemPredicate.Builder.item().of(items, Tags.Items.TOOLS_SHEAR)).build(),
                     LootItemBlockStatePropertyCondition.hasBlockStateProperties(Blocks.WHEAT).build()
                 },
