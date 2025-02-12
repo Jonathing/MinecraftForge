@@ -10,6 +10,14 @@
      private static final Logger LOGGER = LogUtils.getLogger();
      private static final int NEUTRAL_MOB_DEATH_NOTIFICATION_RADII_XZ = 32;
      private static final int NEUTRAL_MOB_DEATH_NOTIFICATION_RADII_Y = 10;
+@@ -283,6 +_,7 @@
+         public void slotChanged(AbstractContainerMenu p_143466_, int p_143467_, ItemStack p_143468_) {
+             Slot slot = p_143466_.getSlot(p_143467_);
+             if (!(slot instanceof ResultSlot)) {
++                net.minecraftforge.event.ForgeEventFactory.onPlayerUpdateContainer(ServerPlayer.this, p_143466_, slot, p_143468_);
+                 if (slot.container == ServerPlayer.this.getInventory()) {
+                     CriteriaTriggers.INVENTORY_CHANGED.trigger(ServerPlayer.this, ServerPlayer.this.getInventory(), p_143468_);
+                 }
 @@ -844,6 +_,7 @@
  
      @Override

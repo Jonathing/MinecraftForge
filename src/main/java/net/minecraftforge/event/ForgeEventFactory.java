@@ -853,6 +853,10 @@ public final class ForgeEventFactory {
         post(new PlayerContainerEvent.Close(player, menu));
     }
 
+    public static void onPlayerUpdateContainer(ServerPlayer player, AbstractContainerMenu menu, Slot slot, ItemStack stack) {
+        post(new PlayerContainerEvent.Update(player, menu, slot, stack));
+    }
+
     public static boolean onTravelToDimension(Entity entity, ResourceKey<Level> dimension) {
         return post(new EntityTravelToDimensionEvent(entity, dimension));
     }

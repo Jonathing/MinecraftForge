@@ -7,6 +7,8 @@ package net.minecraftforge.event.entity.player;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class PlayerContainerEvent extends PlayerEvent
 {
@@ -29,6 +31,24 @@ public class PlayerContainerEvent extends PlayerEvent
         public Close(Player player, AbstractContainerMenu container)
         {
             super(player, container);
+        }
+    }
+    public static class Update extends PlayerContainerEvent {
+        private final Slot slot;
+        private final ItemStack stack;
+
+        public Update(Player player, AbstractContainerMenu container, Slot slot, ItemStack stack) {
+            super(player, container);
+            this.slot = slot;
+            this.stack = stack;
+        }
+
+        public Slot getSlot() {
+            return slot;
+        }
+
+        public ItemStack getItemStack() {
+            return stack;
         }
     }
 
