@@ -28,7 +28,7 @@
      }
  
      @Deprecated
-@@ -123,17 +_,25 @@
+@@ -123,17 +_,37 @@
          return this.builtInRegistryHolder;
      }
  
@@ -42,6 +42,18 @@
 +        }
 +
 +        return builtComponents;
++    }
++
++    /**
++     * Forge: Hack fix used in
++     * {@link net.minecraft.client.resources.model.ModelDiscovery#listMandatoryModels ModelBakery.listMandatoryModels},
++     * during mod loading, before the Forge event bus is ready.
++     *
++     * @deprecated <strong>INTERNAL ONLY! DO NOT USE THIS!</strong> Use {@link #components()}
++     */
++    @Deprecated(forRemoval = true, since = "1.21.3")
++    public DataComponentMap vanillaComponents() {
++        return components;
      }
  
      public int getDefaultMaxStackSize() {
