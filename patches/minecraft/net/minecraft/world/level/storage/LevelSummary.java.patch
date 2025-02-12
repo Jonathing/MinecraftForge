@@ -9,13 +9,14 @@
      public static final Component PLAY_WORLD = Component.translatable("selectWorld.select");
      private final LevelSettings settings;
      private final LevelVersion levelVersion;
-@@ -275,6 +_,11 @@
+@@ -275,6 +_,12 @@
          public boolean canRecreate() {
              return false;
          }
 +    }
 +
 +    // TODO Forge: Remove in 1.22. It is kept here for binary compatibility, but already exists in IForgeLevelSummary
++    @Deprecated(forRemoval = true, since = "1.21.4")
 +    public boolean isLifecycleExperimental() {
 +        return net.minecraftforge.common.extensions.IForgeLevelSummary.super.isLifecycleExperimental();
      }
