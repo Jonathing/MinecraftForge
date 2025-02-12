@@ -14,7 +14,10 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.LayeredRegistryAccess;
 import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.server.RegistryLayer;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.chunk.storage.SerializableChunkData;
@@ -712,8 +715,13 @@ public final class ForgeEventFactory {
         return fire(new SleepFinishedTimeEvent(level, newTime, minTime)).getNewTime();
     }
 
+    @Deprecated(forRemoval = true, since = "1.21.4")
     public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, RegistryAccess registryAccess) {
         return fire(new AddReloadListenerEvent(serverResources, registryAccess)).getListeners();
+    }
+
+    public static List<PreparableReloadListener> onResourceReload(ReloadableServerResources serverResources, LayeredRegistryAccess<RegistryLayer> layeredRegistryAccess, HolderLookup.Provider lookupProvider, @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess) {
+        return fire(new AddReloadListenerEvent(serverResources, layeredRegistryAccess, lookupProvider, registryAccess)).getListeners();
     }
 
     public static void onCommandRegister(CommandDispatcher<CommandSourceStack> dispatcher, Commands.CommandSelection environment, CommandBuildContext context) {

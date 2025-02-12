@@ -94,7 +94,7 @@ public class ForgeInternalHandler {
 
     @SubscribeEvent
     public void onResourceReload(AddReloadListenerEvent event) {
-        INSTANCE = new LootModifierManager(event.getRegistryAccess());
+        INSTANCE = new LootModifierManager(event.getRegistries());
         event.addListener(INSTANCE);
     }
 
