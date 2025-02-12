@@ -85,5 +85,10 @@ public class AddReloadListenerEvent extends Event {
             else
                 return CompletableFuture.completedFuture(null);
         }
+
+        @Override
+        public String getName() {
+            return wrapped.getName();
+        }
     }
 }
