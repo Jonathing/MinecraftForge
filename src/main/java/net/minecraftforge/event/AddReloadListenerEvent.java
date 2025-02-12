@@ -33,17 +33,11 @@ public class AddReloadListenerEvent extends Event {
     private final List<PreparableReloadListener> listeners = new ArrayList<>();
     private final ReloadableServerResources serverResources;
 
+    private final HolderLookup.Provider registries;
     @Deprecated(forRemoval = true, since = "1.21.4")
     private final RegistryAccess registryAccess;
 
-    private final LayeredRegistryAccess<RegistryLayer> layeredRegistryAccess;
-    private final HolderLookup.Provider registries;
-
-    /**
-     * IF YOU ARE A MODDER YOU SHOULD NOT BE USING THIS!!! THIS IS ONLY KEPT FOR BIN COMPAT! EXPECT ISSUES!
-     *
-     * @deprecated Does not provide additional context. Use {@link #AddReloadListenerEvent(ReloadableServerResources, LayeredRegistryAccess, HolderLookup.Provider, RegistryAccess)} instead.
-     */
+    /** @deprecated Does not provide additional context. Use {@link #AddReloadListenerEvent(ReloadableServerResources, HolderLookup.Provider, RegistryAccess)} instead. */
     @Deprecated(forRemoval = true, since = "1.21.4")
     public AddReloadListenerEvent(
         ReloadableServerResources serverResources,
@@ -51,7 +45,6 @@ public class AddReloadListenerEvent extends Event {
     ) {
         this(
             serverResources,
-            new LayeredRegistryAccess<>(List.of(RegistryLayer.RELOADABLE)).replaceFrom(RegistryLayer.RELOADABLE, List.of((RegistryAccess.Frozen) registryAccess)),
             registryAccess,
             registryAccess
         );
@@ -59,14 +52,12 @@ public class AddReloadListenerEvent extends Event {
 
     public AddReloadListenerEvent(
         ReloadableServerResources serverResources,
-        LayeredRegistryAccess<RegistryLayer> layeredRegistryAccess,
         HolderLookup.Provider registries,
         @Deprecated(forRemoval = true, since = "1.21.4") RegistryAccess registryAccess
     ) {
         this.serverResources = serverResources;
-        this.registryAccess = registryAccess;
-        this.layeredRegistryAccess = layeredRegistryAccess;
         this.registries = registries;
+        this.registryAccess = registryAccess;
     }
 
    /**
@@ -93,15 +84,6 @@ public class AddReloadListenerEvent extends Event {
      */
     public ICondition.IContext getConditionContext() {
         return serverResources.getConditionContext();
-    }
-
-    /**
-     * @return Registry access provider based on layer. Recommended to use {@link RegistryLayer#RELOADABLE}.
-     *
-     * @see net.minecraft.server.ReloadableServerRegistries.LoadResult#layers()
-     */
-    public LayeredRegistryAccess<RegistryLayer> getLayeredRegistryAccess() {
-        return layeredRegistryAccess;
     }
 
     /**
