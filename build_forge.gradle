@@ -45,9 +45,10 @@ java {
 jarSigner.autoDetect('forge')
 
 applyPatches {
-    level 'WARNING'
+    logLevel = 'WARN'
     failOnError = UPDATING != 'true'
-    rejects = rootProject.layout.projectDirectory.dir('rejects').asFile
+    rejects = rootProject.layout.projectDirectory.dir('rejects')
+    archiveRejects.unset()
 }
 
 sourceSets {

@@ -1,0 +1,66 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'idea'
+    alias libs.plugins.licenser
+    alias libs.plugins.gradleutils
+}
+
+final projectDisplayName = 'ForgeDev'
+final projectArtifactId = base.archivesName = 'forgedev'
+description = 'ForgeDev'
+group = 'net.minecraftforge'
+
+java {
+    // Gradle 9 will require Java 17
+    toolchain.languageVersion = JavaLanguageVersion.of 8
+    withSourcesJar()
+    withJavadocJar()
+}
+
+configurations {
+    // Applies the "Gradle Plugin API Version" attribute to configuration
+    // This was added in Gradle 7, gives consumers useful errors if they are on an old version
+    def applyGradleVersionAttribute = { Configuration configuration ->
+        configuration.attributes {
+            attribute(GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE, objects.named(GradlePluginApiVersion, libs.versions.gradle.get()))
+        }
+    }
+
+    applyGradleVersionAttribute(apiElements)
+    applyGradleVersionAttribute(runtimeElements)
+    //applyGradleVersionAttribute(shadowRuntimeElements)
+}
+
+dependencies {
+    // TODO DELETE
+    compileOnly 'io.codechicken:DiffPatch:2.0.0.36'
+
+    // Gradle API
+    compileOnly libs.gradle
+    compileOnly libs.nulls
+
+    // Utils
+    implementation libs.bundles.utils
+}
+
+license {
+    header = rootProject.file('../LICENSE-header.txt')
+    newLine = false
+    exclude '**/*.properties'
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+}
+
+gradlePlugin {
+    plugins.register('forgedev') {
+        id = 'net.minecraftforge.forgedev'
+        implementationClass = 'net.minecraftforge.forgedev.ForgeDevPlugin'
+        displayName = projectDisplayName
+        description = project.description
+    }
+}
+
+idea.module { downloadSources = downloadJavadoc = true }

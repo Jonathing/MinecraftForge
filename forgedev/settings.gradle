@@ -1,0 +1,34 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
+}
+
+rootProject.name = 'forgedev'
+
+dependencyResolutionManagement {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://maven.moddinglegacy.com/maven' } // Gradle API
+        mavenCentral()
+        //mavenLocal()
+    }
+
+    //@formatter:off
+    versionCatalogs.register('libs') {
+        plugin 'licenser',       'net.minecraftforge.licenser'    version '1.2.0'        // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
+        plugin 'gradleutils',    'net.minecraftforge.gradleutils' version '2.6.0'        // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
+
+        // Gradle API
+        // TODO [ForgeGradle][FG7][Gradle Api] REMOVE once Gradle publish their own API artifacts
+        // Original:  https://github.com/remal-gradle-api/packages/packages/760197
+        // Mirror:    https://maven.moddinglegacy.com/#browse/browse:maven-public:name%2Fremal%2Fgradle-api%2Fgradle-api%2F8.14.1
+        version 'gradle', '8.14.1'
+        library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
+        library 'nulls',  'org.jetbrains',         'annotations' version    '26.0.2'
+
+        library 'utils-data',     'net.minecraftforge', 'json-data-utils' version '0.2.1' // https://files.minecraftforge.net/net/minecraftforge/json-data-utils/index.html
+        library 'utils-hash',     'net.minecraftforge', 'hash-utils'      version '0.1.9' // https://files.minecraftforge.net/net/minecraftforge/hash-utils/index.html
+        library 'utils-download', 'net.minecraftforge', 'download-utils'  version '0.3.1' // https://files.minecraftforge.net/net/minecraftforge/download-utils/index.html
+        bundle 'utils', ['utils-data', 'utils-hash', 'utils-download']
+    }
+    //@formatter:on
+}

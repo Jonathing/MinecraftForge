@@ -114,6 +114,8 @@ dependencyResolutionManagement {
 
 rootProject.name = 'ForgeRoot'
 
+includeBuild 'forgedev'
+
 include 'fmlloader'
 include 'fmlcore'
 include 'mclanguage'
