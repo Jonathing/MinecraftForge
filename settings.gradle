@@ -1,4 +1,8 @@
 pluginManagement {
+    includeBuild('forgegradle-6') {
+        name = 'ForgeGradle'
+    }
+
     repositories {
         gradlePluginPortal()
         //mavenLocal()

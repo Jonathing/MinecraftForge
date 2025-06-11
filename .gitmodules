@@ -1,0 +1,3 @@
+[submodule "forgegradle-6"]
+	path = forgegradle-6
+	url = git@github.com:MinecraftForge/ForgeGradle.git
