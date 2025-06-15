@@ -256,10 +256,12 @@ patcher {
 
 afterEvaluate {
     if (!patcher.srgPatches) {
+        /*
         srg2mcpClean {
             dependsOn = []
             input = project(':mcp').setupMCP.output
         }
+         */
         userdevJar {
             onlyIf = { t -> true }
         }

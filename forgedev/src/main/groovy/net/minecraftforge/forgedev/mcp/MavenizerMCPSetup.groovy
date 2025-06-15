@@ -33,6 +33,7 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
     abstract @Input @Optional Property<String> getPipeline()
     abstract @InputFile @Optional @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getAccessTransformerConfig()
     abstract @InputFile @Optional @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getSideAnnotationStripperConfig()
+    abstract @Input @Optional Property<String> getParchment()
 
     @Inject
     MavenizerMCPSetup(Problems problems, ProjectLayout layout) {
@@ -61,7 +62,8 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
         var artifact = this.artifact.get()
         this.args(
             artifact.contains(':') ? '--artifact' : '--version', artifact,
-            '--output', this.output.get().asFile.absolutePath
+            '--output', this.output.get().asFile.absolutePath,
+            '--mappings'
         )
 
         if (this.pipeline.present)
@@ -70,6 +72,8 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
             this.args('--at', this.accessTransformerConfig.get())
         if (this.sideAnnotationStripperConfig.present)
             this.args('--sas', this.sideAnnotationStripperConfig.get())
+        if (this.parchment.present)
+            this.args('--parchment', this.parchment.get())
         //endregion
 
         super.exec()

@@ -8,7 +8,7 @@ package net.minecraftforge.forgedev;
 public final class Constants {
     public static final String FORGE_MAVEN = "https://maven.minecraftforge.net/";
 
-    public static final String MAVENIZER_VERSION = "0.3.1";
+    public static final String MAVENIZER_VERSION = "0.3.3";
     public static final String MAVENIZER_DL_URL = "https://maven.minecraftforge.net/net/minecraftforge/minecraft-mavenizer/" + MAVENIZER_VERSION + "/minecraft-mavenizer-" + MAVENIZER_VERSION + ".jar";
     public static final String MAVENIZER_MAIN = "net.minecraftforge.mcmaven.cli.Main";
     public static final int MAVENIZER_JAVA = 21;
