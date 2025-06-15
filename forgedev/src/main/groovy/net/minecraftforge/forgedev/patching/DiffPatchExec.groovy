@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import net.minecraftforge.forgedev.Constants
 import net.minecraftforge.forgedev.ForgeDevProblems
+import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
 import net.minecraftforge.forgedev.Util
 import org.gradle.api.file.Directory
@@ -17,7 +18,6 @@ import org.gradle.api.tasks.Console
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Optional
@@ -29,7 +29,7 @@ import javax.inject.Inject
 import java.nio.file.Files
 
 @CompileStatic
-@PackageScope abstract class DiffPatchExec extends JavaExec {
+@PackageScope abstract class DiffPatchExec extends JavaExec implements ForgeDevTask {
     private final ForgeDevProblems problems
 
     /* CLI FLAGS - See io.codechicken.diffpatch.cli.DiffPatchCli#mainI, or run --help on the fat jar */
@@ -40,8 +40,8 @@ import java.nio.file.Files
     abstract @Input @Console Property<Boolean> getSummary()
 
     // Shared
-    abstract @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getBase() // no-flag arg 1
-    abstract @InputDirectory @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches()    // no-flag arg 2
+    abstract @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getBase()       // no-flag arg 1
+    abstract @InputDirectory @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches() // no-flag arg 2
     abstract @OutputFiles Property<File> getOutput()
     abstract @Input @Optional Property<String> getArchive()
     abstract @Input @Optional Property<String> getArchiveBase()
@@ -92,12 +92,12 @@ import java.nio.file.Files
     private final Property<File> rejects
 
     @Inject
-    DiffPatchExec(DirectoryProperty globalCaches, Problems problems) {
+    DiffPatchExec(Problems problems) {
         this.problems = new ForgeDevProblems(problems, this.providerFactory)
 
-        this.classpath = this.objectFactory.fileCollection().from(Tools.DIFFPATCH.get(globalCaches, this.providerFactory))
+        this.classpath = this.objectFactory.fileCollection().from(this.getTool(Tools.DIFFPATCH))
         this.mainClass.convention(Constants.DIFFPATCH_MAIN)
-        this.javaLauncher.convention(Util.launcherForStrictly(this.javaToolchainService, Constants.DIFFPATCH_JAVA_VERSION))
+        this.javaLauncher.convention(Util.launcherForStrictly(this.javaToolchainService, Constants.DIFFPATCH_JAVA))
 
         this.verbose.convention(false)
         this.summary.convention(false)

@@ -21,8 +21,8 @@ abstract class ApplyPatches extends DiffPatchExec {
     abstract @InputDirectory @Optional @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches()
 
     @Inject
-    ApplyPatches(DirectoryProperty globalCaches, Problems problems) {
-        super(globalCaches, problems)
+    ApplyPatches(Problems problems) {
+        super(problems)
 
         this.failOnError.convention(true)
 

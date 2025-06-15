@@ -14,7 +14,9 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.problems.Problems
+import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
+import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject
 
@@ -23,7 +25,7 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
 
     private final ForgeDevProblems enhancedProblems
 
-    public DirectoryProperty globalCaches
+    private @Nullable DirectoryProperty globalCaches
 
     @Inject
     ForgeDevPlugin() {
@@ -35,6 +37,19 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
         this.globalCaches = this.objects.directoryProperty().convention(
             this.objects.directoryProperty().fileValue(this.getGradleUserHomeDir(target)).dir('minecraftforge/forgedev').map(this.enhancedProblems.ensureDirectory())
         )
+    }
+
+    DirectoryProperty getGlobalCaches() {
+        try {
+            Objects.requireNonNull(this.globalCaches)
+        } catch (Throwable e) {
+            throw this.enhancedProblems.pluginNotYetApplied(new IllegalStateException("ForgeGradle does not have global caches", e))
+        }
+    }
+
+    @SuppressWarnings('GrDeprecatedAPIUsage') // Intentional deprecation, please use this method
+    Provider<File> getTool(Tools tool) {
+        tool.get(this.globalCaches, this.providers)
     }
 
     @CompileDynamic
