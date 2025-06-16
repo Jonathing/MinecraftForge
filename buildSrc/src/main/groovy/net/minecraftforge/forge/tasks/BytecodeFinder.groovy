@@ -2,6 +2,7 @@ package net.minecraftforge.forge.tasks
 
 import groovy.json.JsonBuilder
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -48,5 +49,5 @@ abstract class BytecodeFinder extends DefaultTask {
     protected process(ClassNode parent, FieldNode node) {}
     protected process(ClassNode parent, MethodNode node) {}
     protected post() {}
-    protected abstract Object getData()
+    @PackageScope abstract Object getData()
 }

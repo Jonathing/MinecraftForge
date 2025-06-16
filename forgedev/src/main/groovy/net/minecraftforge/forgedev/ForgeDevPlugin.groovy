@@ -1,7 +1,7 @@
 package net.minecraftforge.forgedev
 
 import groovy.transform.CompileDynamic
-import groovy.transform.PackageScope
+import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DirectoryProperty
@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable
 
 import javax.inject.Inject
 
+@CompileStatic
 abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
     public static final Logger LOGGER = Logging.getLogger("ForgeDev")
 
@@ -43,7 +44,7 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
         try {
             Objects.requireNonNull(this.globalCaches)
         } catch (Throwable e) {
-            throw this.enhancedProblems.pluginNotYetApplied(new IllegalStateException("ForgeGradle does not have global caches", e))
+            throw new IllegalStateException('ForgeGradle does not have global caches', e)
         }
     }
 

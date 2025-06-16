@@ -1,6 +1,7 @@
 package net.minecraftforge.forge.tasks
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.objectweb.asm.Opcodes
@@ -31,9 +32,8 @@ abstract class BytecodePredicateFinder extends BytecodeFinder {
         }
     }
 
-    @Internal
     @Override
-    protected Object getData() {
+    @PackageScope Object getData() {
         var array = new ArrayList<Object>()
         matches.forEach { c, m ->
             {
