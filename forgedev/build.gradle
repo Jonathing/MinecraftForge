@@ -34,7 +34,7 @@ configurations {
 
 dependencies {
     // TODO DELETE
-    compileOnly 'io.codechicken:DiffPatch:2.0.0.36'
+    compileOnly 'io.codechicken:DiffPatch:2.0.1.39'
 
     // Gradle API
     compileOnly libs.gradle

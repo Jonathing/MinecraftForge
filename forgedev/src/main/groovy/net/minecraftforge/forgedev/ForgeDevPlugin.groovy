@@ -4,6 +4,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
 import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.ProjectLayout
@@ -36,7 +37,7 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
     @Override
     void apply(ExtensionAware target) {
         this.globalCaches = this.objects.directoryProperty().convention(
-            this.objects.directoryProperty().fileValue(this.getGradleUserHomeDir(target)).dir('minecraftforge/forgedev').map(this.enhancedProblems.ensureDirectory())
+            this.objects.directoryProperty().fileValue(this.getGradleUserHomeDir(target)).dir('minecraftforge/forgedev').map(this.enhancedProblems.ensureFileLocation())
         )
     }
 

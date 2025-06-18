@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import org.gradle.api.Action
 import org.gradle.api.Transformer
 import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.problems.Problem
 import org.gradle.api.problems.ProblemGroup
 import org.gradle.api.problems.ProblemId
@@ -68,21 +69,22 @@ class ForgeDevProblems implements Problems {
     }
 
     //region Utilities
-    Transformer<Directory, Directory> ensureDirectory() {
-        { Directory dir ->
+    <T extends FileSystemLocation> Transformer<T, T> ensureFileLocation() {
+        { T file ->
+            final dir = file instanceof Directory ? file.asFile : file.asFile.parentFile
             try {
-                Files.createDirectories(dir.getAsFile().toPath())
-                return dir
+                Files.createDirectories(dir.toPath())
             } catch (IOException e) {
                 throw this.reporter.throwing(e, id('cannot-ensure-directory', 'Failed to create directory'), spec -> spec
                     .details("""
                         Failed to create a directory required for ForgeGradle to function.
-                        Directory: ${dir.getAsFile().getAbsolutePath()}""".stripIndent())
+                        Directory: ${dir.absolutePath}""".stripIndent())
                     .severity(Severity.ERROR)
                     .stackLocation()
                     .solution('Ensure that the you have write access to the directory that needs to be created.')
                     .solution(HELP_MESSAGE))
             }
+            return file
         }
     }
     //endregion

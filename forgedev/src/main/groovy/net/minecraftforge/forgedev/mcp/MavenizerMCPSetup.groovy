@@ -43,8 +43,8 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
         this.mainClass.convention(Constants.MAVENIZER_MAIN)
         this.javaLauncher.convention(Util.launcherForStrictly(this.javaToolchainService, Constants.MAVENIZER_JAVA))
 
-        var defaultDirectory = this.objectFactory.directoryProperty().value(this.globalCaches.dir('mavenizer').map(this.problems.ensureDirectory()))
-        this.caches.convention(defaultDirectory.dir('cache').map(this.problems.ensureDirectory()))
+        var defaultDirectory = this.objectFactory.directoryProperty().value(this.globalCaches.dir('mavenizer').map(this.problems.ensureFileLocation()))
+        this.caches.convention(defaultDirectory.dir('cache').map(this.problems.ensureFileLocation()))
         this.output.convention(layout.buildDirectory.file('forgedev/setupMCP.jar'))
     }
 

@@ -14,7 +14,7 @@ public final class Constants {
     public static final String MAVENIZER_MAIN = "net.minecraftforge.mcmaven.cli.Main";
     public static final int MAVENIZER_JAVA = 21;
 
-    public static final String DIFFPATCH_VERSION = "2.0.0.36";
+    public static final String DIFFPATCH_VERSION = "2.0.1.39";
     public static final String DIFFPATCH_DL_URL = MAVEN_CENTRAL + "io/codechicken/DiffPatch/" + DIFFPATCH_VERSION + "/DiffPatch-" + DIFFPATCH_VERSION + "-all.jar";
     public static final String DIFFPATCH_MAIN = "io.codechicken.diffpatch.cli.DiffPatchCli";
     public static final int DIFFPATCH_JAVA = 8;
