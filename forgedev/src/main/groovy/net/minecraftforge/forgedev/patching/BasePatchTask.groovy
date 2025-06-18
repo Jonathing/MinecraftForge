@@ -1,6 +1,7 @@
 package net.minecraftforge.forgedev.patching
 
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemLocation
@@ -21,7 +22,7 @@ import java.nio.file.Files
 
 @DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
 @CompileStatic
-abstract class BasePatchTask extends BaseDiffPatchExec {
+@PackageScope abstract class BasePatchTask extends BaseDiffPatchExec {
     @PathSensitive(PathSensitivity.ABSOLUTE) FileSystemLocationProperty<? extends FileSystemLocation> getPatches() {
         throw new IllegalStateException('Must be overridden with RegularFileProperty or DirectoryProperty')
     }

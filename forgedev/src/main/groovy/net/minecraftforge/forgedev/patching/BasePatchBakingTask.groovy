@@ -1,5 +1,7 @@
 package net.minecraftforge.forgedev.patching
 
+import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -7,7 +9,8 @@ import org.gradle.api.tasks.Optional
 
 import javax.inject.Inject
 
-abstract class BasePatchBakingTask extends BaseDiffPatchExec {
+@CompileStatic
+@PackageScope abstract class BasePatchBakingTask extends BaseDiffPatchExec {
     // Patch shared
     abstract @Input @Optional Property<String> getPrefix()
 
