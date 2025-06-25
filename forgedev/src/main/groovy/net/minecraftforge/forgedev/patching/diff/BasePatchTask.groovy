@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching
+package net.minecraftforge.forgedev.patching.diff
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -101,7 +101,7 @@ import java.nio.file.Files
 
         this.args(
             '--patch',
-            this.patches.map(this.problems.ensureFileLocation()).get().asFile.absolutePath
+            this.patches.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath
         )
 
         super.exec()

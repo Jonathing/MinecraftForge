@@ -1,10 +1,7 @@
-package net.minecraftforge.forgedev.patching
+package net.minecraftforge.forgedev.patching.diff
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.FileSystemLocation
-import org.gradle.api.file.FileSystemLocationProperty
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
@@ -26,9 +23,9 @@ abstract class ApplyPatches extends BasePatchTask {
     private final DirectoryProperty patches
     private final RegularFileProperty output
 
-    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getInput() { input }
-    @InputDirectory @Optional @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches() { patches }
-    @OutputFile RegularFileProperty getOutput() { output }
+    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getInput() { this.input }
+    @InputDirectory @Optional @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches() { this.patches }
+    @OutputFile RegularFileProperty getOutput() { this.output }
 
     @Inject
     ApplyPatches(Problems problems) {

@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching
+package net.minecraftforge.forgedev.patching.diff
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope

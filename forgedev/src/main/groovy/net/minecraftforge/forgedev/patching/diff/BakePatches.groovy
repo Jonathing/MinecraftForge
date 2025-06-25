@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching
+package net.minecraftforge.forgedev.patching.diff
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.DirectoryProperty
@@ -16,8 +16,8 @@ abstract class BakePatches extends BasePatchBakingTask {
     private final DirectoryProperty input
     private final RegularFileProperty output
 
-    @InputDirectory @Optional DirectoryProperty getInput() { input }
-    @OutputFile RegularFileProperty getOutput() { output }
+    @InputDirectory @Optional DirectoryProperty getInput() { this.input }
+    @OutputFile RegularFileProperty getOutput() { this.output }
 
     @Inject
     BakePatches(Problems problems) {
@@ -31,7 +31,7 @@ abstract class BakePatches extends BasePatchBakingTask {
     void exec() {
         if (!this.input.present) {
             // create empty zip for output
-            new ZipOutputStream(new FileOutputStream(output.get().asFile)).close()
+            new ZipOutputStream(new FileOutputStream(this.output.get().asFile)).close()
             return
         }
 

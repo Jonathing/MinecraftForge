@@ -3,6 +3,7 @@ package net.minecraftforge.forgedev
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Plugin
+import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
@@ -46,6 +47,13 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
             Objects.requireNonNull(this.globalCaches)
         } catch (Throwable e) {
             throw new IllegalStateException('ForgeGradle does not have global caches', e)
+        }
+    }
+
+    Closure getMinecraftMaven() {
+        return { MavenArtifactRepository repo ->
+            repo.name = 'MinecraftMaven'
+            repo.url = this.globalCaches.dir('mavenizer/output')
         }
     }
 

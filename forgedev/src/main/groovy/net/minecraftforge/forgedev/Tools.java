@@ -22,7 +22,8 @@ import static net.minecraftforge.forgedev.ForgeDevPlugin.LOGGER;
 
 public enum Tools {
     MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL),
-    DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL);
+    DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL),
+    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL);
 
     private final String fileName;
     private final String downloadUrl;

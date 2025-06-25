@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching
+package net.minecraftforge.forgedev.patching.diff
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -89,7 +89,7 @@ import javax.inject.Inject
         //endregion
 
         this.args(
-            this.input.map(this.problems.ensureFileLocation()).get().asFile.absolutePath,
+            this.input.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath,
         )
 
         println this.args.join(' ')

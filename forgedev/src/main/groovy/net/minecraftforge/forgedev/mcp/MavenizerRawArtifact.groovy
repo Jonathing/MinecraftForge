@@ -6,24 +6,26 @@ import net.minecraftforge.forgedev.ForgeDevProblems
 import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
 import net.minecraftforge.forgedev.Util
+import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.TaskProvider
 
 import javax.inject.Inject
 
 @CompileStatic
-abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
+abstract class MavenizerRawArtifact extends JavaExec implements ForgeDevTask {
     private final ForgeDevProblems problems
 
     // Mavenizer
@@ -33,12 +35,19 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
     abstract @Input Property<String> getArtifact() // can also be just the version
     abstract @OutputFile RegularFileProperty getOutput()
     abstract @Input @Optional Property<String> getPipeline()
-    abstract @InputFile @Optional @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getAccessTransformerConfig()
-    abstract @InputFile @Optional @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getSideAnnotationStripperConfig()
-    abstract @Input @Optional Property<String> getParchment()
+    abstract @Input Property<Boolean> getSrgNames()
+
+    static TaskProvider<MavenizerRawArtifact> register(Project project, String pipeline, Provider<String> artifact, Provider<Boolean> srg) {
+        project.tasks.register("raw${pipeline.capitalize()}Jar${srg ? 'Srg' : ''}", MavenizerRawArtifact) { task ->
+            task.output.set(task.layout.buildDirectory.file("${task.name}.jar"))
+            task.pipeline.set(pipeline)
+            task.artifact.set(artifact)
+            task.srgNames.set(srg)
+        }
+    }
 
     @Inject
-    MavenizerMCPSetup(Problems problems, ProjectLayout layout) {
+    MavenizerRawArtifact(Problems problems) {
         this.problems = new ForgeDevProblems(problems, this.providerFactory)
 
         this.classpath = this.objectFactory.fileCollection().from(this.getTool(Tools.MAVENIZER))
@@ -47,8 +56,10 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
 
         var defaultDirectory = this.objectFactory.directoryProperty().value(this.globalCaches.dir('mavenizer').map(this.problems.ensureFileLocation()))
         this.caches.convention(defaultDirectory.dir('cache').map(this.problems.ensureFileLocation()))
-        this.output.convention(layout.buildDirectory.file('forgedev/setupMCP.jar'))
+        this.output.convention(this.layout.buildDirectory.file('forgedev/setupMCP.jar'))
     }
+
+    protected abstract @Inject ProjectLayout getLayout()
 
     @Override
     void exec() {
@@ -65,17 +76,13 @@ abstract class MavenizerMCPSetup extends JavaExec implements ForgeDevTask {
         this.args(
             artifact.contains(':') ? '--artifact' : '--version', artifact,
             '--output', this.output.get().asFile.absolutePath,
-            '--mappings'
+            '--raw'
         )
 
         if (this.pipeline.present)
             this.args('--pipeline', this.pipeline.get())
-        if (this.accessTransformerConfig.present)
-            this.args('--at', this.accessTransformerConfig.get())
-        if (this.sideAnnotationStripperConfig.present)
-            this.args('--sas', this.sideAnnotationStripperConfig.get())
-        if (this.parchment.present)
-            this.args('--parchment', this.parchment.get())
+        if (this.srgNames.getOrElse(false))
+            this.args('--searge')
         //endregion
 
         super.exec()
