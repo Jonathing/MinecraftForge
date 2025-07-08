@@ -62,8 +62,7 @@ import javax.inject.Inject
         this.summary.convention(false)
     }
 
-    @Override
-    void exec() {
+    protected void addArguments() {
         //region Utility
         if (this.verbose.get())
             this.args('--verbose')
@@ -87,12 +86,14 @@ import javax.inject.Inject
         if (this.lineEndings.present)
             this.args('--line-endings', this.lineEndings.get())
         //endregion
+    }
 
-        this.args(
-            this.input.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath,
-        )
+    @Override
+    void exec() {
+        if (this.args.isEmpty()) // If the consumer hasn't manually set the command line arguments, add what we need.
+            addArguments();
 
-        println this.args.join(' ')
+        println this.classpath.asPath + ' ' + this.args.join(' ')
 
         super.exec()
     }

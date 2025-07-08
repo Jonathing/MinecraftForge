@@ -78,7 +78,9 @@ import java.nio.file.Files
     }
 
     @Override
-    void exec() {
+    protected void addArguments() {
+        super.addArguments()
+
         //region Patch specific
         if (this.rejects.present)
             this.args('--reject', this.rejects.get().absolutePath)
@@ -99,11 +101,14 @@ import java.nio.file.Files
             this.args('--prefix', this.prefix.get())
         //endregion
 
+        //region Patch Task
+        // https://github.com/TheCBProject/DiffPatch/blob/204d393ee23f5cd4298f771c7b9157ee21eb3b62/src/main/java/io/codechicken/diffpatch/cli/DiffPatchCli.java#L191
+        // --patch {base} {patches}
         this.args(
             '--patch',
+            this.input.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath,
             this.patches.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath
         )
-
-        super.exec()
+        //endregion
     }
 }

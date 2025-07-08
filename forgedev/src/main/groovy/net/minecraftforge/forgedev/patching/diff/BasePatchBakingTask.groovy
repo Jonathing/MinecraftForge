@@ -20,16 +20,19 @@ import javax.inject.Inject
     }
 
     @Override
-    void exec() {
+    protected void addArguments() {
+        super.addArguments()
+
         //region Patch shared
         if (this.prefix.present)
             this.args('--prefix', this.prefix.get())
         //endregion
 
+        // https://github.com/TheCBProject/DiffPatch/blob/204d393ee23f5cd4298f771c7b9157ee21eb3b62/src/main/java/io/codechicken/diffpatch/cli/DiffPatchCli.java#L235
+        // --bake {input_patches}
         this.args(
-            '--bake'
+            '--bake',
+            this.input.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath
         )
-
-        super.exec()
     }
 }

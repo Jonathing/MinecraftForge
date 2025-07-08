@@ -38,10 +38,10 @@ import javax.inject.Inject
     }
 
     @Override
-    void exec() {
+    protected void addArguments() {
+        super.addArguments();
+
         //region Diff specific
-        if (this.diff.get())
-            this.args('--diff')
         if (this.autoHeader.get())
             this.args('--auto-header')
         if (this.context.present)
@@ -50,10 +50,12 @@ import javax.inject.Inject
             this.args('--archive-modified', this.archiveModified.get())
         //endregion
 
+        // https://github.com/TheCBProject/DiffPatch/blob/204d393ee23f5cd4298f771c7b9157ee21eb3b62/src/main/java/io/codechicken/diffpatch/cli/DiffPatchCli.java#L155
+        // --diff {base} {modified}
         this.args(
+            '--diff',
+            this.input.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath,
             this.modified.locationOnly.map(this.problems.ensureFileLocation()).get().asFile.absolutePath
         )
-
-        super.exec()
     }
 }
