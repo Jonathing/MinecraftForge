@@ -7,7 +7,7 @@ rootProject.name = 'forgedev'
 dependencyResolutionManagement {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://maven.moddinglegacy.com/maven' } // Gradle API
+        maven { url = 'https://maven.moddinglegacy.com/repository/maven-public' } // Gradle API
         mavenCentral()
         //mavenLocal()
     }

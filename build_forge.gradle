@@ -374,7 +374,7 @@ tasks.register('downloadVersionManifest', Download) {
 tasks.register('downloadJson', Download) {
     dependsOn downloadVersionManifest
     inputs.file downloadVersionManifest.dest
-    src { downloadVersionManifest.dest.json.versions.find { it.id == MC_VERSION }.url }
+    src { downloadVersionManifest.dest.json.versions.find { it.id == MC_VERSION }?.url  ?: "file://VERSION $MC_VERSION NOT FOUND" }
     dest file("build/versions/$MC_VERSION/version.json")
     useETag 'all'
     onlyIfModified true
@@ -383,7 +383,7 @@ tasks.register('downloadJson', Download) {
 tasks.register('downloadClientRaw', Download) {
     dependsOn downloadJson
     inputs.file downloadJson.dest
-    src { downloadJson.dest.json.downloads.client.url }
+    src { downloadJson.dest.json.downloads?.client?.url ?: 'file://UNKNOWN URL' }
     dest file("build/versions/$MC_VERSION/client.jar")
     useETag 'all'
     onlyIfModified true
@@ -392,7 +392,7 @@ tasks.register('downloadClientRaw', Download) {
 tasks.register('downloadServerRaw', Download) {
     dependsOn downloadJson
     inputs.file downloadJson.dest
-    src { downloadJson.dest.json.downloads.server.url }
+    src { downloadJson.dest.json.downloads?.server?.url ?: 'file://UNKNOWN URL' }
     dest file("build/versions/$MC_VERSION/server-bundled.jar")
     useETag 'all'
     onlyIfModified true
