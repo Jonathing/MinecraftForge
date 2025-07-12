@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 @CompileStatic
 @PackageScope abstract class BaseDiffTask extends BaseDiffPatchExec {
-    @PathSensitive(PathSensitivity.ABSOLUTE) FileSystemLocationProperty<? extends FileSystemLocation> getModified() {
+    FileSystemLocationProperty<? extends FileSystemLocation> getModified() {
         throw new IllegalStateException('Must be overridden with RegularFileProperty or DirectoryProperty')
     }
 

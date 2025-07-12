@@ -10,8 +10,6 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
 
 import javax.inject.Inject
 
@@ -23,8 +21,8 @@ abstract class ApplyPatches extends BasePatchTask {
     private final DirectoryProperty patches
     private final RegularFileProperty output
 
-    @InputFile @PathSensitive(PathSensitivity.ABSOLUTE) RegularFileProperty getInput() { this.input }
-    @InputDirectory @Optional @PathSensitive(PathSensitivity.ABSOLUTE) DirectoryProperty getPatches() { this.patches }
+    @InputFile RegularFileProperty getInput() { this.input }
+    @InputDirectory @Optional DirectoryProperty getPatches() { this.patches }
     @OutputFile RegularFileProperty getOutput() { this.output }
 
     @Inject

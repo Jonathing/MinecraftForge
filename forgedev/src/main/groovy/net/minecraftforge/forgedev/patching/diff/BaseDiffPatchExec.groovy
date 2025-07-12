@@ -33,7 +33,7 @@ import javax.inject.Inject
     abstract @Input @Console Property<Boolean> getSummary()
 
     // Shared
-    @PathSensitive(PathSensitivity.ABSOLUTE) FileSystemLocationProperty<? extends FileSystemLocation> getInput() {
+    FileSystemLocationProperty<? extends FileSystemLocation> getInput() {
         throw new IllegalStateException('Must be overridden with RegularFileProperty or DirectoryProperty')
     }
     FileSystemLocationProperty<? extends FileSystemLocation> getOutput() {
