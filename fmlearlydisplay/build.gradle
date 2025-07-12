@@ -5,9 +5,10 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
+    id 'net.minecraftforge.forge.shared' apply false
 }
 
-apply from: rootProject.file('build_shared.gradle')
+apply plugin: 'net.minecraftforge.forge.shared'
 
 import org.gradle.internal.os.OperatingSystem
 switch (OperatingSystem.current()) {

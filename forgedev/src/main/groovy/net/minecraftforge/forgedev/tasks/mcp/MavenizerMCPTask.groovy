@@ -33,7 +33,7 @@ import javax.inject.Inject
 
     @Override
     protected void addArguments() {
-        Object.addArguments()
+        super.addArguments()
 
         //region MCP Task
         var artifact = this.artifact.get()

@@ -1,0 +1,20 @@
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.10.0'
+}
+
+rootProject.name = 'build-shared'
+
+dependencyResolutionManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+
+    //@formatter:off
+    versionCatalogs.register('libs') {
+        plugin 'licenser',    'net.minecraftforge.licenser'    version '1.2.0' // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
+        plugin 'gradleutils', 'net.minecraftforge.gradleutils' version '2.6.0' // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
+
+        library 'gradleutils', 'net.minecraftforge.gradleutils', 'net.minecraftforge.gradleutils.gradle.plugin' version '2.3.6'
+    }
+    //@formatter:on
+}

@@ -1,5 +1,5 @@
 import net.minecraftforge.forge.tasks.*
-import net.minecraftforge.gradleutils.PomUtils
+import net.minecraftforge.forge.gradle.SharedBuild
 
 plugins {
     id 'net.minecraftforge.licenser' version '1.0.1'
@@ -12,13 +12,16 @@ plugins {
     id 'net.minecraftforge.gradlejarsigner' version '1.0.4'
     //id 'org.barfuin.gradle.taskinfo' version '2.2.0'
     id 'com.dorongold.task-tree' version '4.0.1'
+    id 'net.minecraftforge.forge.shared' apply false
 }
+
+description = 'Root project for MinecraftForge, contains common setup.'
 
 Util.init() //Init all our extension methods!
 
 ext {
     GIT_INFO = gradleutils.gitInfo
-    VERSION = gradleutils.getFilteredMCTagOffsetBranchVersion(true, '[0-9]', MC_VERSION)
+    VERSION = SharedBuild.version = gradleutils.getFilteredMCTagOffsetBranchVersion(true, '[0-9]', MC_VERSION)
     FORGE_VERSION = VERSION.substring(MC_VERSION.length() + 1)
 }
 

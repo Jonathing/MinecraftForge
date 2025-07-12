@@ -6,9 +6,10 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
     alias(libs.plugins.apt)
+    id 'net.minecraftforge.forge.shared' apply false
 }
 
-apply from: rootProject.file('build_shared.gradle')
+apply plugin: 'net.minecraftforge.forge.shared'
 
 configurations.forEach{ it.transitive = false }
 

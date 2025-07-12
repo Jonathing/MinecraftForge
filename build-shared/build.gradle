@@ -1,0 +1,40 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'idea'
+    alias libs.plugins.licenser
+    alias libs.plugins.gradleutils
+}
+
+final projectArtifactId = base.archivesName = 'build-convention'
+description = 'Common build logic for projects under ForgeRoot.'
+group = 'net.minecraftforge'
+
+// Gradle 9 will require Java 17
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+dependencies {
+    implementation gradleApi()
+
+    compileOnly libs.gradleutils
+}
+
+license {
+    header = rootProject.file('../LICENSE-header.txt')
+    newLine = false
+    exclude '**/*.properties'
+}
+
+tasks.withType(GroovyCompile).configureEach {
+    groovyOptions.optimizationOptions.indy = true
+}
+
+gradlePlugin {
+    plugins.register('build-shared') {
+        id = 'net.minecraftforge.forge.shared'
+        implementationClass = 'net.minecraftforge.forge.gradle.SharedBuild'
+        description = project.description
+    }
+}
+
+idea.module { downloadSources = downloadJavadoc = true }

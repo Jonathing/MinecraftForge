@@ -12,7 +12,7 @@ repositories {
     maven gradleutils.forgeMaven
     maven gradleutils.minecraftLibsMaven
 }
-    
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
 
 dependencies {

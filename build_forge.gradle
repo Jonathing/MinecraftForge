@@ -5,13 +5,12 @@ import net.minecraftforge.forge.tasks.checks.CheckExcs
 import net.minecraftforge.forge.tasks.checks.CheckPatches
 import net.minecraftforge.forge.tasks.checks.CheckSAS
 import net.minecraftforge.forge.tasks.checks.CheckTask
-import net.minecraftforge.forgedev.ForgeDevPlugin
 
 import java.nio.file.Files
 import net.minecraftforge.forge.tasks.*
 import static net.minecraftforge.forge.tasks.Util.*
-import net.minecraftforge.forgedev.patching.binary.ApplyBinPatches
-import net.minecraftforge.forgedev.patching.binary.CreateBinPatches
+import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
+import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches
 import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
 import net.minecraftforge.gradle.common.tasks.DownloadMavenArtifact
 import net.minecraftforge.gradle.common.tasks.ExtractInheritance
@@ -31,6 +30,7 @@ plugins {
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gradle.patcher'
     id 'net.minecraftforge.gradlejarsigner'
+    id 'net.minecraftforge.forge.shared' apply false
 }
 
 Util.init() //Init all our extension methods!
@@ -38,7 +38,7 @@ Util.init() //Init all our extension methods!
 // We depend on all other projects so that we can know their versions for userdev config
 rootProject.subprojects.each { sib -> if (sib != project) evaluationDependsOn(sib.path) }
 
-apply from: rootProject.file('build_shared.gradle')
+apply plugin: 'net.minecraftforge.forge.shared'
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)

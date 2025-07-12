@@ -3,6 +3,8 @@ pluginManagement {
         name = 'ForgeGradle'
     }
 
+    includeBuild('build-shared')
+
     repositories {
         gradlePluginPortal()
         //mavenLocal()
@@ -124,10 +126,10 @@ include 'lowcodelanguage'
 include 'fmlearlydisplay'
 
 include ':mcp'
-project(":mcp").projectDir = file("projects/mcp")
+project(':mcp').projectDir = file('projects/mcp')
 
 include ':forge'
-project(":forge").projectDir = file("projects/forge")
+project(':forge').projectDir = file('projects/forge')
 project(':forge').buildFileName = '../../build_forge.gradle'
 
 if (false && !System.env.TEAMCITY_VERSION) {
