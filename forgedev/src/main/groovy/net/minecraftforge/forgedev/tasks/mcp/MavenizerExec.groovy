@@ -1,35 +1,25 @@
-package net.minecraftforge.forgedev.mcp
+package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
-import net.minecraftforge.forgedev.Constants
 import net.minecraftforge.forgedev.ForgeDevPlugin
-import net.minecraftforge.forgedev.ForgeDevProblems
-import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
-import net.minecraftforge.forgedev.Util
+import net.minecraftforge.forgedev.tasks.ToolExec
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.problems.Problems
 import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.JavaExec
 import org.jetbrains.annotations.MustBeInvokedByOverriders
 
 import javax.inject.Inject
 
 @CompileStatic
-@PackageScope abstract class MavenizerExec extends JavaExec implements ForgeDevTask {
-    protected final ForgeDevProblems problems
-
+@PackageScope abstract class MavenizerExec extends ToolExec {
     // Mavenizer
     protected abstract @InputDirectory DirectoryProperty getCaches()
 
     @Inject
     MavenizerExec(Problems problems) {
-        this.problems = new ForgeDevProblems(problems, this.providerFactory)
-
-        this.classpath = this.objectFactory.fileCollection().from(this.getTool(Tools.MAVENIZER))
-        this.mainClass.convention(Constants.MAVENIZER_MAIN)
-        this.javaLauncher.convention(Util.launcherForStrictly(this.javaToolchainService, Constants.MAVENIZER_JAVA))
+        super(problems, Tools.MAVENIZER)
 
         var toolDirectory = this.objectFactory.directoryProperty().value(this.globalCaches.dir('mavenizer').map(this.problems.ensureFileLocation()))
         this.caches.convention(toolDirectory.dir('cache').map(this.problems.ensureFileLocation()))
@@ -40,7 +30,7 @@ import javax.inject.Inject
         //region Mavenizer
         this.args(
             '--cache', this.caches.get().asFile.absolutePath,
-            "--jdk-cache", this.caches.dir("jdks").get().asFile.absolutePath
+            '--jdk-cache', this.caches.dir('jdks').get().asFile.absolutePath
         )
         //endregion
     }

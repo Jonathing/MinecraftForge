@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.mcp
+package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
 import net.minecraftforge.forgedev.ForgeDevTask

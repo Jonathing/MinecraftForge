@@ -1,6 +1,7 @@
-package net.minecraftforge.forgedev.compat
+package net.minecraftforge.forgedev.tasks.compat
 
 import groovy.transform.CompileStatic
+import net.minecraftforge.forgedev.ForgeDevTask
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.DirectoryProperty
@@ -14,7 +15,7 @@ import javax.inject.Inject
 
 // TODO [ForgeDev] Consider using extraction as a tool in other tasks instead of this dedicated task
 @CompileStatic
-abstract class LegacyExtractZip extends DefaultTask {
+abstract class LegacyExtractZip extends DefaultTask implements ForgeDevTask {
     abstract @InputFile RegularFileProperty getInput()
     abstract @OutputDirectory DirectoryProperty getOutput()
 

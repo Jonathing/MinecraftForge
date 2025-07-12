@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching.diff
+package net.minecraftforge.forgedev.tasks.patching.diff
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -8,6 +8,7 @@ import net.minecraftforge.forgedev.ForgeDevProblems
 import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
 import net.minecraftforge.forgedev.Util
+import net.minecraftforge.forgedev.tasks.ToolExec
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemLocation
 import org.gradle.api.file.FileSystemLocationProperty
@@ -23,9 +24,7 @@ import org.gradle.api.tasks.PathSensitivity
 import javax.inject.Inject
 
 @CompileStatic
-@PackageScope abstract class BaseDiffPatchExec extends JavaExec implements ForgeDevTask {
-    @PackageScope final ForgeDevProblems problems
-
+@PackageScope abstract class BaseDiffPatchExec extends ToolExec {
     /* CLI FLAGS - See io.codechicken.diffpatch.cli.DiffPatchCli#mainI, or run --help on the fat jar */
 
     // Utility
@@ -48,11 +47,7 @@ import javax.inject.Inject
 
     @Inject
     BaseDiffPatchExec(Problems problems) {
-        this.problems = new ForgeDevProblems(problems, this.providerFactory)
-
-        this.classpath = this.objectFactory.fileCollection().from(this.getTool(Tools.DIFFPATCH))
-        this.mainClass.convention(Constants.DIFFPATCH_MAIN)
-        this.javaLauncher.convention(Util.launcherForStrictly(this.javaToolchainService, Constants.DIFFPATCH_JAVA))
+        super(problems, Tools.DIFFPATCH)
 
         if (this.input instanceof DirectoryProperty)
             this.archiveBase.unset().disallowChanges()
@@ -87,15 +82,5 @@ import javax.inject.Inject
         if (this.lineEndings.present)
             this.args('--line-endings', this.lineEndings.get())
         //endregion
-    }
-
-    @Override
-    void exec() {
-        if (this.args.empty) // If the consumer hasn't manually set the command line arguments, add what we need.
-            addArguments()
-
-        ForgeDevPlugin.LOGGER.info('{} {}', this.classpath.asPath, this.args.join(' '))
-
-        super.exec()
     }
 }

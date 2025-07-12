@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.mcp
+package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -33,7 +33,7 @@ import javax.inject.Inject
 
     @Override
     protected void addArguments() {
-        super.addArguments()
+        Object.addArguments()
 
         //region MCP Task
         var artifact = this.artifact.get()

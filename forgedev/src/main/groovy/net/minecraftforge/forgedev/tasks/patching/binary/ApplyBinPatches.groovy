@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching.binary
+package net.minecraftforge.forgedev.tasks.patching.binary
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.ConfigurableFileCollection
@@ -25,7 +25,9 @@ abstract class ApplyBinPatches extends BinaryPatcherExec {
     }
 
     @Override
-    void exec() {
+    protected void addArguments() {
+        super.addArguments()
+
         if (!this.apply.empty) {
             this.apply.forEach {
                 this.args('--apply', it.absolutePath)
@@ -39,7 +41,5 @@ abstract class ApplyBinPatches extends BinaryPatcherExec {
 
         if (this.unpatched.getOrElse(false))
             this.args('--unpatched')
-
-        super.exec()
     }
 }

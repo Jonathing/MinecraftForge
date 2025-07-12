@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.compat
+package net.minecraftforge.forgedev.tasks.compat
 
 import groovy.transform.CompileStatic
 import net.minecraftforge.forgedev.ForgeDevTask
@@ -43,8 +43,6 @@ abstract class LegacyMergeFilesTask extends DefaultTask implements ForgeDevTask 
         // TODO [ForgeDev] caching of this task (or delete it)
         this.outputs.upToDateWhen { false }
     }
-
-    protected abstract @Inject ProviderFactory getProviders()
 
     @TaskAction
     void exec() {

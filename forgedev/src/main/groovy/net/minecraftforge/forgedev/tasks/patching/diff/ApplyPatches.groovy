@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching.diff
+package net.minecraftforge.forgedev.tasks.patching.diff
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.DirectoryProperty

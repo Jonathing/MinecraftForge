@@ -24,7 +24,7 @@ import javax.inject.Inject
 
 @CompileStatic
 abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
-    public static final Logger LOGGER = Logging.getLogger("ForgeDev")
+    public static final Logger LOGGER = Logging.getLogger('ForgeDev')
 
     private final ForgeDevProblems enhancedProblems
 
@@ -60,7 +60,7 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
         try {
             target.gradle.startParameter.gradleUserHomeDir
         } catch (Throwable e) {
-            throw this.enhancedProblems.illegalPluginTarget(new IllegalArgumentException("Cannot apply ForgeGradle to target: " + target, e))
+            throw this.enhancedProblems.illegalPluginTarget(new IllegalArgumentException("Cannot apply ForgeGradle to target: $target", e))
         }
     }
 
@@ -98,6 +98,6 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
 
     @SuppressWarnings('GrMethodMayBeStatic')
     private <S> S injectFailed() {
-        throw new Exception("Cannot use in current context (this is a ForgeGradle bug, please report it!)")
+        throw new Exception('Cannot use in current context (this is a ForgeGradle bug, please report it!)')
     }
 }

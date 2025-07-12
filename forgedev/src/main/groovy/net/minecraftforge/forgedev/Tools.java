@@ -19,16 +19,20 @@ import java.io.IOException;
 import static net.minecraftforge.forgedev.ForgeDevPlugin.LOGGER;
 
 public enum Tools {
-    MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL),
-    DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL),
-    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL);
+    MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_MAIN, Constants.MAVENIZER_JAVA),
+    DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_MAIN, Constants.DIFFPATCH_JAVA),
+    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL, Constants.BINPATCH_MAIN, Constants.BINPATCH_JAVA);
 
     private final String fileName;
     private final String downloadUrl;
+    public final String mainClass;
+    public final int javaVersion;
 
-    Tools(String fileName, String downloadUrl) {
+    Tools(String fileName, String downloadUrl, String mainClass, int javaVersion) {
         this.fileName = fileName;
         this.downloadUrl = downloadUrl;
+        this.mainClass = mainClass;
+        this.javaVersion = javaVersion;
     }
 
     /// Gets a provider for this tool using the given caches directory and provider factory.

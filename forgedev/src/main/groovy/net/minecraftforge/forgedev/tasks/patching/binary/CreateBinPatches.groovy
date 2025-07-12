@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching.binary
+package net.minecraftforge.forgedev.tasks.patching.binary
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.ConfigurableFileCollection
@@ -21,7 +21,9 @@ abstract class CreateBinPatches extends BinaryPatcherExec {
     }
 
     @Override
-    void exec() {
+    protected void addArguments() {
+        super.addArguments()
+
         if (!this.create.empty) {
             this.create.forEach {
                 this.args('--create', it.absolutePath)
@@ -37,7 +39,5 @@ abstract class CreateBinPatches extends BinaryPatcherExec {
         this.srg.forEach {
             this.args('--srg', it.absolutePath)
         }
-
-        super.exec()
     }
 }

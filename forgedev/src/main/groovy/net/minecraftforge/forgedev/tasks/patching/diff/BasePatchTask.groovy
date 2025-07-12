@@ -1,4 +1,4 @@
-package net.minecraftforge.forgedev.patching.diff
+package net.minecraftforge.forgedev.tasks.patching.diff
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -20,7 +20,7 @@ import org.gradle.work.DisableCachingByDefault
 import javax.inject.Inject
 import java.nio.file.Files
 
-@DisableCachingByDefault(because = "Abstract super-class, not to be instantiated directly")
+@DisableCachingByDefault(because = 'Abstract super-class, not to be instantiated directly')
 @CompileStatic
 @PackageScope abstract class BasePatchTask extends BaseDiffPatchExec {
     FileSystemLocationProperty<? extends FileSystemLocation> getPatches() {
