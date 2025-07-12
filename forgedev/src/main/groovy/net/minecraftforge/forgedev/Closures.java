@@ -32,34 +32,30 @@ public final class Closures {
     /// I'm very sorry.
     ///
     /// @see org.gradle.api.internal.AbstractTask.ClosureTaskAction#doExecute(org.gradle.api.Task)
-    @SuppressWarnings({"rawtypes", "unchecked", "JavadocReference"})
-    public static <T> @UnknownNullability T invoke(Object object, @DelegatesTo(value = FirstParam.class, strategy = Closure.DELEGATE_FIRST) Closure closure) {
-        closure.setDelegate(object);
+    @SuppressWarnings({"rawtypes", "JavadocReference"})
+    public static <T> @UnknownNullability T invoke(@DelegatesTo(value = FirstParam.class, strategy = Closure.DELEGATE_FIRST) Closure closure, Object... object) {
+        closure.setDelegate(object[0]);
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(closure.getClass().getClassLoader());
-        try {
-            Object ret = closure.getMaximumNumberOfParameters() == 0 ? closure.call() : closure.call(object);
-            return ret != null ? (T) ret : null;
-        } catch (InvokerInvocationException e) {
-            Throwable cause = e.getCause();
-            throw cause instanceof RuntimeException ? (RuntimeException) cause : e;
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
-        }
+        return invokeInternal(closure, object);
     }
 
-    /// @see #invoke(Object, Closure)
-    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static final Object[] EMPTY_ARGS = {};
+
+    /// @see #invoke(Closure, Object...)
+    @SuppressWarnings("rawtypes")
     public static <T> @UnknownNullability T invoke(Closure closure) {
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
+        return invokeInternal(closure, EMPTY_ARGS);
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private static <T> @UnknownNullability T invokeInternal(Closure closure, Object... object) {
+        var original = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(closure.getClass().getClassLoader());
         try {
-            Object ret = closure.call();
+            var ret = closure.getMaximumNumberOfParameters() == 0 ? closure.call() : closure.call(object);
             return ret != null ? (T) ret : null;
         } catch (InvokerInvocationException e) {
-            Throwable cause = e.getCause();
-            throw cause instanceof RuntimeException ? (RuntimeException) cause : e;
+            throw e.getCause() instanceof RuntimeException rte ? rte : e;
         } finally {
             Thread.currentThread().setContextClassLoader(original);
         }

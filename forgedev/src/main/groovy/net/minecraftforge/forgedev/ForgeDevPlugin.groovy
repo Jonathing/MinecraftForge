@@ -50,13 +50,6 @@ abstract class ForgeDevPlugin implements Plugin<ExtensionAware> {
         }
     }
 
-    Closure getMinecraftMaven() {
-        return { MavenArtifactRepository repo ->
-            repo.name = 'MinecraftMaven'
-            repo.url = this.globalCaches.dir('mavenizer/output')
-        }
-    }
-
     @SuppressWarnings('GrDeprecatedAPIUsage') // Intentional deprecation, please use this method
     Provider<File> getTool(Tools tool) {
         tool.get(this.globalCaches, this.providers)

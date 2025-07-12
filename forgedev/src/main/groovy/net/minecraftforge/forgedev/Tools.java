@@ -11,8 +11,6 @@ import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -38,8 +36,8 @@ public enum Tools {
     /// @param cachesDir The caches directory to store the tool
     /// @param providers The provider factory to use
     /// @return A provider for the tool as a [file][File]
-    /// @deprecated Use [ForgeDevPlugin#getTool(Tools)] <- [org.gradle.api.plugins.PluginContainer#getPlugin(Class)]
-    ///  <- [org.gradle.api.plugins.PluginAware#getPlugins()]
+    /// @deprecated Use [ForgeDevPlugin#getTool(Tools)] <- [org.gradle.api.plugins.PluginContainer#getPlugin(Class)] <-
+    /// [org.gradle.api.plugins.PluginAware#getPlugins()]
     @Deprecated
     @SuppressWarnings("DeprecatedIsStillUsed")
     Provider<File> get(DirectoryProperty cachesDir, ProviderFactory providers) {
@@ -61,19 +59,17 @@ public enum Tools {
 
         @Override
         public File obtain() {
-            Parameters parameters = this.getParameters();
+            var parameters = this.getParameters();
 
             // inputs
-            String downloadUrl = parameters.getDownloadUrl().get();
+            var downloadUrl = parameters.getDownloadUrl().get();
 
             // outputs
-            File outFile = parameters.getInputFile().get().getAsFile();
-            String name = outFile.getName();
+            var outFile = parameters.getInputFile().get().getAsFile();
+            var name = outFile.getName();
 
             // in-house caching
-            HashStore cache = HashStore.fromFile(outFile)
-                                       .add("tool", outFile)
-                                       .add("url", downloadUrl);
+            var cache = HashStore.fromFile(outFile).add("url", downloadUrl);
 
             if (outFile.exists() && cache.isSame()) {
                 LOGGER.info("Default tool already downloaded: {}", name);
@@ -85,7 +81,7 @@ public enum Tools {
                     throw new RuntimeException("Failed to download default tool: " + name, e);
                 }
 
-                cache.add("tool", outFile).save();
+                cache.save();
             }
 
             return outFile;
