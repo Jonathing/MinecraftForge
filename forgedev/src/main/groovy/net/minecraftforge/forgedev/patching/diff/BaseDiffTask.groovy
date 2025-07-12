@@ -39,7 +39,7 @@ import javax.inject.Inject
 
     @Override
     protected void addArguments() {
-        super.addArguments();
+        super.addArguments()
 
         //region Diff specific
         if (this.autoHeader.get())

@@ -12,10 +12,17 @@ import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.annotations.ApiStatus
 
 import javax.inject.Inject
 
 @CompileStatic
+@Deprecated
+@ApiStatus.ScheduledForRemoval
+@DisableCachingByDefault(
+    because = 'Files that this task depends on cannot be cached'
+)
 abstract class LegacyMergeFilesTask extends DefaultTask implements ForgeDevTask {
     abstract @InputFiles ConfigurableFileCollection getFilesToMerge()
     protected abstract @Input @Optional Property<String> getAdditionalData()

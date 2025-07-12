@@ -3,6 +3,7 @@ package net.minecraftforge.forgedev.patching.diff
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import net.minecraftforge.forgedev.Constants
+import net.minecraftforge.forgedev.ForgeDevPlugin
 import net.minecraftforge.forgedev.ForgeDevProblems
 import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
@@ -90,10 +91,10 @@ import javax.inject.Inject
 
     @Override
     void exec() {
-        if (this.args.isEmpty()) // If the consumer hasn't manually set the command line arguments, add what we need.
-            addArguments();
+        if (this.args.empty) // If the consumer hasn't manually set the command line arguments, add what we need.
+            addArguments()
 
-        println this.classpath.asPath + ' ' + this.args.join(' ')
+        ForgeDevPlugin.LOGGER.info('{} {}', this.classpath.asPath, this.args.join(' '))
 
         super.exec()
     }
