@@ -21,8 +21,7 @@ import javax.inject.Inject
     MavenizerExec(Problems problems) {
         super(problems, Tools.MAVENIZER)
 
-        var toolDirectory = this.objectFactory.directoryProperty().value(this.globalCaches.dir('mavenizer').map(this.problems.ensureFileLocation()))
-        this.caches.convention(toolDirectory.dir('cache').map(this.problems.ensureFileLocation()))
+        this.caches.convention(this.defaultToolDir.dir('cache').map(this.problems.ensureFileLocation()))
     }
 
     @MustBeInvokedByOverriders
@@ -33,15 +32,5 @@ import javax.inject.Inject
             '--jdk-cache', this.caches.dir('jdks').get().asFile.absolutePath
         )
         //endregion
-    }
-
-    @Override
-    final void exec() {
-        if (this.args.empty) // If the consumer hasn't manually set the command line arguments, add what we need.
-            addArguments()
-
-        ForgeDevPlugin.LOGGER.info('{} {}', this.classpath.asPath, this.args.join(' '))
-
-        super.exec()
     }
 }

@@ -19,10 +19,8 @@ abstract class MavenizerMCPSetup extends MavenizerMCPTask {
     abstract @Input @Optional Property<String> getParchment()
 
     @Inject
-    MavenizerMCPSetup(Problems problems, ProjectLayout layout) {
+    MavenizerMCPSetup(Problems problems) {
         super(problems)
-
-        this.output.convention(layout.buildDirectory.file('forgedev/setupMCP.jar'))
     }
 
     @Override

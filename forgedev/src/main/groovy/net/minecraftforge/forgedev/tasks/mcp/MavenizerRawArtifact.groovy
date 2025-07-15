@@ -24,10 +24,10 @@ abstract class MavenizerRawArtifact extends MavenizerMCPTask {
     abstract @Input Property<Boolean> getSrgNames()
 
     @Inject
-    MavenizerRawArtifact(Problems problems, ProjectLayout layout, String pipeline, Provider<String> artifact, Provider<Boolean> srg) {
+    MavenizerRawArtifact(Problems problems, String pipeline, Provider<String> artifact, Provider<Boolean> srg) {
         super(problems)
 
-        this.output.set(layout.buildDirectory.file("${this.name}.jar"))
+        this.output.set(this.forgeDev.localCaches.file("${this.name}.jar"))
         this.pipeline.set(pipeline)
         this.artifact.set(artifact)
         this.srgNames.set(srg)
@@ -35,6 +35,8 @@ abstract class MavenizerRawArtifact extends MavenizerMCPTask {
 
     @Override
     protected void addArguments() {
+        super.addArguments()
+
         this.args('--raw')
 
         if (this.srgNames.getOrElse(false))

@@ -1,5 +1,3 @@
-import net.minecraftforge.forgedev.ForgeDevPlugin
-
 plugins {
     id 'java-library'
     id 'net.minecraftforge.gradle.patcher'
@@ -11,6 +9,7 @@ repositories {
     mavenCentral()
     maven gradleutils.forgeMaven
     maven gradleutils.minecraftLibsMaven
+	maven forgedev.maven
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)

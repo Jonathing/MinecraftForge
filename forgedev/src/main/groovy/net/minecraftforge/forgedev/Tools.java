@@ -11,6 +11,7 @@ import org.gradle.api.provider.ValueSource;
 import org.gradle.api.provider.ValueSourceParameters;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
+import org.jetbrains.annotations.Nullable;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -19,13 +20,18 @@ import java.io.IOException;
 import static net.minecraftforge.forgedev.ForgeDevPlugin.LOGGER;
 
 public enum Tools {
+    // EXECUTABLE
     MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_MAIN, Constants.MAVENIZER_JAVA),
     DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_MAIN, Constants.DIFFPATCH_JAVA),
-    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL, Constants.BINPATCH_MAIN, Constants.BINPATCH_JAVA);
+    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL, Constants.BINPATCH_MAIN, Constants.BINPATCH_JAVA),
+
+    // LIBRARIES
+    SRGUTILS("srgutils-" + Constants.SRGUTILS_VERSION + ".jar", Constants.SRGUTILS_DL_URL, null, Constants.SRGUTILS_JAVA),
+    FASTCSV("fastcsv-" + Constants.FASTCSV_VERSION + ".jar", Constants.FASTCSV_DL_URL, null, Constants.FASTCSV_JAVA);
 
     private final String fileName;
     private final String downloadUrl;
-    public final String mainClass;
+    public final @Nullable String mainClass;
     public final int javaVersion;
 
     Tools(String fileName, String downloadUrl, String mainClass, int javaVersion) {

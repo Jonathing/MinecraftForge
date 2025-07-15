@@ -33,8 +33,8 @@ configurations {
 }
 
 dependencies {
-    // TODO DELETE
-    compileOnly 'io.codechicken:DiffPatch:2.0.1.39'
+    compileOnly libs.srgutils
+    compileOnly libs.fastcsv
 
     // Gradle API
     compileOnly libs.gradle

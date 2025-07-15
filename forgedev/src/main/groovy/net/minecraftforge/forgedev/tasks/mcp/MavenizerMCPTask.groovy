@@ -2,18 +2,10 @@ package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
-import net.minecraftforge.forgedev.Constants
-import net.minecraftforge.forgedev.ForgeDevProblems
-import net.minecraftforge.forgedev.ForgeDevTask
-import net.minecraftforge.forgedev.Tools
-import net.minecraftforge.forgedev.Util
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 
@@ -29,6 +21,8 @@ import javax.inject.Inject
     @Inject
     MavenizerMCPTask(Problems problems) {
         super(problems)
+
+        this.output.convention(this.defaultOutputFile)
     }
 
     @Override

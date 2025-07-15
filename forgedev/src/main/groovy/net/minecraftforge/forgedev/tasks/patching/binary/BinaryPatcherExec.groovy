@@ -2,9 +2,6 @@ package net.minecraftforge.forgedev.tasks.patching.binary
 
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
-import net.minecraftforge.forgedev.Constants
-import net.minecraftforge.forgedev.ForgeDevProblems
-import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
 import net.minecraftforge.forgedev.Util
 import net.minecraftforge.forgedev.tasks.ToolExec
@@ -15,7 +12,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 
@@ -28,15 +24,18 @@ import javax.inject.Inject
     abstract @OutputFile RegularFileProperty getOutput()
     abstract @Input @Optional ListProperty<String> getPrefix()
     abstract @Input Property<Boolean> getPack200()
-    @Deprecated abstract @Input Property<Boolean> getLegacy()
+    abstract @Deprecated @Input Property<Boolean> getLegacy()
 
     @Inject
     @SuppressWarnings('GrDeprecatedAPIUsage') // setting convention "false" for legacy
     BinaryPatcherExec(Problems problems) {
         super(problems, Tools.BINPATCH)
 
+        this.output.convention(this.defaultOutputFile)
         this.pack200.convention(false)
         this.legacy.convention(false)
+
+        this.standardOutput = Util.toLog(this.logger.&info)
     }
 
     @Override

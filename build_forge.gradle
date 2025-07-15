@@ -47,6 +47,10 @@ java {
 
 jarSigner.autoDetect('forge')
 
+repositories {
+    maven forgedev.maven
+}
+
 applyPatches {
     logLevel = 'WARN'
     failOnError = UPDATING != 'true'
@@ -413,7 +417,7 @@ tasks.register('extractInheritance', ExtractInheritance) {
     dependsOn downloadLibraries
     tool = INSTALLER_TOOLS + ':fatjar'
     args.add '--annotations'
-    input = genJoinedBinPatches.cleanJar
+    input = genJoinedBinPatches.clean.singleFile
     libraries.addAll downloadLibraries.librariesOutput.map { rf ->
         Files.readAllLines(rf.asFile.toPath()).stream().map(File::new).toList()
     }
@@ -499,7 +503,7 @@ tasks.register('applyServerBinPatches', ApplyBinPatches) {
     unpatched = true
 }
 tasks.register('applyJoinedBinPatches', ApplyBinPatches) {
-    clean.from = genJoinedBinPatches.cleanJar
+    clean.from = genJoinedBinPatches.clean
     apply.from = genJoinedBinPatches.output
 }
 tasks.register('createServerShimClasspath', BundleList) {
