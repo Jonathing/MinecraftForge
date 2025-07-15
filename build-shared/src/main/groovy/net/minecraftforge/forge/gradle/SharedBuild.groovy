@@ -87,7 +87,7 @@ class SharedBuild implements Plugin<Project> {
                 // Run everytime eclipse builds the code
                 //autoBuildTasks('writeManifest')
                 // Run when importing the project
-                synchronizationTasks('generateResources', 'copyEclipseSettings', 'eclipseClasspath', 'eclipseProject')
+                synchronizationTasks('generateResources', 'eclipseClasspath', 'eclipseProject')
             }
 
             idea.module.tap {

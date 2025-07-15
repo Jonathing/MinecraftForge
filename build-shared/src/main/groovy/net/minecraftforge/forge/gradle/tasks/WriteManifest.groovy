@@ -53,6 +53,6 @@ abstract class WriteManifest extends DefaultTask {
 
     @TaskAction
     void exec() {
-        this.output.get().asFile.bytes = this.getInputBytes().get()
+        this.output.get().asFile.bytes = this.inputBytes.get()
     }
 }
