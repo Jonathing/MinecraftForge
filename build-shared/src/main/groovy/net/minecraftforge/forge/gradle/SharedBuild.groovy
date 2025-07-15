@@ -3,11 +3,14 @@ package net.minecraftforge.forge.gradle
 import net.minecraftforge.forge.gradle.tasks.WriteManifest
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.jvm.tasks.Jar
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
@@ -53,20 +56,14 @@ class SharedBuild implements Plugin<Project> {
             }
 
             // We need to write the manifest to the binary file so we have properly versioned packaged at dev time.
-            WriteManifest.register(
-                project,
-                tasks.named(plugins.findPlugin('net.minecraftforge.gradle.patcher') ? 'universalJar' : 'jar', Jar),
-                java.sourceSets.main
-            )
+            WriteManifest.register(project,
+                tasks.named(plugins.findPlugin('net.minecraftforge.gradle.patcher') ? 'universalJar' : 'jar', Jar))
 
-            tasks.register('generateResources') { task ->
-                task.dependsOn 'writeManifest'
-            }
+            tasks.register('generateResources')
 
-            // Make sure out manifests get written before compiling the code, IDEA calls this task if you tell it to use the gradle build.
             tasks.withType(JavaCompile).configureEach { task ->
-                task.dependsOn 'generateResources'
-                task.dependsOn 'processResources' // Needed because we merge the output of this with the output of the compile task. And gradle detects downstream tasks using the output without a hard dep
+                // Needed because we merge the output of this with the output of the compile task. And gradle detects downstream tasks using the output without a hard dep
+                task.dependsOn 'generateResources', 'processResources'
 
                 task.options.tap {
                     encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation

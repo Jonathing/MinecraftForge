@@ -3,6 +3,9 @@ package net.minecraftforge.forge.gradle.tasks
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
+import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.java.archives.internal.ManifestInternal
 import org.gradle.api.model.ObjectFactory
@@ -15,14 +18,26 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
+import org.gradle.language.jvm.tasks.ProcessResources
 
 import javax.inject.Inject
 import java.nio.file.Files
 
 @CompileStatic
 abstract class WriteManifest extends DefaultTask {
-    static TaskProvider<WriteManifest> register(Project project, Provider<? extends Jar> jar, SourceSet sourceSet) {
-        project.tasks.register('writeManifest', WriteManifest, sourceSet).tap { task ->
+    static TaskProvider<WriteManifest> register(Project project, TaskProvider<? extends Jar> jar) {
+        project.tasks.register('writeManifest', WriteManifest).tap { task ->
+            project.tasks.named('processResources', ProcessResources) {
+                it.dependsOn(task)
+                it.from(task) { CopySpec copy ->
+                    // Take the output from this task and copy it into resources META-INF
+                    copy.into('META-INF')
+
+                    // Replace duplicate file if it exists
+                    copy.duplicatesStrategy = DuplicatesStrategy.INCLUDE
+                }
+            }
+
             project.afterEvaluate {
                 try (var os = new ByteArrayOutputStream()) {
                     // RATIONALE: ManifestInternal has not changed since Gradle 2.14
@@ -36,19 +51,13 @@ abstract class WriteManifest extends DefaultTask {
         }
     }
 
-    abstract @Input Property<byte[]> getInputBytes()
-    abstract @OutputFile RegularFileProperty getOutput()
+    protected abstract @Input Property<byte[]> getInputBytes()
+    protected abstract @OutputFile RegularFileProperty getOutput()
 
     @Inject
-    WriteManifest(ObjectFactory objects, ProviderFactory providers, SourceSet sourceSet) {
-        //@formatter:off
-        this.output.convention(
-            objects.directoryProperty()
-                   .fileProvider(providers.provider { sourceSet.resources.sourceDirectories.first() }) // get resources folder
-                   .file('META-INF/MANIFEST.MF')                                                  // resources/META-INF/MANIFEST.MF
-                   .map { Files.createDirectories(it.asFile.parentFile.toPath()); it }   // ensure META-INF folder exists
-        )
-        //@formatter:on
+    WriteManifest(ProjectLayout layout) {
+        // The output name is ALWAYS "MANIFEST.MF", and output cannot be changed
+        this.output.value(layout.buildDirectory.file("${this.name}/MANIFEST.MF")).disallowChanges()
     }
 
     @TaskAction
