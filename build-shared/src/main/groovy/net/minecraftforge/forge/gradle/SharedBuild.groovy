@@ -1,8 +1,6 @@
 package net.minecraftforge.forge.gradle
 
-import net.minecraftforge.forge.gradle.tasks.CopyEclipseSettings
 import net.minecraftforge.forge.gradle.tasks.WriteManifest
-import net.minecraftforge.gradleutils.GradleUtilsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -84,8 +82,6 @@ class SharedBuild implements Plugin<Project> {
                 it.output.resourcesDir = dir
                 it.java.destinationDirectory = dir
             }
-
-            tasks.register('copyEclipseSettings', CopyEclipseSettings)
 
             eclipse.tap {
                 // Run everytime eclipse builds the code
