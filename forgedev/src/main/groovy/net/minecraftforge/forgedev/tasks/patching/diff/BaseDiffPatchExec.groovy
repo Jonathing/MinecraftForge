@@ -46,8 +46,8 @@ import javax.inject.Inject
     abstract @Input @Optional Property<String> getLineEndings()
 
     @Inject
-    BaseDiffPatchExec(Problems problems) {
-        super(problems, Tools.DIFFPATCH)
+    BaseDiffPatchExec() {
+        super(Tools.DIFFPATCH)
 
         if (this.input instanceof DirectoryProperty)
             this.archiveBase.unset().disallowChanges()

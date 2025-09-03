@@ -26,9 +26,7 @@ abstract class ApplyPatches extends BasePatchTask {
     @OutputFile RegularFileProperty getOutput() { this.output }
 
     @Inject
-    ApplyPatches(Problems problems) {
-        super(problems)
-
+    ApplyPatches() {
         this.input = this.objectFactory.fileProperty()
         this.patches = this.objectFactory.directoryProperty()
         this.output = this.objectFactory.fileProperty()

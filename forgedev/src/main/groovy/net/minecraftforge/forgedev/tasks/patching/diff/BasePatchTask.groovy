@@ -66,9 +66,7 @@ import java.nio.file.Files
     private final Property<File> rejects
 
     @Inject
-    BasePatchTask(Problems problems) {
-        super(problems)
-
+    BasePatchTask() {
         if (this.rejects instanceof DirectoryProperty)
             this.archiveRejects.unset().disallowChanges()
         if (this.patches instanceof DirectoryProperty)

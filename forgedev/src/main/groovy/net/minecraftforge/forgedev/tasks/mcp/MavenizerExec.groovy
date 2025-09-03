@@ -18,8 +18,8 @@ import javax.inject.Inject
     protected abstract @InputDirectory DirectoryProperty getCaches()
 
     @Inject
-    MavenizerExec(Problems problems) {
-        super(problems, Tools.MAVENIZER)
+    MavenizerExec() {
+        super(Tools.MAVENIZER)
 
         this.caches.convention(this.defaultToolDir.dir('cache').map(this.problems.ensureFileLocation()))
     }

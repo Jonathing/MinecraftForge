@@ -24,9 +24,7 @@ abstract class MavenizerMCPDataTask extends MavenizerExec {
     abstract @Input Property<Boolean> getIsAllowEmpty()
 
     @Inject
-    MavenizerMCPDataTask(Problems problems) {
-        super(problems)
-
+    MavenizerMCPDataTask() {
         this.output.convention(this.defaultOutputFile)
         this.official.convention(false)
         this.key.convention('mappings')

@@ -29,9 +29,7 @@ abstract class ApplyRangeMap extends S2SExec {
     abstract @Input Property<Boolean> getGuessLocals()
 
     @Inject
-    ApplyRangeMap(Problems problems) {
-        super(problems)
-
+    ApplyRangeMap() {
         this.output.convention(this.defaultOutputFile)
     }
 

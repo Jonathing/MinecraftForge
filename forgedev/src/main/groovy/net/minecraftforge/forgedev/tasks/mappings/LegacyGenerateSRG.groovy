@@ -37,8 +37,8 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
 
     LegacyGenerateSRG() {
         this.classpath.from(
-            this.forgedev.getTool(Tools.SRGUTILS),
-            this.forgedev.getTool(Tools.FASTCSV)
+            this.getTool(Tools.SRGUTILS).classpath,
+            this.getTool(Tools.FASTCSV).classpath
         )
 
         this.format.convention(IMappingFile.Format.TSRG2)

@@ -19,9 +19,7 @@ abstract class MavenizerMCPSetup extends MavenizerMCPTask {
     abstract @Input @Optional Property<String> getParchment()
 
     @Inject
-    MavenizerMCPSetup(Problems problems) {
-        super(problems)
-    }
+    MavenizerMCPSetup() {}
 
     @Override
     protected void addArguments() {

@@ -41,9 +41,7 @@ abstract class ExtractRangeMap extends S2SExec {
     }
 
     @Inject
-    public ExtractRangeMap(Problems problems) {
-        super(problems)
-
+    ExtractRangeMap() {
         this.output.convention(this.defaultOutputFile)
 
         this.sourceCompatiblityProp = this.objectFactory.property(JavaVersion)

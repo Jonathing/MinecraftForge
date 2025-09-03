@@ -17,9 +17,7 @@ abstract class ApplyBinPatches extends BinaryPatcherExec {
     abstract @Input Property<Boolean> getUnpatched()
 
     @Inject
-    ApplyBinPatches(Problems problems) {
-        super(problems)
-
+    ApplyBinPatches() {
         this.data.convention(false)
         this.unpatched.convention(false)
     }

@@ -38,7 +38,7 @@ abstract class LegacyApplyMappings extends DefaultTask implements ForgeDevTask {
     @Inject
     LegacyApplyMappings() {
         this.classpath.from(
-            this.forgedev.getTool(Tools.FASTCSV)
+            this.getTool(Tools.FASTCSV).classpath
         )
 
         this.output.convention(this.defaultOutputFile)

@@ -15,9 +15,7 @@ import javax.inject.Inject
     abstract @Input @Optional Property<String> getPrefix()
 
     @Inject
-    BasePatchBakingTask(Problems problems) {
-        super(problems)
-    }
+    BasePatchBakingTask() { }
 
     @Override
     protected void addArguments() {

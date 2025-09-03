@@ -28,8 +28,8 @@ import javax.inject.Inject
 
     @Inject
     @SuppressWarnings('GrDeprecatedAPIUsage') // setting convention "false" for legacy
-    BinaryPatcherExec(Problems problems) {
-        super(problems, Tools.BINPATCH)
+    BinaryPatcherExec() {
+        super(Tools.BINPATCH)
 
         this.output.convention(this.defaultOutputFile)
         this.pack200.convention(false)

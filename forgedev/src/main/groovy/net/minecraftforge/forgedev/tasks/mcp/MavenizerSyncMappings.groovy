@@ -1,6 +1,7 @@
 package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
+import net.minecraftforge.forgedev.ForgeDevExtension
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
@@ -18,10 +19,8 @@ abstract class MavenizerSyncMappings extends MavenizerExec {
     protected abstract @Internal DirectoryProperty getOutput()
 
     @Inject
-    MavenizerSyncMappings(Problems problems) {
-        super(problems)
-
-        this.output.convention(this.forgedev.mavenizerRepo)
+    MavenizerSyncMappings() {
+        this.output.convention(this.project.extensions.getByType(ForgeDevExtension).mavenizerRepo)
     }
 
     //net.minecraft:mappings_channel:version@zip

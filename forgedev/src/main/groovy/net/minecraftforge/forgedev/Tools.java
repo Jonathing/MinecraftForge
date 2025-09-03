@@ -1,5 +1,6 @@
 package net.minecraftforge.forgedev;
 
+import net.minecraftforge.gradleutils.shared.Tool;
 import net.minecraftforge.util.download.DownloadUtils;
 import net.minecraftforge.util.hash.HashStore;
 import org.gradle.api.file.DirectoryProperty;
@@ -19,83 +20,24 @@ import java.io.IOException;
 
 import static net.minecraftforge.forgedev.ForgeDevPlugin.LOGGER;
 
-public enum Tools {
+public final class Tools {
+    private Tools() { }
+
     // EXECUTABLE
-    MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_MAIN, Constants.MAVENIZER_JAVA),
-    DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_MAIN, Constants.DIFFPATCH_JAVA),
-    BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL, Constants.BINPATCH_MAIN, Constants.BINPATCH_JAVA),
-    SRG2SRC("binpatcher-" + Constants.SRG2SRC_VERSION + ".jar", Constants.SRG2SRC_DL_URL, Constants.SRG2SRC_MAIN, Constants.SRG2SRC_JAVA),
+    public static final Tool MAVENIZER = tool(Constants.MAVENIZER_NAME, Constants.MAVENIZER_VERSION, Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_JAVA, Constants.MAVENIZER_MAIN);
+    public static final Tool DIFFPATCH = tool(Constants.DIFFPATCH_NAME, Constants.DIFFPATCH_VERSION, Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_JAVA, Constants.DIFFPATCH_MAIN);
+    public static final Tool BINPATCH = tool(Constants.BINPATCH_NAME, Constants.BINPATCH_VERSION, Constants.BINPATCH_DL_URL, Constants.BINPATCH_JAVA, Constants.BINPATCH_MAIN);
+    public static final Tool SRG2SRC = tool(Constants.SRG2SRC_NAME, Constants.SRG2SRC_VERSION, Constants.SRG2SRC_DL_URL, Constants.SRG2SRC_JAVA, Constants.SRG2SRC_MAIN);
 
     // LIBRARIES
-    SRGUTILS("srgutils-" + Constants.SRGUTILS_VERSION + ".jar", Constants.SRGUTILS_DL_URL, null, Constants.SRGUTILS_JAVA),
-    FASTCSV("fastcsv-" + Constants.FASTCSV_VERSION + ".jar", Constants.FASTCSV_DL_URL, null, Constants.FASTCSV_JAVA);
+    public static final Tool SRGUTILS = tool(Constants.SRGUTILS_NAME, Constants.SRGUTILS_VERSION, Constants.SRGUTILS_DL_URL, Constants.SRGUTILS_JAVA);
+    public static final Tool FASTCSV = tool(Constants.FASTCSV_NAME, Constants.FASTCSV_VERSION, Constants.FASTCSV_DL_URL, Constants.FASTCSV_JAVA);
 
-    private final String fileName;
-    private final String downloadUrl;
-    public final @Nullable String mainClass;
-    public final int javaVersion;
-
-    Tools(String fileName, String downloadUrl, String mainClass, int javaVersion) {
-        this.fileName = fileName;
-        this.downloadUrl = downloadUrl;
-        this.mainClass = mainClass;
-        this.javaVersion = javaVersion;
+    private static Tool tool(String name, String version, String downloadUrl, int javaVersion) {
+        return Tool.of(name, version, downloadUrl, javaVersion);
     }
 
-    /// Gets a provider for this tool using the given caches directory and provider factory.
-    ///
-    /// @param cachesDir The caches directory to store the tool
-    /// @param providers The provider factory to use
-    /// @return A provider for the tool as a [file][File]
-    /// @deprecated Use [ForgeDevPlugin#getTool(Tools)] <- [org.gradle.api.plugins.PluginContainer#getPlugin(Class)] <-
-    /// [org.gradle.api.plugins.PluginAware#getPlugins()]
-    @Deprecated
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    Provider<File> get(DirectoryProperty cachesDir, ProviderFactory providers) {
-        return providers.of(Source.class, spec -> spec.parameters(parameters -> {
-            parameters.getInputFile().set(cachesDir.file("tools/" + this.fileName));
-            parameters.getDownloadUrl().set(this.downloadUrl);
-        }));
-    }
-
-    static abstract class Source implements ValueSource<File, Source.Parameters> {
-        interface Parameters extends ValueSourceParameters {
-            @InputFile RegularFileProperty getInputFile();
-
-            @Input Property<String> getDownloadUrl();
-        }
-
-        @Inject
-        public Source() { }
-
-        @Override
-        public File obtain() {
-            var parameters = this.getParameters();
-
-            // inputs
-            var downloadUrl = parameters.getDownloadUrl().get();
-
-            // outputs
-            var outFile = parameters.getInputFile().get().getAsFile();
-            var name = outFile.getName();
-
-            // in-house caching
-            var cache = HashStore.fromFile(outFile).add("url", downloadUrl);
-
-            if (outFile.exists() && cache.isSame()) {
-                LOGGER.info("Default tool already downloaded: {}", name);
-            } else {
-                LOGGER.info("Downloading default tool: {}", name);
-                try {
-                    DownloadUtils.downloadFile(outFile, downloadUrl);
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to download default tool: " + name, e);
-                }
-
-                cache.save();
-            }
-
-            return outFile;
-        }
+    private static Tool tool(String name, String version, String downloadUrl, int javaVersion, String mainClass) {
+        return Tool.of(name, version, downloadUrl, javaVersion, mainClass);
     }
 }

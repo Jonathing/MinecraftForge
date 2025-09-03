@@ -8,6 +8,8 @@ import net.minecraftforge.forgedev.tasks.ToolExec
 import org.gradle.api.JavaVersion
 import org.gradle.api.problems.Problems
 
+import javax.inject.Inject
+
 @CompileStatic
 @PackageScope abstract class S2SExec extends ToolExec {
     // NOTE: check net.minecraftforge.srg2source.api.SourceVersion for compatible ranges
@@ -16,8 +18,9 @@ import org.gradle.api.problems.Problems
     private static final int SRC_COMPAT_MAX = 23
     private static final String SRC_COMPAT_MAX_STR = '23'
 
-    S2SExec(Problems problems) {
-        super(problems, Tools.SRG2SRC)
+    @Inject
+    S2SExec() {
+        super(Tools.SRG2SRC)
 
         this.standardOutput = Util.toLog(this.logger.&info)
     }

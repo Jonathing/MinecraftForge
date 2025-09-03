@@ -16,9 +16,7 @@ abstract class CreateBinPatches extends BinaryPatcherExec {
     abstract @InputFiles @Optional ConfigurableFileCollection getSrg()
 
     @Inject
-    CreateBinPatches(Problems problems) {
-        super(problems)
-    }
+    CreateBinPatches() { }
 
     @Override
     protected void addArguments() {

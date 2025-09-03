@@ -6,16 +6,22 @@ rootProject.name = 'forgedev'
 
 dependencyResolutionManagement {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
-        maven { url = 'https://maven.moddinglegacy.com/repository/maven-public' } // Gradle API
-        mavenCentral()
         //mavenLocal()
+        mavenCentral()
+        maven { url = 'https://maven.minecraftforge.net' } // TODO Replace with gradleutils.forgeMaven
+        maven { url = 'https://maven.moddinglegacy.com/maven' } // Gradle API
     }
 
     //@formatter:off
     versionCatalogs.register('libs') {
-        plugin 'licenser',       'net.minecraftforge.licenser'    version '1.2.0'        // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
-        plugin 'gradleutils',    'net.minecraftforge.gradleutils' version '2.6.0'        // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
+        plugin 'licenser',       'net.minecraftforge.licenser'   version '1.2.0' // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
+        plugin 'gitversion',     'net.minecraftforge.gitversion' version '3.0.3' // https://plugins.gradle.org/plugin/net.minecraftforge.changelog
+        plugin 'changelog',      'net.minecraftforge.changelog'  version '3.0.3' // https://plugins.gradle.org/plugin/net.minecraftforge.changelog
+        plugin 'plugin-publish', 'com.gradle.plugin-publish'     version '1.3.1' // https://plugins.gradle.org/plugin/com.gradle.plugin-publish
+        plugin 'shadow',         'com.gradleup.shadow'           version '9.0.2' // https://plugins.gradle.org/plugin/com.gradleup.shadow
+
+        // Static Analysis
+        library 'nulls', 'org.jetbrains', 'annotations' version '26.0.2'
 
         // Gradle API
         // TODO [ForgeGradle][FG7][Gradle Api] REMOVE once Gradle publish their own API artifacts
@@ -23,7 +29,9 @@ dependencyResolutionManagement {
         // Mirror:    https://maven.moddinglegacy.com/#browse/browse:maven-public:name%2Fremal%2Fgradle-api%2Fgradle-api%2F8.14.1
         version 'gradle', '8.14.1'
         library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
-        library 'nulls',  'org.jetbrains',         'annotations' version    '26.0.2'
+
+        // GradleUtils Shared Base
+        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.2.9'
 
         library 'srgutils',  'net.minecraftforge', 'srgutils'   version '0.5.14'
         library 'fastcsv',   'de.siegmar',         'fastcsv'    version '3.7.0'

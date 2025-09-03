@@ -1,9 +1,15 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.ShadowJavaPlugin
+import org.gradle.api.attributes.plugin.GradlePluginApiVersion
+
 plugins {
     id 'java-gradle-plugin'
     id 'groovy'
     id 'idea'
+    id 'eclipse'
+    id 'maven-publish'
     alias libs.plugins.licenser
-    alias libs.plugins.gradleutils
+    alias libs.plugins.shadow
 }
 
 final projectDisplayName = 'ForgeDev'
@@ -12,7 +18,6 @@ description = 'ForgeDev'
 group = 'net.minecraftforge'
 
 java {
-    // Gradle 9 will require Java 17
     toolchain.languageVersion = JavaLanguageVersion.of 17
     withSourcesJar()
     withJavadocJar()
@@ -27,21 +32,34 @@ configurations {
         }
     }
 
-    applyGradleVersionAttribute(apiElements)
-    applyGradleVersionAttribute(runtimeElements)
-    //applyGradleVersionAttribute(shadowRuntimeElements)
+    named(JavaPlugin.RUNTIME_ELEMENTS_CONFIGURATION_NAME, applyGradleVersionAttribute)
+    named(ShadowJavaPlugin.SHADOW_RUNTIME_ELEMENTS_CONFIGURATION_NAME, applyGradleVersionAttribute)
 }
 
 dependencies {
     compileOnly libs.srgutils
     compileOnly libs.fastcsv
 
+    // Static Analysis
+    compileOnly libs.nulls
+
     // Gradle API
     compileOnly libs.gradle
-    compileOnly libs.nulls
+
+    // GradleUtils Shared Base
+    implementation libs.gradleutils.shared
 
     // Utils
     implementation libs.bundles.utils
+}
+
+// Removes local Gradle API from compileOnly. This is a workaround for bugged plugins.
+// Publish Plugin: https://github.com/gradle/plugin-portal-requests/issues/260
+// Shadow:         https://github.com/GradleUp/shadow/pull/1422
+afterEvaluate { project ->
+    project.configurations.named(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME) { compileOnly ->
+        compileOnly.dependencies.remove(project.dependencies.gradleApi())
+    }
 }
 
 license {
@@ -54,6 +72,25 @@ tasks.withType(GroovyCompile).configureEach {
     groovyOptions.optimizationOptions.indy = true
 }
 
+tasks.named('jar', Jar) {
+    archiveClassifier = 'thin'
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    enableAutoRelocation = true
+    archiveClassifier = null
+    relocationPrefix = 'net.minecraftforge.forgedev.shadow'
+}
+
+tasks.withType(Javadoc).configureEach {
+    javadocTool = javaToolchains.javadocToolFor { languageVersion = JavaLanguageVersion.of(24) }
+
+    options { StandardJavadocDocletOptions options ->
+        options.windowTitle = projectDisplayName + project.version
+        options.tags 'apiNote:a:API Note:', 'implNote:a:Implementation Note:', 'implSpec:a:Implementation Requirements:'
+    }
+}
+
 gradlePlugin {
     plugins.register('forgedev') {
         id = 'net.minecraftforge.forgedev'
@@ -64,3 +101,4 @@ gradlePlugin {
 }
 
 idea.module { downloadSources = downloadJavadoc = true }
+eclipse.classpath { downloadSources = downloadJavadoc = true }

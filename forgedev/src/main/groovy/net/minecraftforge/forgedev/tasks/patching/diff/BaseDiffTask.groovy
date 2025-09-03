@@ -27,9 +27,7 @@ import javax.inject.Inject
     abstract @Input @Optional Property<String> getArchiveModified()
 
     @Inject
-    BaseDiffTask(Problems problems) {
-        super(problems)
-
+    BaseDiffTask() {
         if (this.modified instanceof DirectoryProperty)
             this.archiveModified.unset().disallowChanges()
 

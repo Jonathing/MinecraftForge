@@ -20,9 +20,7 @@ abstract class BakePatches extends BasePatchBakingTask {
     @OutputFile RegularFileProperty getOutput() { this.output }
 
     @Inject
-    BakePatches(Problems problems) {
-        super(problems)
-
+    BakePatches() {
         this.input = this.objectFactory.directoryProperty()
         this.output = this.objectFactory.fileProperty()
     }

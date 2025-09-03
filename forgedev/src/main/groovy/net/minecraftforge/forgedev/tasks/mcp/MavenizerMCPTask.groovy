@@ -19,9 +19,7 @@ import javax.inject.Inject
     abstract @Input @Optional Property<String> getPipeline()
 
     @Inject
-    MavenizerMCPTask(Problems problems) {
-        super(problems)
-
+    MavenizerMCPTask() {
         this.output.convention(this.defaultOutputFile)
     }
 
