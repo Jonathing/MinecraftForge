@@ -24,6 +24,7 @@ public enum Tools {
     MAVENIZER("mavenizer-" + Constants.MAVENIZER_VERSION + ".jar", Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_MAIN, Constants.MAVENIZER_JAVA),
     DIFFPATCH("diffpatch-" + Constants.DIFFPATCH_VERSION + ".jar", Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_MAIN, Constants.DIFFPATCH_JAVA),
     BINPATCH("binpatcher-" + Constants.BINPATCH_VERSION + ".jar", Constants.BINPATCH_DL_URL, Constants.BINPATCH_MAIN, Constants.BINPATCH_JAVA),
+    SRG2SRC("binpatcher-" + Constants.SRG2SRC_VERSION + ".jar", Constants.SRG2SRC_DL_URL, Constants.SRG2SRC_MAIN, Constants.SRG2SRC_JAVA),
 
     // LIBRARIES
     SRGUTILS("srgutils-" + Constants.SRGUTILS_VERSION + ".jar", Constants.SRGUTILS_DL_URL, null, Constants.SRGUTILS_JAVA),

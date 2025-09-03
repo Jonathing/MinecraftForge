@@ -1,11 +1,11 @@
 package net.minecraftforge.forgedev.tasks.mappings
 
-import de.siegmar.fastcsv.reader.CsvReader
+
 import groovy.transform.CompileStatic
-import groovy.transform.Immutable
 import net.minecraftforge.forgedev.ForgeDevTask
 import net.minecraftforge.forgedev.Tools
 import net.minecraftforge.srgutils.IMappingFile
+import net.minecraftforge.srgutils.IMappingFile.INode
 import net.minecraftforge.srgutils.IRenamer
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
@@ -22,7 +22,6 @@ import org.gradle.workers.WorkParameters
 import org.gradle.workers.WorkerExecutor
 
 import javax.inject.Inject
-import java.util.zip.ZipFile
 
 @CompileStatic
 abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
@@ -32,14 +31,14 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
     abstract @Input Property<Boolean> getNotch()
     abstract @Input Property<Boolean> getReverse()
 
-    abstract @InputFile RegularFileProperty getSrg()
+    abstract @InputFile RegularFileProperty getMcpSrgData()
     abstract @InputFile RegularFileProperty getMappingsZip()
     abstract @OutputFile RegularFileProperty getOutput()
 
     LegacyGenerateSRG() {
         this.classpath.from(
-            this.forgeDev.getTool(Tools.SRGUTILS),
-            this.forgeDev.getTool(Tools.FASTCSV)
+            this.forgedev.getTool(Tools.SRGUTILS),
+            this.forgedev.getTool(Tools.FASTCSV)
         )
 
         this.format.convention(IMappingFile.Format.TSRG2)
@@ -62,7 +61,7 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
             it.notch.set this.notch
             it.reverse.set this.reverse
 
-            it.srg.set this.srg
+            it.mcpSrgData.set this.mcpSrgData
             it.mappingsZip.set this.mappingsZip
             it.output.set this.output
         }
@@ -70,31 +69,33 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
         work.await()
     }
 
+    @CompileStatic
     protected static abstract class Action implements WorkAction<Parameters> {
+        @CompileStatic
         static interface Parameters extends WorkParameters {
             Property<IMappingFile.Format> getFormat()
             Property<Boolean> getNotch()
             Property<Boolean> getReverse()
 
-            RegularFileProperty getSrg()
+            RegularFileProperty getMcpSrgData()
             RegularFileProperty getMappingsZip()
             RegularFileProperty getOutput()
         }
 
         @Inject
-        Action() { }
+        Action() {}
 
         @Override
         void execute() {
-            var input = IMappingFile.load(this.parameters.srg.get().asFile).with(true) {
+            var input = IMappingFile.load(this.parameters.mcpSrgData.get().asFile).with(true) {
                 boolean notch = this.parameters.notch.getOrElse(false)
 
                 // Reverse makes SRG->OBF, chain makes SRG->SRG
                 return !notch ? it.reverse().chain(it) : it
             }
 
-            var map = MappingData.load(this.parameters.mappingsZip.get().asFile)
-            var ret = input.rename(map.renamer)
+            var map = MCPNames.load(this.parameters.mappingsZip.get().asFile)
+            var ret = input.rename(renamer(map))
 
             ret.write(
                 this.parameters.output.get().asFile.toPath(),
@@ -103,74 +104,37 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
             )
         }
 
-        @CompileStatic
-        private static final @Immutable class MappingData {
-            Map<String, String> names, docs
-
-            private IRenamer getRenamer() {
-                new IRenamer() {
-                    private String renameInternal(String value) {
-                        MappingData.this.names.getOrDefault(value, value)
-                    }
-
-                    @Override
-                    String rename(IMappingFile.IPackage value) {
-                        this.renameInternal(value.mapped)
-                    }
-
-                    @Override
-                    String rename(IMappingFile.IClass value) {
-                        this.renameInternal(value.mapped)
-                    }
-
-                    @Override
-                    String rename(IMappingFile.IField value) {
-                        this.renameInternal(value.mapped)
-                    }
-
-                    @Override
-                    String rename(IMappingFile.IMethod value) {
-                        this.renameInternal(value.mapped)
-                    }
-
-                    @Override
-                    String rename(IMappingFile.IParameter value) {
-                        this.renameInternal(value.mapped)
-                    }
-                }
-            }
-
-            private static MappingData load(File data) throws IOException {
-                final Map<String, String> names = [:]
-                final Map<String, String> docs = [:]
-                try (var zip = new ZipFile(data)) {
-                    // Iterate over the enumeration instead of using a Stream, it's cleaner this way imo
-                    var entries = zip.entries()
-                    while (entries.hasMoreElements()) {
-                        var entry = entries.nextElement()
-
-                        // Not a CSV file? Skip.
-                        if (!entry.name.endsWith('.csv')) continue
-
-                        try (var reader = CsvReader.builder().ofNamedCsvRecord(new InputStreamReader(zip.getInputStream(entry)))) {
-                            for (var row : reader) {
-                                var header = row.header
-                                var obf = header.contains('searge') ? 'searge' : 'param'
-                                var searge = row.getField(obf)
-
-                                names[searge] = row.getField('name')
-
-                                if (header.contains('desc')) {
-                                    String desc = row.getField('desc')
-                                    if (!desc.blank)
-                                        docs[searge] = desc
-                                }
-                            }
-                        }
-                    }
+        private static IRenamer renamer(MCPNames map) throws IOException {
+            new IRenamer() {
+                String rename(IMappingFile.INode value) {
+                    final mapped = value.mapped
+                    map.names().getOrDefault(mapped, mapped)
                 }
 
-                new MappingData(names, docs)
+                @Override
+                String rename(IMappingFile.IPackage value) {
+                    this.rename(value as INode)
+                }
+
+                @Override
+                String rename(IMappingFile.IClass value) {
+                    this.rename(value as INode)
+                }
+
+                @Override
+                String rename(IMappingFile.IField value) {
+                    this.rename(value as INode)
+                }
+
+                @Override
+                String rename(IMappingFile.IMethod value) {
+                    this.rename(value as INode)
+                }
+
+                @Override
+                String rename(IMappingFile.IParameter value) {
+                    this.rename(value as INode)
+                }
             }
         }
     }

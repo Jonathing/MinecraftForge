@@ -25,13 +25,14 @@ dependencyResolutionManagement {
         library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
         library 'nulls',  'org.jetbrains',         'annotations' version    '26.0.2'
 
-        library 'srgutils', 'net.minecraftforge', 'srgutils' version '0.5.14'
-        library 'fastcsv',  'de.siegmar', 'fastcsv'          version '3.7.0'
+        library 'srgutils',  'net.minecraftforge', 'srgutils'   version '0.5.14'
+        library 'fastcsv',   'de.siegmar',         'fastcsv'    version '3.7.0'
 
         library 'utils-data',     'net.minecraftforge', 'json-data-utils' version '0.2.1' // https://files.minecraftforge.net/net/minecraftforge/json-data-utils/index.html
         library 'utils-hash',     'net.minecraftforge', 'hash-utils'      version '0.1.9' // https://files.minecraftforge.net/net/minecraftforge/hash-utils/index.html
         library 'utils-download', 'net.minecraftforge', 'download-utils'  version '0.3.1' // https://files.minecraftforge.net/net/minecraftforge/download-utils/index.html
-        bundle 'utils', ['utils-data', 'utils-hash', 'utils-download']
+        library 'utils-files',    'net.minecraftforge', 'file-utils'      version '0.3.1' // https://files.minecraftforge.net/net/minecraftforge/download-utils/index.html
+        bundle 'utils', ['utils-data', 'utils-hash', 'utils-download', 'utils-files']
     }
     //@formatter:on
 }

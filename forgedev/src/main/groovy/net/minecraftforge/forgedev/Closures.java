@@ -33,7 +33,7 @@ public final class Closures {
     ///
     /// @see org.gradle.api.internal.AbstractTask.ClosureTaskAction#doExecute(org.gradle.api.Task)
     @SuppressWarnings({"rawtypes", "JavadocReference"})
-    public static <T> @UnknownNullability T invoke(@DelegatesTo(value = FirstParam.class, strategy = Closure.DELEGATE_FIRST) Closure closure, Object... object) {
+    public static <T> @UnknownNullability T invoke(@DelegatesTo(strategy = Closure.DELEGATE_FIRST) Closure closure, Object... object) {
         closure.setDelegate(object[0]);
         closure.setResolveStrategy(Closure.DELEGATE_FIRST);
         return invokeInternal(closure, object);

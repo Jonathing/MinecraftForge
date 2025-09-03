@@ -2,7 +2,6 @@ package net.minecraftforge.forgedev.tasks.mcp
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
-import org.gradle.api.file.ProjectLayout
 import org.gradle.api.problems.Problems
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -27,7 +26,7 @@ abstract class MavenizerRawArtifact extends MavenizerMCPTask {
     MavenizerRawArtifact(Problems problems, String pipeline, Provider<String> artifact, Provider<Boolean> srg) {
         super(problems)
 
-        this.output.set(this.forgeDev.localCaches.file("${this.name}.jar"))
+        this.output.set(this.forgedev.localCaches.file("${this.name}.jar"))
         this.pipeline.set(pipeline)
         this.artifact.set(artifact)
         this.srgNames.set(srg)

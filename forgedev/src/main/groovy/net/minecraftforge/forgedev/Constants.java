@@ -24,6 +24,11 @@ public final class Constants {
     public static final String BINPATCH_MAIN = "net.minecraftforge.binarypatcher.ConsoleTool";
     public static final int BINPATCH_JAVA = 8;
 
+    public static final String SRG2SRC_VERSION = "8.1.1";
+    public static final String SRG2SRC_DL_URL = FORGE_MAVEN + "net/minecraftforge/Srg2Source/" + SRG2SRC_VERSION + "/Srg2Source-" + SRG2SRC_VERSION + "-fatjar.jar";
+    public static final String SRG2SRC_MAIN = "net.minecraftforge.srg2source.ConsoleTool";
+    public static final int SRG2SRC_JAVA = 17;
+
     public static final String SRGUTILS_VERSION = "0.5.14";
     public static final String SRGUTILS_DL_URL = FORGE_MAVEN + "net/minecraftforge/srgutils/" + SRGUTILS_VERSION + "/srgutils-" + SRGUTILS_VERSION + ".jar";
     public static final int SRGUTILS_JAVA = 8;
