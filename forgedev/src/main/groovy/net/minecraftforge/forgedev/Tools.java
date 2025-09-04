@@ -27,6 +27,7 @@ public final class Tools {
     public static final Tool MAVENIZER = tool(Constants.MAVENIZER_NAME, Constants.MAVENIZER_VERSION, Constants.MAVENIZER_DL_URL, Constants.MAVENIZER_JAVA, Constants.MAVENIZER_MAIN);
     public static final Tool DIFFPATCH = tool(Constants.DIFFPATCH_NAME, Constants.DIFFPATCH_VERSION, Constants.DIFFPATCH_DL_URL, Constants.DIFFPATCH_JAVA, Constants.DIFFPATCH_MAIN);
     public static final Tool BINPATCH = tool(Constants.BINPATCH_NAME, Constants.BINPATCH_VERSION, Constants.BINPATCH_DL_URL, Constants.BINPATCH_JAVA, Constants.BINPATCH_MAIN);
+    public static final Tool FART = tool(Constants.FART_NAME, Constants.FART_VERSION, Constants.FART_DL_URL, Constants.FART_JAVA, Constants.FART_MAIN);
     public static final Tool SRG2SRC = tool(Constants.SRG2SRC_NAME, Constants.SRG2SRC_VERSION, Constants.SRG2SRC_DL_URL, Constants.SRG2SRC_JAVA, Constants.SRG2SRC_MAIN);
 
     // LIBRARIES

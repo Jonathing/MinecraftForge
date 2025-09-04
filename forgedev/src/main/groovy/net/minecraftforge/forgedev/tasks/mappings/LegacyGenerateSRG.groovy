@@ -35,6 +35,8 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
     abstract @InputFile RegularFileProperty getMappingsZip()
     abstract @OutputFile RegularFileProperty getOutput()
 
+    protected abstract @Inject WorkerExecutor getWorkerExecutor()
+
     LegacyGenerateSRG() {
         this.classpath.from(
             this.getTool(Tools.SRGUTILS).classpath,
@@ -47,8 +49,6 @@ abstract class LegacyGenerateSRG extends DefaultTask implements ForgeDevTask {
 
         this.output.convention(this.defaultOutputFile)
     }
-
-    protected abstract @Inject WorkerExecutor getWorkerExecutor()
 
     @TaskAction
     void exec() {

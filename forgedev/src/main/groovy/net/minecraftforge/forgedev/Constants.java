@@ -27,6 +27,12 @@ public final class Constants {
     public static final String BINPATCH_MAIN = "net.minecraftforge.binarypatcher.ConsoleTool";
     public static final int BINPATCH_JAVA = 8;
 
+    public static final String FART_NAME = "fart";
+    public static final String FART_VERSION = "1.1.0";
+    public static final String FART_DL_URL = FORGE_MAVEN + "net/minecraftforge/ForgeAutoRenamingTool/" + FART_VERSION + "/ForgeAutoRenamingTool-" + FART_VERSION + "-all.jar";
+    public static final String FART_MAIN = "net.minecraftforge.fart.Main";
+    public static final int FART_JAVA = 8;
+
     public static final String SRG2SRC_NAME = "srg2source";
     public static final String SRG2SRC_VERSION = "8.1.1";
     public static final String SRG2SRC_DL_URL = FORGE_MAVEN + "net/minecraftforge/Srg2Source/" + SRG2SRC_VERSION + "/Srg2Source-" + SRG2SRC_VERSION + "-fatjar.jar";

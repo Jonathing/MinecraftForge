@@ -24,6 +24,6 @@ public abstract class ForgeDevPlugin extends EnhancedPlugin<ExtensionAware> {
 
     @Override
     public void setup(ExtensionAware target) {
-        target.getExtensions().create(ForgeDevExtension.NAME, ForgeDevExtension.class, this);
+        target.getExtensions().create(ForgeDevExtension.NAME, ForgeDevExtension.class, this, target);
     }
 }
