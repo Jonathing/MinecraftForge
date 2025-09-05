@@ -3,6 +3,9 @@ package net.minecraftforge.forgedev;
 import groovy.lang.Closure;
 import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar;
 import net.minecraftforge.forgedev.tasks.mappings.LegacyGenerateSRG;
+import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPDataTask;
+import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPSetup;
+import net.minecraftforge.forgedev.tasks.mcp.MavenizerSyncMappings;
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyReobfuscateJar;
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches;
 import net.minecraftforge.forgedev.tasks.patching.diff.ApplyPatches;
@@ -20,7 +23,6 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.jetbrains.annotations.VisibleForTesting;
@@ -29,7 +31,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Locale;
 
 @VisibleForTesting
 public abstract class ForgeDevExtension {
@@ -63,7 +64,8 @@ public abstract class ForgeDevExtension {
     private void setup(ForgeDevPlugin plugin, Project project) {
         var tasks = project.getTasks();
 
-        var legacyPatcher = project.getExtensions().create("legacyPatcher", LegacyPatcherExtension.class);
+        var legacyPatcher = project.getExtensions().create("patcher", LegacyPatcherExtension.class);
+        var legacyMcp = project.getExtensions().create("mcp", LegacyMCPExtension.class);
         var java = project.getExtensions().getByType(JavaPluginExtension.class);
 
         var jar = tasks.named(JavaPlugin.JAR_TASK_NAME, Jar.class);
@@ -197,50 +199,52 @@ public abstract class ForgeDevExtension {
             task.getArchiveClassifier().set("userdev");
         });
         var release = tasks.register("release", task -> task.dependsOn(srgSourcesJar, universalJar, userdevJar));
+    }
 
-        // TODO THIS
-        /*
-        final boolean doingUpdate = project.hasProperty("UPDATE_MAPPINGS");
-        final String updateVersion = doingUpdate ? (String) project.property("UPDATE_MAPPINGS") : null;
-        final String updateChannel = doingUpdate
-                ? (project.hasProperty("UPDATE_MAPPINGS_CHANNEL") ? (String) project.property("UPDATE_MAPPINGS_CHANNEL") : "snapshot")
-                : null;
-        if (doingUpdate) {
-            TaskProvider<DownloadMCPMappings> dlMappingsNew = tasks.register("downloadMappingsNew", DownloadMCPMappings.class);
-            dlMappingsNew.get().getMappings().set(updateChannel + '_' + updateVersion);
+    private void finish(Project project) {
+        var legacyPatcher = project.getExtensions().getByType(LegacyPatcherExtension.class);
+        var legacyMcp = project.getExtensions().getByType(LegacyMCPExtension.class);
 
-            TaskProvider<LegacyApplyMappings> toMCPNew = tasks.register("srg2mcpNew", LegacyApplyMappings.class);
-            toMCPNew.configure(task -> {
-                task.getInput().set(applyRangeConfig.flatMap(ApplyRangeMap::getOutput));
-                task.getMappingsZip().set(dlMappingsConfig.flatMap(DownloadMCPMappings::getOutput));
-                task.getLambdas().set(false);
-            });
+        var main = project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets().named(SourceSet.MAIN_SOURCE_SET_NAME);
 
-            TaskProvider<LegacyExtractExistingFiles> extractMappedNew = tasks.register("extractMappedNew", LegacyExtractExistingFiles.class);
-            extractMappedNew.configure(task -> {
-                task.getArchive().set(toMCPNew.flatMap(LegacyApplyMappings::getOutput));
-                task.getTargets().from(mainSource.map(s -> s.getJava().getSourceDirectories().minus(project.files(extension.getPatchedSrc()))));
-            });
+        var tasks = project.getTasks();
+        var srgSourcesJar = tasks.named("legacySourcesJar", Jar.class);
+        var genPatches = tasks.named("genPatches", GeneratePatches.class);
 
-            TaskProvider<DefaultTask> updateMappings = tasks.register("updateMappings", DefaultTask.class);
-            updateMappings.configure(task -> task.dependsOn(extractMappedNew));
-        }
-         */
+        // Add the patched source as a source dir during afterEvaluate, to not be overwritten by buildscripts
+        main.configure(s -> s.getJava().srcDir(legacyPatcher.getPatchedSrc()));
 
-        // TODO split into its own method, private void finish(Project project)
-        project.afterEvaluate(p -> {
-            // Add the patched source as a source dir during afterEvaluate, to not be overwritten by buildscripts
-            main.configure(s -> s.getJava().srcDir(legacyPatcher.getPatchedSrc()));
-
-            // Automatically create the patches folder if it does not exist
-            if (legacyPatcher.getPatches().isPresent()) {
-                try {
-                    Files.createDirectories(legacyPatcher.getPatches().get().getAsFile());
-                } catch (IOException e) {
-                    throw new RuntimeException("Failed to create patches folder", e);
-                }
-                srgSourcesJar.configure(task -> task.from(genPatches.flatMap(GeneratePatches::getOutput), copy -> copy.into("patches/")));
+        // Automatically create the patches folder if it does not exist
+        if (legacyPatcher.getPatches().isPresent()) {
+            try {
+                Files.createDirectories(legacyPatcher.getPatches().get().getAsFile().toPath());
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create patches folder", e);
             }
+            srgSourcesJar.configure(task -> task.from(genPatches.flatMap(GeneratePatches::getOutput), copy -> copy.into("patches/")));
+        }
+
+
+        // Add mappings so that it can be used by reflection tools.
+        // net.minecraft:mappings_CHANNEL:VERSION@zip
+        var mappingsDependency = project.getDependencies().create(
+            "net.minecraft:mappings_%s:%s@zip".formatted(legacyPatcher.getMappingChannel().get(), legacyPatcher.getMappingVersion().get())
+        );
+        Util.runFirst(project, tasks.register("syncMappingsMaven", MavenizerSyncMappings.class, task -> {
+            // TODO [ForgeDev][ForgeGradle 7] Support old MCP mappings (non-official)
+            task.getVersion().set(legacyPatcher.getMappingVersion());
+        }));
+        project.getDependencies().add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, mappingsDependency);
+
+        var setupMCP = project.getTasks().register("setupMCP", MavenizerMCPSetup.class, task -> {
+            task.getPipeline().set(legacyMcp.getPipeline());
+            task.getArtifact().set(legacyMcp.getConfig());
         });
+        legacyPatcher.getCleanSrc().set(setupMCP.flatMap(MavenizerMCPSetup::getOutput));
+        var applyPatches = tasks.named("applyPatches", ApplyPatches.class, task -> task.getInput().convention(legacyPatcher.getCleanSrc()));
+        genPatches.configure(task -> task.getInput().convention(legacyPatcher.getCleanSrc()));
+
+        var extractSrg = tasks.register("extractSrg", MavenizerMCPDataTask.class, task -> task.getArtifact().set(legacyMcp.getConfig()));
+        var createMcp2Srg = tasks.named("createMcp2Srg", LegacyGenerateSRG.class, task -> task.getMcpSrgData().convention(extractSrg.flatMap(MavenizerMCPDataTask::getOutput)))
     }
 }
