@@ -1,6 +1,7 @@
 package net.minecraftforge.forgedev;
 
 import groovy.lang.Closure;
+import net.minecraftforge.forgedev.tasks.compat.LegacyMergeFilesTask;
 import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar;
 import net.minecraftforge.forgedev.tasks.mappings.LegacyGenerateSRG;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPDataTask;
@@ -23,7 +24,9 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
+import org.gradle.api.tasks.bundling.Zip;
 import org.gradle.api.tasks.compile.JavaCompile;
 import org.jetbrains.annotations.VisibleForTesting;
 
@@ -245,6 +248,94 @@ public abstract class ForgeDevExtension {
         genPatches.configure(task -> task.getInput().convention(legacyPatcher.getCleanSrc()));
 
         var extractSrg = tasks.register("extractSrg", MavenizerMCPDataTask.class, task -> task.getArtifact().set(legacyMcp.getConfig()));
-        var createMcp2Srg = tasks.named("createMcp2Srg", LegacyGenerateSRG.class, task -> task.getMcpSrgData().convention(extractSrg.flatMap(MavenizerMCPDataTask::getOutput)))
+        var createMcp2Srg = tasks.named("createMcp2Srg", LegacyGenerateSRG.class, task -> task.getMcpSrgData().convention(extractSrg.flatMap(MavenizerMCPDataTask::getOutput)));
+
+        // TODO Configure filterNew
+        tasks.withType(LegacyGenerateSRG.class, task ->
+            task.getMappingsZip().set(
+                project.getConfigurations().detachedConfiguration(mappingsDependency).getSingleFile()
+            ));
+
+        var createMcp2Obf = tasks.named("createMcp2Obf", LegacyGenerateSRG.class, task -> task.getMcpSrgData().convention(createMcp2Srg.flatMap(LegacyGenerateSRG::getMcpSrgData)));
+        var createSrg2Mcp = tasks.named("createSrg2Mcp", LegacyGenerateSRG.class, task -> task.getMcpSrgData().convention(createMcp2Srg.flatMap(LegacyGenerateSRG::getMcpSrgData)));
+
+        var userdevJar = tasks.named("userdevJar", Jar.class);
+
+        // TODO CLIENT EXTRA?
+        if (!legacyPatcher.getAccessTransformers().isEmpty()) {
+            var mergeATs = tasks.register("mergeATs", LegacyMergeFilesTask.class, task -> {
+                task.getFilesToMerge().setFrom(legacyPatcher.getAccessTransformers());
+
+                task.getOutput().set(project.getLayout().getBuildDirectory().file("legacy-forgedev/merged_ats.cfg"));
+            });
+            setupMCP.configure(task -> {
+                task.dependsOn(mergeATs);
+                task.getAccessTransformerConfig().set(mergeATs.flatMap(LegacyMergeFilesTask::getOutput));
+            });
+            for (var f : legacyPatcher.getAccessTransformers()) {
+                userdevJar.configure(t -> t.from(f, e -> e.into("ats/")));
+                //userdevConfig.configure(t -> t.getATs().from(f));
+            }
+        }
+
+        // TODO SAS! Used MCPFunction in FG6, I DON'T GIVE A SHIT RIGHT NOW!!!
+
+        if (!legacyPatcher.getExtraMappings().isEmpty()) {
+            for (var extraMapping : legacyPatcher.getExtraMappings()) {
+                if (extraMapping instanceof File e) {
+                    userdevJar.configure(t -> t.from(e, c -> c.into("srgs/")));
+                    //userdevConfig.configure(t -> t.getSRGs().from(e));
+                } else if (extraMapping instanceof String e) {
+                    //userdevConfig.configure(t -> t.getSRGLines().add(e));
+                }
+            }
+        }
+
+        /*
+        //UserDev Config Default Values
+        userdevConfig.configure(task -> {
+            task.getTool().convention("net.minecraftforge:binarypatcher:" + Constants.BINPATCH_VERSION + ":fatjar");
+            task.getArguments().addAll("--clean", "{clean}", "--output", "{output}", "--apply", "{patch}");
+            task.getUniversal().convention(universalJar.flatMap(t ->
+                t.getArchiveBaseName().flatMap(baseName ->
+                    t.getArchiveClassifier().flatMap(classifier ->
+                        t.getArchiveExtension().map(jarExt ->
+                            project.getGroup().toString() + ':' + baseName + ':' + project.getVersion() + ':' + classifier + '@' + jarExt
+                        )))));
+            task.getSource().convention(sourcesJar.flatMap(t ->
+                t.getArchiveBaseName().flatMap(baseName ->
+                    t.getArchiveClassifier().flatMap(classifier ->
+                        t.getArchiveExtension().map(jarExt ->
+                            project.getGroup().toString() + ':' + baseName + ':' + project.getVersion() + ':' + classifier + '@' + jarExt
+                        )))));
+            task.getPatchesOriginalPrefix().convention(genPatches.flatMap(GeneratePatches::getOriginalPrefix));
+            task.getPatchesModifiedPrefix().convention(genPatches.flatMap(GeneratePatches::getModifiedPrefix));
+            task.setNotchObf(extension.getNotchObf());
+        });
+         */
+
+        var applyRangeMapBase = tasks.named("applyRangeMapBase", ApplyRangeMap.class);
+
+        if (legacyPatcher.isSrgPatches()) {
+            genPatches.configure(task -> task.getModified().set(applyRangeMapBase.flatMap(ApplyRangeMap::getOutput)));
+        } else {
+            var dirtyZip = tasks.register("patchedZip", Zip.class, task -> {
+                task.from(legacyPatcher.getPatchedSrc());
+                task.getArchiveFileName().set("output.zip");
+                task.getDestinationDirectory().set(project.getLayout().getBuildDirectory().dir(task.getName()));
+            });
+
+            // Fixup the inputs.
+            applyPatches.configure(task -> {
+                //task.getInput().set(toMCPClean.flatMap(LegacyApplyMappings::getOutput));
+                //task.getInput().fileProvider(applyPatches.flatMap(a -> a.getInput().getAsFile()));
+                task.getArchiveBase().set("zip");
+            });
+            genPatches.configure(task -> {
+                //task.getInput().set(toMCPClean.flatMap(LegacyApplyMappings::getOutput));
+                task.getInput().fileProvider(applyPatches.flatMap(a -> a.getInput().getAsFile()));
+                task.getModified().set(dirtyZip.flatMap(AbstractArchiveTask::getArchiveFile));
+            });
+        }
     }
 }
