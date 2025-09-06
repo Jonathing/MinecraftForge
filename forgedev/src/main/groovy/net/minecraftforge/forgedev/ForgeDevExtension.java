@@ -6,6 +6,7 @@ import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar;
 import net.minecraftforge.forgedev.tasks.mappings.LegacyGenerateSRG;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPDataTask;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPSetup;
+import net.minecraftforge.forgedev.tasks.mcp.MavenizerRawArtifact;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerSyncMappings;
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyReobfuscateJar;
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches;
@@ -15,6 +16,7 @@ import net.minecraftforge.forgedev.tasks.patching.diff.GeneratePatches;
 import net.minecraftforge.forgedev.tasks.srg2source.ApplyRangeMap;
 import net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap;
 import net.minecraftforge.gradleutils.shared.Closures;
+import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository;
 import org.gradle.api.file.Directory;
@@ -23,7 +25,9 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
+import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.bundling.Zip;
@@ -34,6 +38,7 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.function.Function;
 
 @VisibleForTesting
 public abstract class ForgeDevExtension {
@@ -44,6 +49,8 @@ public abstract class ForgeDevExtension {
     private final DirectoryProperty mavenizerRepo = this.getObjects().directoryProperty();
 
     protected abstract @Inject ObjectFactory getObjects();
+
+    protected abstract @Inject ProviderFactory getProviders();
 
     @Inject
     public ForgeDevExtension(ForgeDevPlugin plugin, Project project) {
@@ -336,6 +343,36 @@ public abstract class ForgeDevExtension {
                 task.getInput().fileProvider(applyPatches.flatMap(a -> a.getInput().getAsFile()));
                 task.getModified().set(dirtyZip.flatMap(AbstractArchiveTask::getArchiveFile));
             });
+
+            // don't remember why this is blocked off, but it was in FG6 so i'm keeping it in here for now as well
+            {
+                var mcpConfigArtifact = legacyMcp.getConfig();
+                var srgNames = this.getProviders().provider(() -> !legacyPatcher.getNotchObf());
+
+                Function<String, TaskProvider<MavenizerRawArtifact>> rawJarTask = pipeline -> MavenizerRawArtifact.register(project, pipeline, mcpConfigArtifact, srgNames);
+                var rawJoinedJar = rawJarTask.apply("joined");
+                var rawClientJar = rawJarTask.apply("client");
+                var rawServerJar = rawJarTask.apply("server");
+
+                var srg = legacyPatcher.getNotchObf() ? createMcp2Obf : createMcp2Srg;
+                var reobfJar = tasks.named("reobfJar", LegacyReobfuscateJar.class, task -> task.getSrg().set(srg.flatMap(LegacyGenerateSRG::getOutput)));
+
+                var genJoinedBinPatches = tasks.named("genJoinedBinPatches", CreateBinPatches.class, task -> task.getClean().builtBy(rawJoinedJar));
+                var genClientBinPatches = tasks.named("genClientBinPatches", CreateBinPatches.class, task -> task.getClean().builtBy(rawClientJar));
+                var genServerBinPatches = tasks.named("genServerBinPatches", CreateBinPatches.class, task -> task.getClean().builtBy(rawServerJar));
+                tasks.withType(CreateBinPatches.class, task -> {
+                    task.getSrg().from(srg.flatMap(LegacyGenerateSRG::getOutput));
+                    if (legacyPatcher.getPatches().isPresent()) {
+                        task.mustRunAfter(genPatches);
+                        task.getPatches().from(legacyPatcher.getPatches());
+                    }
+                });
+
+                var filterNew = tasks.named("filterJarNew", LegacyFilterNewJar.class, task -> {
+                    task.getSrg().set(srg.flatMap(LegacyGenerateSRG::getOutput));
+                    task.getBlacklist().builtBy(rawJoinedJar);
+                });
+            }
         }
     }
 }
