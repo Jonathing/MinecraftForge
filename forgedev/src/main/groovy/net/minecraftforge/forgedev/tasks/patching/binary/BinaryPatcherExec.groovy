@@ -62,5 +62,7 @@ import javax.inject.Inject
         //noinspection GrDeprecatedAPIUsage
         if (this.legacy.getOrElse(false))
             this.args('--legacy')
+
+        super.addArguments()
     }
 }

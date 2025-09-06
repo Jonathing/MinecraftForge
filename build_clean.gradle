@@ -25,6 +25,7 @@ patcher {
 
 	mappings channel: MAPPING_CHANNEL, version: MAPPING_VERSION
 
+    /*
 	runs {
 		clean_client {
 			client true
@@ -50,6 +51,7 @@ patcher {
 			workingDirectory project.file('run/server')
 		}
 	}
+     */
 }
 
 tasks.withType(JavaCompile).configureEach {

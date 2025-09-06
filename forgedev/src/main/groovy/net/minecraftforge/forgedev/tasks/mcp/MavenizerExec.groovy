@@ -24,7 +24,6 @@ import javax.inject.Inject
         this.caches.convention(this.defaultToolDir.dir('cache').map(this.problems.ensureFileLocation()))
     }
 
-    @MustBeInvokedByOverriders
     protected void addArguments() {
         //region Mavenizer
         this.args(
@@ -32,5 +31,7 @@ import javax.inject.Inject
             '--jdk-cache', this.caches.dir('jdks').get().asFile.absolutePath
         )
         //endregion
+
+        super.addArguments()
     }
 }

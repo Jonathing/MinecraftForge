@@ -28,7 +28,7 @@ abstract class InstallerJar extends Zip {
 
         from(project.rootProject.file('/src/main/resources/url.png'))
         project.afterEvaluate {
-            from(project.zipTree(downloadInstaller.output)) {
+            from(project.zipTree(downloadInstaller.outputs.files)) {
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
             

@@ -55,6 +55,7 @@ public abstract class ForgeDevExtension {
     @Inject
     public ForgeDevExtension(ForgeDevPlugin plugin, Project project) {
         this.mavenizerRepo.set(plugin.globalCaches().dir("repo").map(this.problems.ensureFileLocation()));
+        this.setup(plugin, project);
     }
 
     // NOTE: Pass into RepositoryHandler#maven
@@ -81,6 +82,10 @@ public abstract class ForgeDevExtension {
         var jar = tasks.named(JavaPlugin.JAR_TASK_NAME, Jar.class);
         var compileJava = tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME, JavaCompile.class);
         var main = java.getSourceSets().named(SourceSet.MAIN_SOURCE_SET_NAME);
+
+        // needs to exist because it's currently referenced in the buildscript
+        // TODO STOP DOING THAT SHIT
+        var setupMCP = tasks.register("setupMCP", MavenizerMCPSetup.class);
 
         var applyPatches = tasks.register("applyPatches", ApplyPatches.class, task -> {
             final Provider<Directory> workDir = project.getLayout().getBuildDirectory().dir(task.getName());
@@ -246,7 +251,7 @@ public abstract class ForgeDevExtension {
         }));
         project.getDependencies().add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, mappingsDependency);
 
-        var setupMCP = project.getTasks().register("setupMCP", MavenizerMCPSetup.class, task -> {
+        var setupMCP = tasks.named("setupMCP", MavenizerMCPSetup.class, task -> {
             task.getPipeline().set(legacyMcp.getPipeline());
             task.getArtifact().set(legacyMcp.getConfig());
         });

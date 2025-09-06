@@ -57,7 +57,7 @@ class SharedBuild implements Plugin<Project> {
 
             // We need to write the manifest to the binary file so we have properly versioned packaged at dev time.
             WriteManifest.register(project,
-                tasks.named(plugins.findPlugin('net.minecraftforge.gradle.patcher') ? 'universalJar' : 'jar', Jar))
+                tasks.named(plugins.findPlugin('net.minecraftforge.forgedev') ? 'universalJar' : 'jar', Jar))
 
             tasks.register('generateResources')
 

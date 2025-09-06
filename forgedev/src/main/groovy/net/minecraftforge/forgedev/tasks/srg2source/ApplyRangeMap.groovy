@@ -49,5 +49,7 @@ abstract class ApplyRangeMap extends S2SExec {
         this.argOnlyIf('--sortImports', this.sortImports)
         this.argOnlyIf('--guessLambdas', this.guessLambdas)
         this.argOnlyIf('--guessLocals', this.guessLocals)
+
+        super.addArguments()
     }
 }

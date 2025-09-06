@@ -64,5 +64,7 @@ abstract class ExtractRangeMap extends S2SExec {
         this.args('--fatalmixins', this.mixinsFatal)
 
         this.args('--source-compatibility', this.sourceCompatibility.map(this.&parseSourceCompatibility))
+
+        super.addArguments()
     }
 }

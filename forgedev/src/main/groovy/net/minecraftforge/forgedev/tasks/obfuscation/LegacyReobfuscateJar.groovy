@@ -29,6 +29,7 @@ import java.util.zip.ZipOutputStream
 
 @CompileStatic
 @Deprecated(forRemoval = true)
+@SuppressWarnings('GrDeprecatedAPIUsage')
 abstract class LegacyReobfuscateJar extends ToolExec {
     private static final Logger LOGGER = Logging.getLogger(LegacyReobfuscateJar)
 

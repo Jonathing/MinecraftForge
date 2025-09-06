@@ -82,5 +82,7 @@ import javax.inject.Inject
         if (this.lineEndings.present)
             this.args('--line-endings', this.lineEndings.get())
         //endregion
+
+        super.addArguments()
     }
 }

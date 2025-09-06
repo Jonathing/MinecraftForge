@@ -1,7 +1,5 @@
 pluginManagement {
-    includeBuild('forgegradle-6') {
-        name = 'ForgeGradle'
-    }
+    includeBuild('forgedev')
 
     includeBuild('build-shared')
 
@@ -116,8 +114,6 @@ dependencyResolutionManagement {
 
 rootProject.name = 'ForgeRoot'
 
-includeBuild 'forgedev'
-
 include 'fmlloader'
 include 'fmlcore'
 include 'mclanguage'
@@ -125,8 +121,10 @@ include 'javafmllanguage'
 include 'lowcodelanguage'
 include 'fmlearlydisplay'
 
+/*
 include ':mcp'
 project(':mcp').projectDir = file('projects/mcp')
+ */
 
 include ':forge'
 project(':forge').projectDir = file('projects/forge')

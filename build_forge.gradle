@@ -11,12 +11,12 @@ import net.minecraftforge.forge.tasks.*
 import static net.minecraftforge.forge.tasks.Util.*
 import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches
-import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
-import net.minecraftforge.gradle.common.tasks.DownloadMavenArtifact
-import net.minecraftforge.gradle.common.tasks.ExtractInheritance
-import net.minecraftforge.gradle.patcher.tasks.FilterNewJar
-import net.minecraftforge.gradle.patcher.tasks.GeneratePatches
-import net.minecraftforge.gradle.userdev.tasks.RenameJar
+//import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
+//import net.minecraftforge.gradle.common.tasks.DownloadMavenArtifact
+import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance
+import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar
+import net.minecraftforge.forgedev.tasks.patching.diff.GeneratePatches
+import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.objectweb.asm.Opcodes
 
@@ -28,7 +28,7 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'de.undercouch.download'
     id 'net.minecraftforge.gradleutils'
-    id 'net.minecraftforge.gradle.patcher'
+    id 'net.minecraftforge.forgedev'
     id 'net.minecraftforge.gradlejarsigner'
     id 'net.minecraftforge.forge.shared' apply false
 }
@@ -81,10 +81,16 @@ sourceSets {
 
 final String SPEC_VERSION = gradleutils.gitInfo.tag
 
+mcp {
+    config MC_VERSION + '-' + MCP_VERSION
+    pipeline = 'joined'
+}
+
 // The new versioning sceme is <MCVersion>-<ForgeMC>.<RB>.<CommitsSinceRB>
 // ForgeMC is a unique identifier for every MC version we have supported.
 // Essentially, the same as the old, except dropping the first number, and the builds are no longer unique.
-final def MCP_ARTIFACT = project(':mcp').mcp.config.get()
+final String MCP_ARTIFACT = mcp.config.get()
+var mcpArtifactBullshit = MCP_ARTIFACT.split('(:|@)')
 
 final List<File> EXTRA_TXTS = [
         rootProject.file('CREDITS.txt'),
@@ -153,7 +159,7 @@ dependencies {
     installer(project(':lowcodelanguage'))
     installer(project(':mclanguage'))
 
-    installerextra("${MCP_ARTIFACT.group}:${MCP_ARTIFACT.name}:${MCP_ARTIFACT.version}:srg2off")
+    installerextra("${mcpArtifactBullshit[0]}:${mcpArtifactBullshit[1]}:${mcpArtifactBullshit[2]}:srg2off")
 
     runtimeOnly(libs.bootstrap)
     runtimeOnly(libs.bootstrap.dev)
@@ -164,8 +170,8 @@ tasks.named('extractRangeMap', net.minecraftforge.forgedev.tasks.srg2source.Extr
 }
 
 patcher {
-    excs.from file("$rootDir/src/main/resources/forge.exc")
-    parent = project(':mcp')
+    //excs.from file("$rootDir/src/main/resources/forge.exc")
+    //parent = project(':mcp')
     mcVersion = MC_VERSION
     mappings channel: MAPPING_CHANNEL, version: MAPPING_VERSION
     patches = file("$rootDir/patches/minecraft")
@@ -174,6 +180,7 @@ patcher {
     accessTransformers.from file("$rootDir/src/main/resources/META-INF/accesstransformer.cfg")
     sideAnnotationStrippers.from file("$rootDir/src/main/resources/forge.sas")
 
+    /*
     runs {
         forge_client {
             property 'eventbus.checkTypesOnDispatch', 'true'
@@ -261,6 +268,7 @@ patcher {
                  '--assetIndex', "{asset_index}"
         }
     }
+     */
 }
 
 afterEvaluate {
@@ -276,14 +284,14 @@ afterEvaluate {
         }
         def patches = project.file('build/genPatchesForUserdev/output/')
         patches.mkdirs()
-        def genPatchesForUserdev = tasks.register('genPatchesForUserdev', GeneratePatches){
-            base = project(':mcp').setupMCP.output
+        def genPatchesForUserdev = tasks.register('genPatchesForUserdev', GeneratePatches) {
+            input = setupMCP.output
             modified = applyRangeMapBase.output
-            originalPrefix = genPatches.originalPrefix
-            modifiedPrefix = genPatches.modifiedPrefix
+            basePathPrefix = genPatches.basePathPrefix
+            modifiedPathPrefix = genPatches.modifiedPathPrefix
             output = patches
-            autoHeader true
-            lineEnding = '\n'
+            autoHeader = true
+            lineEndings = '\n'
         }
         bakePatches {
             dependsOn = []
@@ -300,6 +308,7 @@ tasks.register('downloadCrowdin', Download) {
     quiet true
 }
 
+/*
 tasks.named('userdevConfig', net.minecraftforge.gradle.patcher.tasks.GenerateUserdevConfig) {
     configurations.installer.allDependencies.forEach {
         def dep = it.toString()
@@ -367,6 +376,7 @@ for (def run : patcher.runs) {
         run.property 'forgedev.enableTestMods', 'true'
     }
 }
+*/
 
 tasks.register('downloadVersionManifest', Download) {
     src 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
@@ -415,8 +425,7 @@ tasks.register('downloadLibraries', DownloadLibraries) {
 }
 tasks.register('extractInheritance', ExtractInheritance) {
     dependsOn downloadLibraries
-    tool = INSTALLER_TOOLS + ':fatjar'
-    args.add '--annotations'
+    additionalArgs.add '--annotations'
     input = genJoinedBinPatches.clean.singleFile
     libraries.addAll downloadLibraries.librariesOutput.map { rf ->
         Files.readAllLines(rf.asFile.toPath()).stream().map(File::new).toList()
@@ -440,40 +449,50 @@ tasks.register('validateDeprecations', ValidateDeprecations) {
 tasks.named('jar', Jar) {
     finalizedBy 'validateDeprecations'
 }
-tasks.register("downloadInstaller", DownloadMavenArtifact) {
-    artifact = "net.minecraftforge:installer:2.2.+:fatjar"
-    changing = true
+var downloadInstallerConfig = project.configurations.detachedConfiguration(
+    project.dependencies.create('net.minecraftforge:installer:2.2.+:fatjar') {
+        transitive = false
+        changing = true
+    }
+)
+tasks.register('downloadInstaller') {
+    outputs.files(downloadInstallerConfig)
 }
-tasks.register("downloadServerShim", DownloadMavenArtifact) {
-    artifact = libs.bootstrap.shim.get().toString()
-    changing = true
+var downloadServerShimConfig = project.configurations.detachedConfiguration(
+    project.dependencies.create(libs.bootstrap.shim.get()) {
+        transitive = false
+        changing = true
+    }
+)
+tasks.register('downloadServerShim') {
+    outputs.files(downloadServerShimConfig)
 }
-tasks.register('downloadClientMappings', net.minecraftforge.gradle.common.tasks.JarExec) {
-    ext.output = file('build/client_mappings.tsrg')
-    tool = INSTALLER_TOOLS + ':fatjar'
-    args = ['--task', 'DOWNLOAD_MOJMAPS', '--sanitize', '--version', MC_VERSION, '--side', 'client', '--output', output.absolutePath]
-    outputs.file(output)
+tasks.register('downloadClientMappings', net.minecraftforge.forgedev.tasks.installertools.DownloadMappings) {
+    side = 'client'
+    version = MC_VERSION
 }
-tasks.register('downloadServerMappings', net.minecraftforge.gradle.common.tasks.JarExec) {
-    ext.output = file('build/server_mappings.tsrg')
-    tool = INSTALLER_TOOLS + ':fatjar'
-    args = ['--task', 'DOWNLOAD_MOJMAPS', '--sanitize', '--version', MC_VERSION, '--side', 'server', '--output', output.absolutePath]
-    outputs.file(output)
+tasks.register('downloadServerMappings', net.minecraftforge.forgedev.tasks.installertools.DownloadMappings) {
+    side = 'server'
+    version = MC_VERSION
 }
-tasks.register('createJoinedSRG', DownloadMavenArtifact) {
-    artifact = "net.minecraft:joined:${MC_VERSION}-${MCP_VERSION}:srg"
+var createJoinedSRGConfig = project.configurations.detachedConfiguration(
+    project.dependencies.create("net.minecraft:joined:${MC_VERSION}-${MCP_VERSION}:srg") {
+        transitive = false
+        changing = true
+    }
+)
+tasks.register('createJoinedSRG') {
+    outputs.files(createJoinedSRGConfig)
 }
-tasks.register("createClientOfficial", RenameJar) {
-    tool = FART + ':all'
-    args = ['--input', '{input}', '--output', '{output}', '--names', '{mappings}', '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse']
+tasks.register("createClientOfficial", LegacyRenameJar) {
+    additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
     mappings = downloadClientMappings.output
     dependsOn(downloadClientRaw, downloadClientMappings)
     input = downloadClientRaw.dest
     output = file("build/createClientOfficial/output.jar")
 }
-tasks.register("createServerOfficial", RenameJar) {
-    tool = FART + ':all'
-    args = ['--input', '{input}', '--output', '{output}', '--names', '{mappings}', '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse']
+tasks.register("createServerOfficial", LegacyRenameJar) {
+    additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
     mappings = downloadServerMappings.output
     dependsOn(downloadServerMappings)
     input = extractServer.output
@@ -488,7 +507,7 @@ tasks.named('genServerBinPatches', CreateBinPatches) {
     create.from = jar.archiveFile
 }
 tasks.named('genJoinedBinPatches', CreateBinPatches) {
-    clean.from = createJoinedSRG.output
+    clean.from = createJoinedSRG.outputs.files
 }
 tasks.register('applyClientBinPatches', ApplyBinPatches) {
     clean.from = createClientOfficial.output
@@ -526,10 +545,10 @@ tasks.register('serverShimJar', Jar) {
     from (createServerShimClasspath.output) {
         rename { 'bootstrap-shim.list' }
     }
-    from (zipTree(downloadServerShim.output))
+    from (zipTree(downloadServerShim.outputs.files))
     manifest {
         from {
-            zipTree(downloadServerShim.output).find { it.name == 'MANIFEST.MF' }
+            zipTree(downloadServerShim.outputs.files).find { it.name == 'MANIFEST.MF' }
         }
 
         attributes('Class-Path': configurations.bootstrap.resolvedConfiguration.resolvedArtifacts.collect { "libraries/${Util.getMavenInfoFromDep(it).path}" }.join(' '))
@@ -576,8 +595,8 @@ CheckTask.registerTask(tasks, 'Patches', CheckPatches) {
 
 tasks.named('genPatches', GeneratePatches) {
     finalizedBy checkAndFixPatches
-    autoHeader true
-    lineEnding = '\n'
+    autoHeader = true
+    lineEndings = '\n'
 }
 
 def baseForgeVersionProperty = project.objects.property(String)
@@ -597,7 +616,7 @@ tasks.register('setupCheckJarCompatibility', SetupCheckJarCompatibility) {
 tasks.register('applyBaseCompatibilityJarBinPatches', ApplyBinPatches) {
     jarCompatibilityTaskSetup(it)
 
-    clean.from = project.tasks.createJoinedSRG.output
+    clean.from = project.tasks.createJoinedSRG.outputs.files
     apply.from = project.tasks.named('setupCheckJarCompatibility', SetupCheckJarCompatibility).flatMap { it.baseBinPatchesOutput }
     output = project.layout.buildDirectory.dir(name).map { it.file('output.jar') }
 }
@@ -616,6 +635,7 @@ tasks.register('mergeBaseForgeJar', MergeJars) {
     })
 }
 
+/*
 tasks.register('checkJarCompatibility', CheckJarCompatibility) {
     jarCompatibilityTaskSetup(it)
     dependsOn 'setupCheckJarCompatibility'
@@ -628,6 +648,7 @@ tasks.register('checkJarCompatibility', CheckJarCompatibility) {
     commonLibraries.from(project.configurations.minecraftImplementation)
     commonLibraries.from(project.configurations.installer)
 }
+ */
 
 tasks.register('launcherJson', LauncherJson) {
     json.putAll([
@@ -819,7 +840,7 @@ tasks.register('installerJson', InstallerJson) {
                 ]
             ]
         ] as LinkedHashMap)
-        getClasspath(project, libs, MCP_ARTIFACT.descriptor) //Tell it to download mcp_config
+        getClasspath(project, libs, MCP_ARTIFACT) //Tell it to download mcp_config
     }
 }
 
@@ -838,7 +859,7 @@ tasks.named('filterJarNew') {
     input = officialClassesOnly.archiveFile
 }
 
-tasks.register('filterJarNewSRG', FilterNewJar) {
+tasks.register('filterJarNewSRG', LegacyFilterNewJar) {
     input = reobfJar.output
     srg = filterJarNew.srg
     blacklist = filterJarNew.blacklist
@@ -888,9 +909,11 @@ tasks.register('universalJarSrg', Jar) {
     jarSigner.sign(it)
 }
 
+/*
 tasks.named('userdevConfig', net.minecraftforge.gradle.patcher.tasks.GenerateUserdevConfig) {
     universal = "$project.group:$project.name:$project.version:universal-srg@jar"
 }
+ */
 
 tasks.register('installerJar', InstallerJar) {
     fat = !System.env.TEAMCITY_VERSION
@@ -1104,5 +1127,5 @@ publishing {
 }
 
 // Make sure we run bin compat checking during local testing.
-if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && CHECK_COMPATIBILITY == "true")
-    tasks.named('publish') { dependsOn(':forge:checkJarCompatibility') }
+//if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && CHECK_COMPATIBILITY == "true")
+//    tasks.named('publish') { dependsOn(':forge:checkJarCompatibility') }

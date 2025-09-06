@@ -39,6 +39,12 @@ public final class Constants {
     public static final String SRG2SRC_MAIN = "net.minecraftforge.srg2source.ConsoleTool";
     public static final int SRG2SRC_JAVA = 17;
 
+    public static final String INSTALLERTOOLS_NAME = "installertools";
+    public static final String INSTALLERTOOLS_VERSION = "1.4.4";
+    public static final String INSTALLERTOOLS_DL_URL = FORGE_MAVEN + "net/minecraftforge/installertools/" + INSTALLERTOOLS_VERSION + "/installertools-" + INSTALLERTOOLS_VERSION + "-fatjar.jar";
+    public static final String INSTALLERTOOLS_MAIN = "net.minecraftforge.installertools.ConsoleTool";
+    public static final int INSTALLERTOOLS_JAVA = 8;
+
     public static final String SRGUTILS_NAME = "srgutils";
     public static final String SRGUTILS_VERSION = "0.5.14";
     public static final String SRGUTILS_DL_URL = FORGE_MAVEN + "net/minecraftforge/srgutils/" + SRGUTILS_VERSION + "/srgutils-" + SRGUTILS_VERSION + ".jar";
