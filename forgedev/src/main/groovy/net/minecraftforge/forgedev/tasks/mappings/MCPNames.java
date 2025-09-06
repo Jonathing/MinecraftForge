@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 // TODO [Mavenizer][MCPNames] This is also in ForgeDev! Consolidate this!
@@ -98,7 +99,7 @@ record MCPNames(String hash, Map<String, String> names, Map<String, String> docs
 
     String rename(InputStream stream, boolean javadocs, boolean lambdas, Charset sourceFileCharset) throws IOException {
         var data = new String(stream.readAllBytes(), sourceFileCharset);
-        var input = new BufferedReader(new StringReader(data)).lines().toList();
+        var input = new BufferedReader(new StringReader(data)).lines().collect(Collectors.toList());
 
         // Return early on empty files
         if (data.isEmpty()) return "";

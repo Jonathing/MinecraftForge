@@ -167,10 +167,6 @@ dependencies {
     runtimeOnly(libs.bootstrap.dev)
 }
 
-tasks.named('extractRangeMap', net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap) {
-    tool = S2S_TOOL
-}
-
 patcher {
     //excs.from file("$rootDir/src/main/resources/forge.exc")
     //parent = project(':mcp')
