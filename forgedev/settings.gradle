@@ -6,7 +6,7 @@ rootProject.name = 'forgedev'
 
 dependencyResolutionManagement {
     repositories {
-        //mavenLocal()
+        mavenLocal()
         mavenCentral()
         maven { url = 'https://maven.minecraftforge.net' } // TODO Replace with gradleutils.forgeMaven
         maven { url = 'https://maven.moddinglegacy.com/maven' } // Gradle API
@@ -31,7 +31,7 @@ dependencyResolutionManagement {
         library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
 
         // GradleUtils Shared Base
-        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.2.10'
+        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.2.12'
 
         library 'srgutils',  'net.minecraftforge', 'srgutils'   version '0.5.14'
         library 'fastcsv',   'de.siegmar',         'fastcsv'    version '3.7.0'

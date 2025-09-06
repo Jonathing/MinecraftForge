@@ -5,6 +5,7 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
+    id 'net.minecraftforge.gitversion'
     id 'net.minecraftforge.forge.shared' apply false
 }
 
@@ -55,7 +56,7 @@ publishing {
             name = project.name
             description = 'Language provider for Minecraft Forge that loads resource packs as mods'
             url = 'https://github.com/MinecraftForge/MinecraftForge'
-            PomUtils.setGitHubDetails(pom, 'MinecraftForge')
+            gradleutils.pom.addRemoteDetails(pom)
             license PomUtils.Licenses.LGPLv2_1
         }
     }

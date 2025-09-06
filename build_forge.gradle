@@ -28,6 +28,8 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'de.undercouch.download'
     id 'net.minecraftforge.gradleutils'
+    id 'net.minecraftforge.gitversion'
+    //id 'net.minecraftforge.changelog'
     id 'net.minecraftforge.forgedev'
     id 'net.minecraftforge.gradlejarsigner'
     id 'net.minecraftforge.forge.shared' apply false
@@ -79,7 +81,7 @@ sourceSets {
     }
 }
 
-final String SPEC_VERSION = gradleutils.gitInfo.tag
+final String SPEC_VERSION = gitversion.info.tag
 
 mcp {
     config MC_VERSION + '-' + MCP_VERSION
@@ -95,7 +97,7 @@ var mcpArtifactBullshit = MCP_ARTIFACT.split('(:|@)')
 final List<File> EXTRA_TXTS = [
         rootProject.file('CREDITS.txt'),
         rootProject.file('LICENSE.txt'),
-        rootProject.tasks.createChangelog.outputFile
+        //rootProject.tasks.createChangelog.outputFile
 ]
 
 ext {
@@ -173,7 +175,8 @@ patcher {
     //excs.from file("$rootDir/src/main/resources/forge.exc")
     //parent = project(':mcp')
     mcVersion = MC_VERSION
-    mappings channel: MAPPING_CHANNEL, version: MAPPING_VERSION
+    mappingChannel = MAPPING_CHANNEL
+    mappingVersion = MAPPING_VERSION
     patches = file("$rootDir/patches/minecraft")
     patchedSrc = file('src/main/java')
     srgPatches = false
@@ -1116,8 +1119,10 @@ publishing {
             name = project.name
             description = 'Modifactions to Minecraft to enable mod developers.'
             url = 'https://github.com/MinecraftForge/MinecraftForge'
-            gradleutils.pom.setGitHubDetails(pom, 'MinecraftForge')
-            license gradleutils.pom.Licenses.LGPLv2_1
+            gradleutils.pom.addRemoteDetails(pom)
+            licenses {
+                license gradleutils.pom.licenses.LGPLv2_1
+            }
         }
     }
 

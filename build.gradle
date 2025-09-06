@@ -2,17 +2,19 @@ import net.minecraftforge.forge.tasks.*
 import net.minecraftforge.forge.gradle.SharedBuild
 
 plugins {
-    id 'net.minecraftforge.licenser' version '1.0.1'
-    id 'com.github.ben-manes.versions' version '0.46.0'
-    id 'net.minecraftforge.gradleutils' version '[2.3.0,2.4.0)'
+    id 'net.minecraftforge.licenser' version '1.2.0'
+    id 'com.github.ben-manes.versions' version '0.52.0'
+    id 'net.minecraftforge.gradleutils' version '3.2.12'
+    id 'net.minecraftforge.gitversion' version '3.0.4'
+//    id 'net.minecraftforge.changelog' version '3.0.4'
     id 'eclipse'
-    id 'de.undercouch.download' version '5.4.0'
+    id 'de.undercouch.download' version '5.6.0'
     id 'net.minecraftforge.forgedev' apply false
 //    id 'net.minecraftforge.gradle.patcher' version '[6.0.22,6.2)' apply false
 //    id 'net.minecraftforge.gradle.mcp' version '[6.0.22,6.2)' apply false
     id 'net.minecraftforge.gradlejarsigner' version '1.0.4'
     //id 'org.barfuin.gradle.taskinfo' version '2.2.0'
-    id 'com.dorongold.task-tree' version '4.0.1'
+    //id 'com.dorongold.task-tree' version '4.0.1'
     id 'net.minecraftforge.forge.shared' apply false
 }
 
@@ -21,14 +23,13 @@ description = 'Root project for MinecraftForge, contains common setup.'
 Util.init() //Init all our extension methods!
 
 ext {
-    GIT_INFO = gradleutils.gitInfo
-    VERSION = SharedBuild.version = gradleutils.getFilteredMCTagOffsetBranchVersion(true, '[0-9]', MC_VERSION)
+    VERSION = SharedBuild.version = gitversion.getMCTagOffsetBranch(MC_VERSION)
     FORGE_VERSION = VERSION.substring(MC_VERSION.length() + 1)
 }
 
-changelog {
-    from '47.999'
-}
+//changelog {
+//    from '47.999'
+//}
 
 tasks.register('setup') {
     dependsOn ':forge:extractMapped'
