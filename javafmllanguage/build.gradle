@@ -6,10 +6,10 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
-    id 'net.minecraftforge.forge.shared' apply false
+    id 'build-shared' apply false
 }
 
-apply plugin: 'net.minecraftforge.forge.shared'
+apply plugin: 'build-shared'
 
 dependencies {
     compileOnly(libs.nulls)
@@ -20,7 +20,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
+    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
     withSourcesJar()
 }
 
@@ -36,7 +36,7 @@ tasks.named('jar', Jar).configure {
             'Specification-Version': '1',
             'Implementation-Title':  'JavaFMLMod',
             'Implementation-Vendor': 'Forge Development LLC',
-            'Implementation-Version': FORGE_VERSION
+            'Implementation-Version': forgeVersion
         ] as LinkedHashMap, 'net/minecraftforge/fml/javafmlmod/')
     }
 }

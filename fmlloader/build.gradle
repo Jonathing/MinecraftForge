@@ -7,10 +7,10 @@ plugins {
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
     alias(libs.plugins.apt)
-    id 'net.minecraftforge.forge.shared' apply false
+    id 'build-shared' apply false
 }
 
-apply plugin: 'net.minecraftforge.forge.shared'
+apply plugin: 'build-shared'
 
 configurations.forEach{ it.transitive = false }
 
@@ -48,7 +48,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
+    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
     withSourcesJar()
 }
 
@@ -64,7 +64,7 @@ tasks.named('jar', Jar).configure {
             'Specification-Version': '1',
             'Implementation-Title':  'FMLLoader',
             'Implementation-Vendor': 'Forge Development LLC',
-            'Implementation-Version': FORGE_VERSION
+            'Implementation-Version': forgeVersion
         ] as LinkedHashMap, 'net/minecraftforge/fml/loading/')
     }
 }
@@ -98,9 +98,9 @@ publishing {
 tasks.register('writeForgeVersionJson') {
     doLast {
         file('src/main/resources/forge_version.json').json = [
-            forge: FORGE_VERSION,
-            mc: MC_VERSION,
-            mcp: MCP_VERSION
+            forge: forgeVersion,
+            mc: minecraftVersion,
+            mcp: mcpVersion
         ]
     }
 }

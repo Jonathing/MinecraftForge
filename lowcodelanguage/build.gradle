@@ -6,13 +6,13 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
-    id 'net.minecraftforge.forge.shared' apply false
+    id 'build-shared' apply false
 }
 
-apply plugin: 'net.minecraftforge.forge.shared'
+apply plugin: 'build-shared'
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
+    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
     withSourcesJar()
 }
 
@@ -35,7 +35,7 @@ tasks.named('jar', Jar).configure {
             'Specification-Version': '1.0',
             'Implementation-Title':   project.name,
             'Implementation-Vendor': 'Forge Development LLC',
-            'Implementation-Version': FORGE_VERSION.split('\\.')[0]
+            'Implementation-Version': forgeVersion.split('\\.')[0]
         ] as java.util.LinkedHashMap, 'net/minecraftforge/fml/lowcodemod/')
     }
 }

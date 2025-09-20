@@ -1,7 +1,6 @@
 package net.minecraftforge.forge.tasks
 
 import groovy.transform.CompileStatic
-import org.apache.commons.io.IOUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
@@ -31,7 +30,7 @@ abstract class MergeJars extends DefaultTask {
                         ZipEntry _new = new ZipEntry(entry.getName())
                         _new.setTime(0) //SHOULD be the same time as the main entry, but NOOOO _new.setTime(entry.getTime()) throws DateTimeException, so you get 0, screw you!
                         zout.putNextEntry(_new)
-                        IOUtils.copy(zin, zout)
+                        zin.transferTo(zout)
                     }
                 }
             }

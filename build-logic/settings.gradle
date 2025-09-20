@@ -3,13 +3,7 @@ plugins {
     id 'net.minecraftforge.gradleutils' version '3.3.0'
 }
 
-includeBuild('../build-logic') {
-    dependencySubstitution {
-        substitute module('local:build-logic') using project(':')
-    }
-}
-
-rootProject.name = 'build-shared'
+rootProject.name = 'build-logic'
 
 dependencyResolutionManagement {
     repositories {
@@ -37,8 +31,13 @@ dependencyResolutionManagement {
         // GradleUtils Shared Base
         library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.3.0'
 
-        // Forge Build Logic
-        library 'build-logic', 'local', 'build-logic' withoutVersion()
+        version 'asm', '9.8'
+        library 'asm',      'org.ow2.asm', 'asm'      versionRef 'asm'
+        library 'asm-tree', 'org.ow2.asm', 'asm-tree' versionRef 'asm'
+        bundle 'asm', ['asm', 'asm-tree']
+
+        library 'srgutils', 'net.minecraftforge', 'srgutils' version '0.5.10'
+        library 'gson', 'com.google.code.gson', 'gson' version '2.10.1'
     }
     //@formatter:on
 }

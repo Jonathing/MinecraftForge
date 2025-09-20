@@ -17,12 +17,12 @@ abstract class FieldCompareFinder extends BytecodeFinder {
     Map<Search, String> fieldsReverse = [:] as HashMap
     @Internal
     Map<String, Set<ObjectTarget>> targets = [:] as TreeMap
-    
+
     @Override
     protected pre() {
         //fields.each{ k,v -> logger.lifecycle("Fields: " + k + ' ' + v) }
     }
-    
+
     @Override
     protected process(ClassNode parent, MethodNode node) {
         AbstractInsnNode last = null

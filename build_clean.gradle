@@ -5,14 +5,7 @@ plugins {
 
 evaluationDependsOn(':mcp')
 
-repositories {
-    mavenCentral()
-    maven gradleutils.forgeMaven
-    maven gradleutils.minecraftLibsMaven
-	maven forgedev.maven
-}
-
-java.toolchain.languageVersion = JavaLanguageVersion.of(JAVA_VERSION)
+java.toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
 
 dependencies {
 	implementation(libs.forgespi)
@@ -20,10 +13,10 @@ dependencies {
 
 patcher {
 	parent = project(':mcp')
-	mcVersion = MC_VERSION
+	mcVersion = minecraftVersion
 	patchedSrc = file('src/main/java')
 
-	mappings channel: MAPPING_CHANNEL, version: MAPPING_VERSION
+	mappings channel: gradleutils.unpack(libs.versions.mappings.channel), version: gradleutils.unpack(libs.versions.mappings.version)
 
     /*
 	runs {
@@ -36,7 +29,7 @@ patcher {
 			workingDirectory project.file('run/client')
 
 			args '--gameDir', '.'
-			args '--version', MC_VERSION
+			args '--version', minecraftVersion
 			args '--assetsDir', downloadAssets.output
 			args '--assetIndex', '{asset_index}'
 			args '--accessToken', '0'
@@ -55,7 +48,6 @@ patcher {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
     options.warnings = false // Shutup deprecated for removal warnings
 }
 
@@ -66,11 +58,10 @@ eclipse.classpath.file.whenMerged {
     src.entryAttributes['ignore_optional_problems'] = 'true'
 }
 
-tasks.named('genPatches').configure {
-    onlyIf { false }
+tasks.named('genPatches') {
+    enabled = false
 }
 
-tasks.named('extractRangeMap').configure {
-    onlyIf { false }
-    tool = 'net.minecraftforge:Srg2Source:8.1.0:fatjar'
+tasks.named('extractRangeMap') {
+    enabled = false
 }

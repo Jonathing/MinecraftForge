@@ -26,8 +26,8 @@ abstract class LauncherJson extends DefaultTask {
         input.from(project.configurations.installer)
         input.from(project.configurations.installerextra)
         configure {
-            def mc    = project.rootProject.ext.MC_VERSION
-            def forge = project.rootProject.ext.FORGE_VERSION
+            def mc    = project.rootProject.ext.minecraftVersion
+            def forge = project.rootProject.ext.forgeVersion
             def timestamp = iso8601Now()
             json.putAll([
                 _comment: [

@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.gradle.tasks
+package net.minecraftforge.forge.tasks
 
 import groovy.transform.CompileStatic
 import org.gradle.api.DefaultTask
@@ -8,20 +8,15 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.java.archives.internal.ManifestInternal
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.language.jvm.tasks.ProcessResources
 
 import javax.inject.Inject
-import java.nio.file.Files
 
 @CompileStatic
 abstract class WriteManifest extends DefaultTask {
