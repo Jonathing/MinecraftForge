@@ -29,7 +29,7 @@ plugins {
     id 'de.undercouch.download'
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
-    //id 'net.minecraftforge.changelog'
+    id 'net.minecraftforge.changelog'
     id 'net.minecraftforge.forgedev'
     id 'net.minecraftforge.gradlejarsigner'
     id 'net.minecraftforge.forge.shared' apply false
@@ -97,7 +97,7 @@ var mcpArtifactBullshit = MCP_ARTIFACT.split('(:|@)')
 final List<File> EXTRA_TXTS = [
         rootProject.file('CREDITS.txt'),
         rootProject.file('LICENSE.txt'),
-        //rootProject.tasks.createChangelog.outputFile
+        rootProject.tasks.createChangelog.outputFile
 ]
 
 ext {

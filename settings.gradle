@@ -1,8 +1,7 @@
 pluginManagement {
-    includeBuild('forgedev')
-
     includeBuild('build-shared')
 
+    // TODO [Forge][Buildscript] Remove once ForgeDev is on the plugin portal
     repositories {
         gradlePluginPortal()
         mavenLocal()
@@ -21,7 +20,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '0.7.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 dependencyResolutionManagement {

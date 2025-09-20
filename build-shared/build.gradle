@@ -6,8 +6,7 @@ plugins {
     alias libs.plugins.gradleutils
 }
 
-final projectArtifactId = base.archivesName = 'build-convention'
-description = 'Common build logic for projects under ForgeRoot.'
+description = 'Common build logic for Forge and its subprojects.'
 group = 'net.minecraftforge'
 
 // Gradle 9 will require Java 17
@@ -36,5 +35,3 @@ gradlePlugin {
         description = project.description
     }
 }
-
-idea.module { downloadSources = downloadJavadoc = true }

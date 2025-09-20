@@ -1,16 +1,14 @@
 package net.minecraftforge.forge.gradle
 
+import groovy.transform.CompileStatic
 import net.minecraftforge.forge.gradle.tasks.WriteManifest
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.CopySpec
-import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.StandardJavadocDocletOptions
 import org.gradle.jvm.tasks.Jar
-import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
