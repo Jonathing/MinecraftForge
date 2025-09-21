@@ -14,7 +14,7 @@ plugins {
     id 'build-settings'
 }
 
-rootProject.name = 'ForgeRoot'
+rootProject.name = 'forge'
 
 include 'fmlloader'
 include 'fmlcore'
@@ -22,10 +22,6 @@ include 'mclanguage'
 include 'javafmllanguage'
 include 'lowcodelanguage'
 include 'fmlearlydisplay'
-
-include ':forge'
-project(':forge').projectDir = file('projects/forge')
-project(':forge').buildFileName = '../../build_forge.gradle'
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
