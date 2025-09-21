@@ -24,7 +24,7 @@ java {
     withSourcesJar()
 }
 
-tasks.named('jar', Jar).configure {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Automatic-Module-Name': 'net.minecraftforge.javafmlmod',
@@ -50,7 +50,7 @@ license {
 }
 
 publishing {
-    publications.register('mavenJava', MavenPublication).configure {
+    publications.register('mavenJava', MavenPublication) {
         from components.java
         artifactId = 'javafmllanguage'
         pom {

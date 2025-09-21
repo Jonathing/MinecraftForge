@@ -53,7 +53,7 @@ java {
     withSourcesJar()
 }
 
-tasks.named('jar', Jar).configure {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Automatic-Module-Name': 'net.minecraftforge.fmlloader',
@@ -79,7 +79,7 @@ license {
 }
 
 publishing {
-    publications.register('mavenJava', MavenPublication).configure {
+    publications.register('mavenJava', MavenPublication) {
         from components.java
         artifactId = 'fmlloader'
         pom {
@@ -128,17 +128,15 @@ tasks.named('generateResources') {
     dependsOn('writeForgeVersionJson')
 }
 
-eclipse {
-    classpath {
-       // We need to set the default output directory for the log4j annotation processor
-       // Ideally we'd just set the value, but the eclipse plugin deduplicates the output directories
-       // So we have to do a hacky whenMerged
-       //defaultOutputDir = file('bin/main')
-       file.whenMerged {
-           entries.each { entry ->
-               if (entry.kind == 'output' && entry.hasProperty('path'))
-                   entry.path = 'bin/main'
-           }
-       }
+eclipse.classpath {
+    // We need to set the default output directory for the log4j annotation processor
+    // Ideally we'd just set the value, but the eclipse plugin deduplicates the output directories
+    // So we have to do a hacky whenMerged
+    //defaultOutputDir = file('bin/main')
+    file.whenMerged {
+        entries.each { entry ->
+            if (entry.kind == 'output' && entry.hasProperty('path'))
+                entry.path = 'bin/main'
+        }
     }
 }

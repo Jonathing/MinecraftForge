@@ -46,11 +46,11 @@ dependencies {
     testRuntimeOnly("org.lwjgl:lwjgl-stb::$lwjglNatives")
 }
 
-tasks.named('test', Test).configure {
+tasks.named('test', Test) {
     useJUnitPlatform()
 }
 
-tasks.named('jar', Jar).configure {
+tasks.named('jar', Jar) {
     manifest {
         attributes([
             'Automatic-Module-Name': 'net.minecraftforge.earlydisplay',
@@ -76,7 +76,7 @@ license {
 }
 
 publishing {
-    publications.register('mavenJava', MavenPublication).configure {
+    publications.register('mavenJava', MavenPublication) {
         from components.java
         artifactId = 'fmlearlydisplay'
         pom {
