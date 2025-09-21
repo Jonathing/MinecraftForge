@@ -4,10 +4,9 @@ plugins {
     id 'idea'
     id 'eclipse'
     alias libs.plugins.licenser
-    alias libs.plugins.gradleutils
+    id 'net.minecraftforge.gradleutils'
 }
 
-group = 'local'
 description = 'Common build logic for Forge and its subprojects.'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)

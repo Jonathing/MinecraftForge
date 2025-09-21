@@ -1,9 +1,9 @@
 plugins {
-    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+    id 'org.gradle.toolchains.foojay-resolver-convention'
     id 'net.minecraftforge.gradleutils' version '3.3.1'
 }
 
-rootProject.name = 'build-logic'
+rootProject.name = 'buildSrc'
 
 dependencyResolutionManagement {
     repositories {
@@ -16,7 +16,6 @@ dependencyResolutionManagement {
     //@formatter:off
     versionCatalogs.register('libs') {
         plugin 'licenser',    'net.minecraftforge.licenser'    version '1.2.0' // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
-        plugin 'gradleutils', 'net.minecraftforge.gradleutils' version '3.3.1' // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
 
         // Static Analysis
         library 'nulls', 'org.jetbrains', 'annotations' version '26.0.2'

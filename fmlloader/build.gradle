@@ -4,10 +4,10 @@ import net.minecraftforge.gradleutils.PomUtils
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.minecraftforge.licenser'
-    id 'net.minecraftforge.gradleutils'
-    id 'net.minecraftforge.gitversion'
-    alias(libs.plugins.apt)
+    alias libs.plugins.licenser
+    alias libs.plugins.gradleutils
+    alias libs.plugins.gitversion
+    alias libs.plugins.apt
     id 'net.minecraftforge.forge.build'
 }
 
