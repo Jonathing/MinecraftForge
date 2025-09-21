@@ -37,13 +37,13 @@ plugins {
 }
 
 description = 'Root project for MinecraftForge, contains common setup.'
-ext.minecraftVersion = gradleutils.unpack(libs.versions.minecraft)
+ext.minecraftVersion = gradleutils.unpack(boot.versions.minecraft)
 version = gitversion.getMCTagOffsetBranch(minecraftVersion)
 ext.forgeVersion = version.substring(minecraftVersion.length() + 1)
-ext.minecraftNextVersion = gradleutils.unpack(libs.versions.minecraft.next)
-ext.mcpVersion = gradleutils.unpack(libs.versions.mcp)
-ext.mappingsChannel = gradleutils.unpack(libs.versions.mappings.channel)
-ext.mappingsVersion = gradleutils.unpack(libs.versions.mappings.version)
+ext.minecraftNextVersion = gradleutils.unpack(boot.versions.minecraft.next)
+ext.mcpVersion = gradleutils.unpack(boot.versions.mcp)
+ext.mappingsChannel = gradleutils.unpack(boot.versions.mappings.channel)
+ext.mappingsVersion = gradleutils.unpack(boot.versions.mappings.version)
 
 println "Version: $version"
 
@@ -56,7 +56,7 @@ tasks.register('setup') {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
+    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(boot.versions.java))
     withSourcesJar()
 }
 
@@ -86,7 +86,7 @@ sourceSets {
 }
 
 mcp {
-    config = "${gradleutils.unpack(libs.versions.minecraft)}-${gradleutils.unpack(libs.versions.mcp)}"
+    config = "${gradleutils.unpack(boot.versions.minecraft)}-${gradleutils.unpack(boot.versions.mcp)}"
     pipeline = 'joined'
 }
 

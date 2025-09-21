@@ -19,7 +19,7 @@ dependencies {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(libs.versions.java))
+    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(boot.versions.java))
     withSourcesJar()
 }
 

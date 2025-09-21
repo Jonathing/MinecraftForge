@@ -23,11 +23,6 @@ dependencies {
     implementation libs.gson
 }
 
-configurations.api.withDependencies {
-    it.remove(dependencies.gradleApi())
-    it.remove(dependencies.localGroovy())
-}
-
 license {
     header = rootProject.file('../LICENSE-header.txt')
     newLine = false
