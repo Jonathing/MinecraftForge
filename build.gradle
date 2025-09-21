@@ -53,8 +53,6 @@ changelog {
 
 tasks.register('setup') {
     dependsOn ':extractMapped'
-    if (findProject(':clean'))
-        dependsOn ':clean:extractMapped'
 }
 
 java {
