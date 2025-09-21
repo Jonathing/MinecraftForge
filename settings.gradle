@@ -33,6 +33,7 @@ gradle.beforeProject { Project project ->
         // NOTE: We are defining these variables in here so that the projects can stay isolated, increasing build time.
         // See minecraft.versions.toml for the versions where you can change these values.
         //@formatter:off
+        project.ext.javaVersion          = gradleutils.unpack(project.boot.versions.java)
         project.ext.minecraftVersion     = gradleutils.unpack(project.boot.versions.minecraft)
         project.version                  = gitversion.getMCTagOffsetBranch(project.ext.minecraftVersion)
         project.ext.forgeVersion         = project.version.substring(project.ext.minecraftVersion.length() + 1)

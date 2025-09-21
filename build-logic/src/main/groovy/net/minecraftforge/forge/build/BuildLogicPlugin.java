@@ -44,12 +44,10 @@ abstract class BuildLogicPlugin implements Plugin<Object> {
         var tasks = project.getTasks();
 
         project.setGroup("net.minecraftforge");
-        project.setVersion(this.getProviders().provider(() -> project.getRootProject().getVersion()));
 
         SharedUtil.runFirst(project, tasks.register("generateResources"));
 
         project.getPluginManager().withPlugin("java", javaPlugin -> {
-
             tasks.withType(Javadoc.class).configureEach(task ->
                 task.options(Closures.<CoreJavadocOptions>consumer(options -> {
                     options.setMemberLevel(JavadocMemberLevel.PUBLIC);

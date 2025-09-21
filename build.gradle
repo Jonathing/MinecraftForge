@@ -20,6 +20,16 @@ import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.objectweb.asm.Opcodes
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath libs.asm
+    }
+}
+
 plugins {
     id 'java-library'
     id 'idea'
@@ -51,7 +61,7 @@ tasks.register('setup') {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(gradleutils.unpack(boot.versions.java))
+    toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
     withSourcesJar()
 }
 
@@ -59,7 +69,7 @@ jarSigner.autoDetect('forge')
 
 applyPatches {
     logLevel = 'WARN'
-    failOnError = UPDATING != 'true'
+    failOnError = providers.gradleProperty('net.minecraftforge.forge.build.updating').<boolean>map { !Boolean.parseBoolean(it) }
     rejects = rootProject.layout.projectDirectory.dir('rejects')
     archiveRejects.unset()
 }
@@ -81,7 +91,7 @@ sourceSets {
 }
 
 mcp {
-    config = "${gradleutils.unpack(boot.versions.minecraft)}-${gradleutils.unpack(boot.versions.mcp)}"
+    config = "${minecraftVersion}-${mcpVersion}"
     pipeline = 'joined'
 }
 
@@ -1159,6 +1169,6 @@ publishing {
 }
 
 // Make sure we run bin compat checking during local testing.
-//if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && CHECK_COMPATIBILITY == "true")
+//if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && providers.gradleProperty('net.minecraftforge.forge.build.check.compatibility').map(Boolean.&parseBoolean).getOrElse(false))
 //    tasks.named('publish') { dependsOn(':checkJarCompatibility') }
 
