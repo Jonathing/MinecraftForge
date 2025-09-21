@@ -6,10 +6,10 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
-    id 'build-shared' apply false
+    id 'net.minecraftforge.forge.build' apply false
 }
 
-apply plugin: 'build-shared'
+apply plugin: 'net.minecraftforge.forge.build'
 
 import org.gradle.internal.os.OperatingSystem
 switch (OperatingSystem.current()) {

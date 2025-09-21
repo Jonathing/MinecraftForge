@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-only
  */
 
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import groovy.transform.CompileStatic
 import net.minecraftforge.srgutils.MinecraftVersion

@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask

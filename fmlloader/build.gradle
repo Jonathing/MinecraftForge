@@ -1,3 +1,4 @@
+import groovy.transform.CompileStatic
 import net.minecraftforge.gradleutils.PomUtils
 
 plugins {
@@ -7,10 +8,10 @@ plugins {
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
     alias(libs.plugins.apt)
-    id 'build-shared' apply false
+    id 'net.minecraftforge.forge.build' apply false
 }
 
-apply plugin: 'build-shared'
+apply plugin: 'net.minecraftforge.forge.build'
 
 configurations.forEach{ it.transitive = false }
 
@@ -95,17 +96,32 @@ publishing {
     }
 }
 
-tasks.register('writeForgeVersionJson') {
-    doLast {
-        file('src/main/resources/forge_version.json').json = [
-            forge: forgeVersion,
-            mc: minecraftVersion,
-            mcp: mcpVersion
+abstract class WriteForgeVersionJson extends DefaultTask {
+    abstract @Input Property<String> getForgeVersion()
+    abstract @Input Property<String> getMinecraftVersion()
+    abstract @Input Property<String> getMcpVersion()
+
+    abstract @OutputFile RegularFileProperty getOutputFile()
+
+    @TaskAction
+    void exec() {
+        this.outputFile.asFile.get().json = [
+            forge: this.forgeVersion.get(),
+            mc: this.minecraftVersion.get(),
+            mcp: this.mcpVersion.get()
         ]
     }
 }
 
-tasks.named('generateResources').configure {
+tasks.register('writeForgeVersionJson', WriteForgeVersionJson) {
+    forgeVersion = project.forgeVersion
+    minecraftVersion = project.minecraftVersion
+    mcpVersion = project.mcpVersion
+
+    outputFile = file('src/main/resources/forge_version.json')
+}
+
+tasks.named('generateResources') {
     dependsOn('eclipseJdt')
     dependsOn('eclipseJdtApt')
     dependsOn('eclipseFactorypath')

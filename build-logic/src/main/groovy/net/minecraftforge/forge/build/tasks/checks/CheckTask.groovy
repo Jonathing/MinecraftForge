@@ -1,10 +1,9 @@
-package net.minecraftforge.forge.tasks.checks
+package net.minecraftforge.forge.build.tasks.checks
 
 import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.ThirdParam
-import net.minecraftforge.forge.tasks.Util
-import org.gradle.api.Action
+import net.minecraftforge.forge.build.tasks.Util
 import org.gradle.api.DefaultTask
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.provider.Property

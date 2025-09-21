@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -19,7 +19,6 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Semaphore
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
@@ -28,7 +27,14 @@ final class Util {
     public static final int ASM_LEVEL = Opcodes.ASM9
     private static final HttpClient HTTP = HttpClient.newBuilder().build()
 
-    static void init() {
+    /**
+     * @deprecated Meta-programming like this is highly discouraged since it hurts IDE linting and is very hard to
+     * maintain. Move to either using static method or static Kotlin extensions if using Kotlin DSL.
+     */
+    @Deprecated(forRemoval = true)
+    static void init() { }
+
+    static {
         File.metaClass.sha1 = { ->
             MessageDigest md = MessageDigest.getInstance('SHA-1')
             delegate.eachByte(4096) { byte[] bytes, int size ->

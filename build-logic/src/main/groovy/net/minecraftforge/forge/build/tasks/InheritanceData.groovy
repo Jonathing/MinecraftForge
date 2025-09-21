@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

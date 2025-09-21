@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
@@ -6,7 +6,6 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
-import groovy.json.JsonSlurper
 
 abstract class InstallerJar extends Zip {
     @Input @Optional abstract Property<Boolean> getFat()

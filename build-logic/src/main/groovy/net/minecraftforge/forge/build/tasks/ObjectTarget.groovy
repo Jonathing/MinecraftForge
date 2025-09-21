@@ -1,9 +1,8 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import groovy.transform.EqualsAndHashCode
 
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 
 @EqualsAndHashCode

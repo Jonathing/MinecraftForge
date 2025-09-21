@@ -1,17 +1,16 @@
-package net.minecraftforge.forge.tasks
+package net.minecraftforge.forge.build.tasks
 
 import groovy.json.JsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
 import java.nio.file.Files
 
-import static net.minecraftforge.forge.tasks.Util.getArtifacts
-import static net.minecraftforge.forge.tasks.Util.iso8601Now
+import static Util.getArtifacts
+import static Util.iso8601Now
 
 abstract class LauncherJson extends DefaultTask {
     @OutputFile abstract RegularFileProperty getOutput()

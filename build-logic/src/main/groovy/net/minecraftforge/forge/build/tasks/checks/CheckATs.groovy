@@ -1,8 +1,8 @@
-package net.minecraftforge.forge.tasks.checks
+package net.minecraftforge.forge.build.tasks.checks
 
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import net.minecraftforge.forge.tasks.InheritanceData
+import net.minecraftforge.forge.build.tasks.InheritanceData
 import net.minecraftforge.srgutils.IMappingFile
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFile

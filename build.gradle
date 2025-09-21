@@ -1,14 +1,14 @@
 import de.undercouch.gradle.tasks.download.Download
 import groovy.transform.Field
-import net.minecraftforge.forge.tasks.checks.CheckATs
-import net.minecraftforge.forge.tasks.checks.CheckExcs
-import net.minecraftforge.forge.tasks.checks.CheckPatches
-import net.minecraftforge.forge.tasks.checks.CheckSAS
-import net.minecraftforge.forge.tasks.checks.CheckTask
+import net.minecraftforge.forge.build.tasks.checks.CheckATs
+import net.minecraftforge.forge.build.tasks.checks.CheckExcs
+import net.minecraftforge.forge.build.tasks.checks.CheckPatches
+import net.minecraftforge.forge.build.tasks.checks.CheckSAS
+import net.minecraftforge.forge.build.tasks.checks.CheckTask
 
 import java.nio.file.Files
-import net.minecraftforge.forge.tasks.*
-import static net.minecraftforge.forge.tasks.Util.*
+import net.minecraftforge.forge.build.tasks.*
+import static net.minecraftforge.forge.build.tasks.Util.*
 import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches
 //import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
@@ -27,13 +27,13 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.licenser' version '1.2.0'
     id 'com.github.ben-manes.versions' version '0.52.0'
-    id 'net.minecraftforge.gradleutils' version '3.3.0'
+    id 'net.minecraftforge.gradleutils' version '3.3.1'
     id 'net.minecraftforge.gitversion' version '3.1.1'
     id 'net.minecraftforge.changelog' version '3.1.2'
     id 'de.undercouch.download' version '5.6.0'
     id 'net.minecraftforge.gradlejarsigner' version '1.0.4'
     id 'net.minecraftforge.forgedev' version '7.0.0-beta.0'
-    id 'build-shared'
+    id 'net.minecraftforge.forge.build'
 }
 
 description = 'Root project for MinecraftForge, contains common setup.'

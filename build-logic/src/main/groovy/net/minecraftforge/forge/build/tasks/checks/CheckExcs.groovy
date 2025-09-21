@@ -1,6 +1,6 @@
-package net.minecraftforge.forge.tasks.checks
+package net.minecraftforge.forge.build.tasks.checks
 
-import net.minecraftforge.forge.tasks.Util
+import net.minecraftforge.forge.build.tasks.Util
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile

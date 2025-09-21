@@ -1,8 +1,8 @@
-package net.minecraftforge.forge.tasks.checks
+package net.minecraftforge.forge.build.tasks.checks
 
 import groovy.transform.CompileStatic
-import net.minecraftforge.forge.tasks.Annotatable
-import net.minecraftforge.forge.tasks.InheritanceData
+import net.minecraftforge.forge.build.tasks.Annotatable
+import net.minecraftforge.forge.build.tasks.InheritanceData
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile

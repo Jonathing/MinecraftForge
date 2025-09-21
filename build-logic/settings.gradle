@@ -1,6 +1,6 @@
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-    id 'net.minecraftforge.gradleutils' version '3.3.0'
+    id 'net.minecraftforge.gradleutils' version '3.3.1'
 }
 
 rootProject.name = 'build-logic'
@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     //@formatter:off
     versionCatalogs.register('libs') {
         plugin 'licenser',    'net.minecraftforge.licenser'    version '1.2.0' // https://plugins.gradle.org/plugin/net.minecraftforge.licenser
-        plugin 'gradleutils', 'net.minecraftforge.gradleutils' version '3.3.0' // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
+        plugin 'gradleutils', 'net.minecraftforge.gradleutils' version '3.3.1' // https://plugins.gradle.org/plugin/net.minecraftforge.gradleutils
 
         // Static Analysis
         library 'nulls', 'org.jetbrains', 'annotations' version '26.0.2'
@@ -29,7 +29,7 @@ dependencyResolutionManagement {
         library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
 
         // GradleUtils Shared Base
-        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.3.0'
+        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.3.1'
 
         version 'asm', '9.8'
         library 'asm',      'org.ow2.asm', 'asm'      versionRef 'asm'

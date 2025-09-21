@@ -1,17 +1,18 @@
 pluginManagement {
-    includeBuild 'build-shared'
+    includeBuild 'build-logic'
 
     // TODO [Forge][Buildscript] Remove once ForgeDev is on the plugin portal
     repositories {
         gradlePluginPortal()
-        mavenLocal()
+        mavenCentral()
         maven { url = 'https://maven.minecraftforge.net/' }
+        //mavenLocal()
     }
 }
 
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
-    id 'build-settings'
+    id 'net.minecraftforge.forge.build'
 }
 
 rootProject.name = 'forge'
@@ -41,7 +42,7 @@ gradle.beforeProject { Project project ->
 }
 
 dependencyResolutionManagement.versionCatalogs.register('libs') {
-    plugin('apt', 'com.diffplug.eclipse.apt').version('4.2.0')
+    plugin('apt', 'com.diffplug.eclipse.apt').version('4.3.0')
 
     // Contains Java, Minecraft, and MCP versions
     from(files('minecraft.versions.toml'))

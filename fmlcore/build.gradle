@@ -6,10 +6,8 @@ plugins {
     id 'net.minecraftforge.licenser'
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
-    id 'build-shared'
+    id 'net.minecraftforge.forge.build'
 }
-
-//apply plugin: 'build-shared'
 
 dependencies {
     compileOnly(libs.nulls)

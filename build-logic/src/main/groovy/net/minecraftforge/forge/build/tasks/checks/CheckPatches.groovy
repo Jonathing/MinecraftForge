@@ -1,4 +1,4 @@
-package net.minecraftforge.forge.tasks.checks
+package net.minecraftforge.forge.build.tasks.checks
 
 import groovy.transform.CompileStatic
 import org.gradle.api.file.DirectoryProperty
