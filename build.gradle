@@ -27,8 +27,8 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.licenser' version '1.2.0'
     id 'com.github.ben-manes.versions' version '0.52.0'
-    id 'net.minecraftforge.gradleutils' version '3.3.1'
-    id 'net.minecraftforge.gitversion' version '3.1.1'
+    id 'net.minecraftforge.gradleutils'
+    id 'net.minecraftforge.gitversion'
     id 'net.minecraftforge.changelog' version '3.1.2'
     id 'de.undercouch.download' version '5.6.0'
     id 'net.minecraftforge.gradlejarsigner' version '1.0.4'
@@ -37,14 +37,9 @@ plugins {
 }
 
 description = 'Root project for MinecraftForge, contains common setup.'
-ext.minecraftVersion = gradleutils.unpack(boot.versions.minecraft)
-version = gitversion.getMCTagOffsetBranch(minecraftVersion)
-ext.forgeVersion = version.substring(minecraftVersion.length() + 1)
-ext.minecraftNextVersion = gradleutils.unpack(boot.versions.minecraft.next)
-ext.mcpVersion = gradleutils.unpack(boot.versions.mcp)
-ext.mappingsChannel = gradleutils.unpack(boot.versions.mappings.channel)
-ext.mappingsVersion = gradleutils.unpack(boot.versions.mappings.version)
 
+// NOTE: See settings.gradle for all the referenceable version variables.
+// All subprojects (that apply 'net.minecraftforge.forge.build') will have these available.
 println "Version: $version"
 
 changelog {

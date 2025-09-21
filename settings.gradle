@@ -12,6 +12,8 @@ pluginManagement {
 
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+    id 'net.minecraftforge.gradleutils' version '3.3.1'
+    id 'net.minecraftforge.gitversion' version '3.1.1'
     id 'net.minecraftforge.forge.build'
 }
 
@@ -26,13 +28,27 @@ include 'fmlearlydisplay'
 
 enableFeaturePreview 'TYPESAFE_PROJECT_ACCESSORS'
 
-// NOTE: We are adding dependencies to projects instead of through settings, so we don't have to apply forgedev in settings.
-// Applying forgedev in settings will break IDE linting support, which makes it very hard to work with.
-// We can reconsider this if/when switching to Kotlin DSL, or if JetBrains gets their shit together.
 gradle.beforeProject { Project project ->
+    project.pluginManager.withPlugin('net.minecraftforge.forge.build') {
+        // NOTE: We are defining these variables in here so that the projects can stay isolated, increasing build time.
+        // See minecraft.versions.toml for the versions where you can change these values.
+        //@formatter:off
+        project.ext.minecraftVersion     = gradleutils.unpack(project.boot.versions.minecraft)
+        project.version                  = gitversion.getMCTagOffsetBranch(project.ext.minecraftVersion)
+        project.ext.forgeVersion         = project.version.substring(project.ext.minecraftVersion.length() + 1)
+        project.ext.minecraftNextVersion = gradleutils.unpack(project.boot.versions.minecraft.next)
+        project.ext.mcpVersion           = gradleutils.unpack(project.boot.versions.mcp)
+        project.ext.mappingsChannel      = gradleutils.unpack(project.boot.versions.mappings.channel)
+        project.ext.mappingsVersion      = gradleutils.unpack(project.boot.versions.mappings.version)
+        //@formatter:on
+    }
+
+    // NOTE: We are adding dependencies to projects instead of through settings, so we don't have to apply forgedev in settings.
+    // Applying forgedev in settings will break IDE linting support, which makes it very hard to work with.
+    // We can reconsider this if/when switching to Kotlin DSL, or if JetBrains gets their shit together.
     project.repositories {
         mavenCentral()
-        maven { url = 'https://maven.minecraftforge.net/' }
+        maven gradleutils.forgeMaven
         maven { url = 'https://libraries.minecraft.net/' }
 
         project.pluginManager.withPlugin('net.minecraftforge.forgedev') {

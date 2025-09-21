@@ -8,10 +8,8 @@ plugins {
     id 'net.minecraftforge.gradleutils'
     id 'net.minecraftforge.gitversion'
     alias(libs.plugins.apt)
-    id 'net.minecraftforge.forge.build' apply false
+    id 'net.minecraftforge.forge.build'
 }
-
-apply plugin: 'net.minecraftforge.forge.build'
 
 configurations.forEach{ it.transitive = false }
 
