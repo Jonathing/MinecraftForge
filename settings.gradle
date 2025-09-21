@@ -158,5 +158,21 @@ dependencyResolutionManagement.versionCatalogs {
         library 'lwjgl-tinyfd', 'org.lwjgl', 'lwjgl-tinyfd' versionRef 'lwjgl'
         bundle  'lwjgl', ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl', 'lwjgl-stb', 'lwjgl-tinyfd']
     }
+
+    register('earlyDisplayLibs') {
+        version 'slf4j', '1.8.0-beta4'
+        library 'slf4j-api',   'org.slf4j', 'slf4j-api'   versionRef 'slf4j'
+        library 'slf4j-jdk14', 'org.slf4j', 'slf4j-jdk14' versionRef 'slf4j'
+    }
+
+    register('earlyDisplayTestLibs') {
+        library 'powermock-core', 'org.powermock', 'powermock-core' version '2.0.9'
+
+        library 'lwjgl',        'org.lwjgl', 'lwjgl'        withoutVersion()
+        library 'lwjgl-glfw',   'org.lwjgl', 'lwjgl-glfw'   withoutVersion()
+        library 'lwjgl-opengl', 'org.lwjgl', 'lwjgl-opengl' withoutVersion()
+        library 'lwjgl-stb',    'org.lwjgl', 'lwjgl-stb'    withoutVersion()
+        bundle  'lwjgl', ['lwjgl', 'lwjgl-glfw', 'lwjgl-opengl', 'lwjgl-stb']
+    }
     //@formatter:on
 }

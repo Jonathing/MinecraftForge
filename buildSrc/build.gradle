@@ -33,7 +33,7 @@ tasks.withType(GroovyCompile).configureEach {
 }
 
 gradlePlugin {
-    plugins.register('build-logic') {
+    plugins.register('build') {
         id = 'net.minecraftforge.forge.build'
         implementationClass = 'net.minecraftforge.forge.build.BuildLogicPlugin'
     }

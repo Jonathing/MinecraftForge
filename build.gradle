@@ -36,7 +36,9 @@ plugins {
     id 'net.minecraftforge.forge.build'
 }
 
-description = 'Root project for MinecraftForge, contains common setup.'
+gradleutils.displayName = 'Forge'
+final vendor = 'Forge Development LLC'
+description = 'Modifactions to Minecraft to enable mod developers.'
 
 // NOTE: See settings.gradle for all the referenceable version variables.
 // All subprojects (that apply 'net.minecraftforge.forge.build') will have these available.
@@ -924,23 +926,23 @@ tasks.named('universalJar', Jar) {
     manifest {
         attributes([
             'Automatic-Module-Name': 'net.minecraftforge.forge'
-        ] as LinkedHashMap)
+        ])
         attributes([
-            'Specification-Title':   'Forge',
-            'Specification-Vendor':  'Forge Development LLC',
-            'Specification-Version':  gitversion.info.tag,
-            'Implementation-Title':   project.group,
-            'Implementation-Vendor': 'Forge Development LLC',
+            'Specification-Title'   : gradleutils.displayName.get(),
+            'Specification-Vendor'  : vendor,
+            'Specification-Version' : gitversion.info.tag,
+            'Implementation-Title'  : project.group,
+            'Implementation-Vendor' : vendor,
             'Implementation-Version': forgeVersion
-        ] as LinkedHashMap, 'net/minecraftforge/versions/forge/')
+        ], 'net/minecraftforge/versions/forge/')
         attributes([
-            'Specification-Title':   'Minecraft',
-            'Specification-Vendor':  'Forge Development LLC',
-            'Specification-Version':  minecraftVersion,
-            'Implementation-Title':  'MCP',
-            'Implementation-Vendor': 'Forge Development LLC',
+            'Specification-Title'   : 'Minecraft',
+            'Specification-Vendor'  : vendor,
+            'Specification-Version' : minecraftVersion,
+            'Implementation-Title'  : 'MCP',
+            'Implementation-Vendor' : vendor,
             'Implementation-Version': mcpVersion
-        ] as LinkedHashMap, 'net/minecraftforge/versions/mcp/')
+        ], 'net/minecraftforge/versions/mcp/')
     }
     jarSigner.sign(it)
 }
@@ -1132,6 +1134,10 @@ tasks.named('javadoc', Javadoc) {
 }
 
 publishing {
+    repositories {
+        maven gradleutils.publishingForgeMaven
+    }
+
     publications.register('mavenJava', MavenPublication) {
         artifact universalJar
         artifact universalJarSrg
@@ -1141,20 +1147,15 @@ publishing {
         artifact sourcesJar
         artifact serverShimJar
 
-        artifactId = project.name
         pom {
-            name = project.name
-            description = 'Modifactions to Minecraft to enable mod developers.'
-            url = 'https://github.com/MinecraftForge/MinecraftForge'
+            description = project.description
+
             gradleutils.pom.addRemoteDetails(pom)
+
             licenses {
                 license gradleutils.pom.licenses.LGPLv2_1
             }
         }
-    }
-
-    repositories {
-        maven gradleutils.publishingForgeMaven
     }
 }
 
