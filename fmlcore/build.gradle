@@ -4,7 +4,7 @@ plugins {
     alias libs.plugins.licenser
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
-    id 'net.minecraftforge.forge.build'
+    id 'net.minecraftforge.forge.build.convention'
 }
 
 gradleutils.displayName = 'FML'

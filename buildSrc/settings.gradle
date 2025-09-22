@@ -1,6 +1,14 @@
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+        mavenLocal()
+    }
+}
+
 plugins {
     id 'org.gradle.toolchains.foojay-resolver-convention'
-    id 'net.minecraftforge.gradleutils' version '3.3.1'
+    id 'net.minecraftforge.gradleutils' version '3.3.2'
 }
 
 rootProject.name = 'buildSrc'
@@ -28,7 +36,11 @@ dependencyResolutionManagement {
         library 'gradle', 'name.remal.gradle-api', 'gradle-api'  versionRef 'gradle'
 
         // GradleUtils Shared Base
-        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.3.1'
+        library 'gradleutils-shared', 'net.minecraftforge', 'gradleutils-shared' version '3.3.2'
+
+        // Plugins
+        library 'gradle-download', 'de.undercouch.download', 'de.undercouch.download.gradle.plugin' version '5.6.0'
+        library 'forgedev', 'net.minecraftforge', 'forgedev' version '7.0.0-beta.2'
 
         version 'asm', '9.8'
         library 'asm',      'org.ow2.asm', 'asm'      versionRef 'asm'

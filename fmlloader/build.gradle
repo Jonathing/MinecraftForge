@@ -13,7 +13,7 @@ plugins {
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
     alias libs.plugins.apt
-    id 'net.minecraftforge.forge.build'
+    id 'net.minecraftforge.forge.build.convention'
 }
 
 gradleutils.displayName = 'FMLLoader'

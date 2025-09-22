@@ -22,7 +22,6 @@ abstract class DownloadLibraries extends DefaultTask {
 
     @TaskAction
     def run() {
-		Util.init()
 		File outputDir = output.get().asFile
         var libraries = new ArrayList<String>()
 

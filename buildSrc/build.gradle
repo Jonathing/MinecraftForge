@@ -16,6 +16,8 @@ dependencies {
     compileOnly libs.gradle
 
     implementation libs.gradleutils.shared
+    implementation libs.gradle.download
+    implementation libs.forgedev
 
     implementation libs.bundles.asm
     implementation libs.srgutils
@@ -40,8 +42,15 @@ tasks.withType(GroovyCompile).configureEach {
 }
 
 gradlePlugin {
-    plugins.register('build') {
-        id = 'net.minecraftforge.forge.build'
-        implementationClass = 'net.minecraftforge.forge.build.BuildLogicPlugin'
+    plugins {
+        register('forge') {
+            id = 'net.minecraftforge.forge.build.forge'
+            implementationClass = 'net.minecraftforge.forge.build.BuildForgePlugin'
+        }
+
+        register('convention') {
+            id = 'net.minecraftforge.forge.build.convention'
+            implementationClass = 'net.minecraftforge.forge.build.BuildSharedPlugin'
+        }
     }
 }

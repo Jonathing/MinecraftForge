@@ -35,18 +35,18 @@ plugins {
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
     alias libs.plugins.changelog
-    alias libs.plugins.download
     alias libs.plugins.jarsigner
-    alias libs.plugins.forgedev
-    id 'net.minecraftforge.forge.build'
+    id 'net.minecraftforge.forgedev'
+    id 'net.minecraftforge.forge.build.convention'
+    id 'net.minecraftforge.forge.build.forge'
 }
 
 gradleutils.displayName = 'Forge'
 final vendor = 'Forge Development LLC'
-description = 'Modifactions to Minecraft to enable mod developers.'
+description = 'Modifications to Minecraft to enable mod developers.'
 
 // NOTE: See settings.gradle for all the referenceable version variables.
-// All subprojects (that apply 'net.minecraftforge.forge.build') will have these available.
+// All subprojects (that apply 'net.minecraftforge.forge.build.convention') will have these available.
 println "Version: $version"
 
 tasks.register('setup') {
@@ -170,10 +170,6 @@ testing.suites.named('test', JvmTestSuite) {
         resources.srcDir 'src/test/generated'
     }
 }
-
-//tasks.named('check') {
-//    dependsOn tasks.named('checkJarCompatibility')
-//}
 
 final List<File> EXTRA_TXTS = [
     file('CREDITS.txt'),
@@ -327,21 +323,9 @@ afterEvaluate {
     }
 }
 
-tasks.register('downloadCrowdin', Download) {
-    src 'https://files.minecraftforge.net/crowdin.zip'
-    dest file('build/crowdin.zip')
-    useETag 'all'
-    onlyIfModified true
-    quiet true
-}
-
-/*
-tasks.named('userdevConfig', net.minecraftforge.gradle.patcher.tasks.GenerateUserdevConfig) {
+tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2) {
     configurations.installer.allDependencies.forEach {
-        def dep = it.toString()
-        if (it instanceof ProjectDependency)
-            dep = "net.minecraftforge:$it.dependencyProject.name:$it.dependencyProject.version"
-        libraries.add(dep)
+        libraries.add(it.toString())
     }
 
     inject = '' // We don't have a userdev sourceset anymore. Empty as a gradle workaround...
@@ -382,6 +366,7 @@ tasks.named('userdevConfig', net.minecraftforge.gradle.patcher.tasks.GenerateUse
     }
 }
 
+/*
 for (def run in patcher.runs + tasks.userdevConfig.runs) {
     if (run.parents) continue // We already added this to the parent run config
     //run.property 'bsl.debug', 'true'
@@ -403,67 +388,7 @@ for (def run : patcher.runs) {
         run.property 'forgedev.enableTestMods', 'true'
     }
 }
-*/
-
-tasks.register('downloadVersionManifest', Download) {
-    src 'https://piston-meta.mojang.com/mc/game/version_manifest_v2.json'
-    dest file('build/versions/version_manifest.json')
-    useETag 'all'
-    onlyIfModified true
-    quiet true
-}
-
-tasks.register('downloadJson', Download) {
-    dependsOn downloadVersionManifest
-    inputs.file downloadVersionManifest.dest
-    src { provider { Objects.requireNonNull(downloadVersionManifest.dest.json.versions.find { it.id == minecraftVersion }?.url, "VERSION $minecraftVersion NOT FOUND") } }
-    dest file("build/versions/$minecraftVersion/version.json")
-    useETag 'all'
-    onlyIfModified true
-    quiet true
-}
-
-tasks.register('downloadClientRaw', Download) {
-    dependsOn downloadJson
-    inputs.file downloadJson.dest
-    src { provider { Objects.requireNonNull(downloadJson.dest.json.downloads?.client?.url, 'UNKNOWN URL') } }
-    dest file("build/versions/$minecraftVersion/client.jar")
-    useETag 'all'
-    onlyIfModified true
-    quiet true
-}
-
-tasks.register('downloadServerRaw', Download) {
-    dependsOn downloadJson
-    inputs.file downloadJson.dest
-    src { provider { Objects.requireNonNull(downloadJson.dest.json.downloads?.server?.url, 'UNKNOWN URL') } }
-    dest file("build/versions/$minecraftVersion/server-bundled.jar")
-    useETag 'all'
-    onlyIfModified true
-    quiet true
-}
-
-tasks.register('extractServer', ExtractFile) {
-    dependsOn downloadServerRaw
-    input = downloadServerRaw.dest
-    target = "META-INF/versions/$minecraftVersion/server-${minecraftVersion}.jar"
-    output = file("build/versions/$minecraftVersion/server.jar")
-}
-
-tasks.register('downloadLibraries', DownloadLibraries) {
-    dependsOn downloadJson
-    input = downloadJson.dest
-    output = rootProject.file('build/libraries/')
-}
-
-tasks.register('extractInheritance', ExtractInheritance) {
-    dependsOn downloadLibraries
-    additionalArgs.add '--annotations'
-    input = genJoinedBinPatches.clean.singleFile
-    libraries.addAll downloadLibraries.librariesOutput.map { rf ->
-        Files.readAllLines(rf.asFile.toPath()).stream().map(File::new).toList()
-    }
-}
+ */
 
 tasks.register("findFinalizeSpawnTargets", BytecodePredicateFinder) {
     jar = createClientOfficial.output
@@ -1168,4 +1093,3 @@ publishing {
 // Make sure we run bin compat checking during local testing.
 //if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && providers.gradleProperty('net.minecraftforge.forge.build.check.compatibility').map(Boolean.&parseBoolean).getOrElse(false))
 //    tasks.named('publish') { dependsOn(':checkJarCompatibility') }
-

@@ -8,7 +8,7 @@ plugins {
     alias libs.plugins.licenser
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
-    id 'net.minecraftforge.forge.build'
+    id 'net.minecraftforge.forge.build.convention'
 }
 
 switch (OperatingSystem.current()) {
@@ -46,16 +46,18 @@ dependencies {
     implementation libs.jopt.simple
 }
 
-testing.suites.named('test', JvmTestSuite) {
-    useJUnitJupiter('5.8.2')
+afterEvaluate { project ->
+    testing.suites.named('test', JvmTestSuite).get().tap {
+        useJUnitJupiter('5.8.2')
 
-    dependencies {
-        implementation earlyDisplayTestLibs.powermock.core
-        runtimeOnly earlyDisplayLibs.slf4j.jdk14
-        runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl) { classifier lwjglNatives }
-        runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.glfw) { classifier lwjglNatives }
-        runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.opengl) { classifier lwjglNatives }
-        runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.stb) { classifier lwjglNatives }
+        dependencies {
+            implementation earlyDisplayTestLibs.powermock.core
+            runtimeOnly earlyDisplayLibs.slf4j.jdk14
+            runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl) { classifier lwjglNatives }
+            runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.glfw) { classifier lwjglNatives }
+            runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.opengl) { classifier lwjglNatives }
+            runtimeOnly project.dependencies.variantOf(earlyDisplayTestLibs.lwjgl.stb) { classifier lwjglNatives }
+        }
     }
 }
 
