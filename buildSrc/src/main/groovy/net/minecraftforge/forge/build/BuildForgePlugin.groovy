@@ -30,6 +30,7 @@ import java.nio.file.Files
     @Inject
     BuildForgePlugin() {}
 
+    // NOTE: IF ANY CHANGES ARE MADE, PLEASE UPDATE THE BUILDSCRIPT.MD TO REFLECT THEM!
     @Override
     @CompileDynamic
     void apply(Project project) {

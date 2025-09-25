@@ -420,8 +420,6 @@ tasks.register('downloadServerMappings', net.minecraftforge.forgedev.tasks.insta
     version = minecraftVersion
 }
 
-DownloadDependency.register(project, 'createJoinedSRG', "net.minecraft:joined:${minecraftVersion}-${mcpVersion}:srg")
-
 tasks.register("createClientOfficial", LegacyRenameJar) {
     additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
     mappings = downloadClientMappings.output
@@ -451,7 +449,7 @@ tasks.named('genServerBinPatches', CreateBinPatches) {
 }
 
 tasks.named('genJoinedBinPatches', CreateBinPatches) {
-    clean.from = createJoinedSRG.outputs.files
+    clean.from = rawJoinedJarSrg.outputs.files
 }
 
 tasks.register('applyClientBinPatches', ApplyBinPatches) {
@@ -568,7 +566,7 @@ tasks.register('setupCheckJarCompatibility', SetupCheckJarCompatibility) {
 tasks.register('applyBaseCompatibilityJarBinPatches', ApplyBinPatches) {
     jarCompatibilityTaskSetup(it)
 
-    clean.from = project.tasks.createJoinedSRG.outputs.files
+    clean.from = project.tasks.rawJoinedJarSrg.outputs.files
     apply.from = project.tasks.named('setupCheckJarCompatibility', SetupCheckJarCompatibility).flatMap { it.baseBinPatchesOutput }
     output = project.layout.buildDirectory.dir(name).map { it.file('output.jar') }
 }
@@ -593,7 +591,7 @@ tasks.register('checkJarCompatibility', CheckJarCompatibility) {
     dependsOn 'setupCheckJarCompatibility'
 
     baseJar = project.tasks.named('mergeBaseForgeJar').flatMap { it.output }
-    baseLibraries.from(project.tasks.named('createJoinedSRG').flatMap { it.output })
+    baseLibraries.from(project.tasks.named('rawJoinedJarSrg').flatMap { it.outputs.files })
 
     inputJar = project.tasks.named('reobfJar').flatMap { it.output }
 
@@ -806,7 +804,7 @@ tasks.register('officialClassesOnly', Zip) {
     }
 }
 
-tasks.named('filterJarNew') {
+tasks.named('filterJarNew', LegacyFilterNewJar) {
     dependsOn('officialClassesOnly')
     input = officialClassesOnly.archiveFile
 }

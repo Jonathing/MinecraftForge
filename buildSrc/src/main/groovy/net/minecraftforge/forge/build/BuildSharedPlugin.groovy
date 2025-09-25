@@ -15,6 +15,7 @@ import org.gradle.api.tasks.javadoc.Javadoc
 import org.gradle.external.javadoc.CoreJavadocOptions
 import org.gradle.external.javadoc.JavadocMemberLevel
 import org.gradle.jvm.tasks.Jar
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.plugins.ide.eclipse.GenerateEclipseClasspath
 import org.gradle.plugins.ide.eclipse.GenerateEclipseProject
 import org.gradle.plugins.ide.eclipse.model.EclipseModel
@@ -36,7 +37,11 @@ import javax.inject.Inject
     void apply(Project project) {
         project.group = 'net.minecraftforge'
 
-        SharedUtil.runFirst(project, project.tasks.register("generateResources"))
+        SharedUtil.runFirst(project, project.tasks.register("generateResources")).tap { task ->
+            project.tasks.named('processResources', ProcessResources) {
+                it.dependsOn(task)
+            }
+        }
 
         project.pluginManager.withPlugin('java', javaPlugin -> {
             project.tasks.withType(Javadoc).configureEach(task ->

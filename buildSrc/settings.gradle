@@ -41,7 +41,7 @@ dependencyResolutionManagement {
 
         // Plugins
         library 'gradle-download', 'de.undercouch.download', 'de.undercouch.download.gradle.plugin' version '5.6.0'
-        library 'forgedev', 'net.minecraftforge', 'forgedev' version '7.0.0-beta.3'
+        library 'forgedev', 'net.minecraftforge', 'forgedev' version '7.0.0-beta.4'
 
         version 'asm', '9.8'
         library 'asm',      'org.ow2.asm', 'asm'      versionRef 'asm'

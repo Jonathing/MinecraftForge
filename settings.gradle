@@ -75,7 +75,7 @@ dependencyResolutionManagement.versionCatalogs {
         plugin 'changelog',   'net.minecraftforge.changelog'       version '3.1.2'
         plugin 'download',    'de.undercouch.download'             version '5.6.0'
         plugin 'jarsigner',   'net.minecraftforge.gradlejarsigner' version '1.0.4'
-        plugin 'forgedev',    'net.minecraftforge.forgedev'        version '7.0.0-beta.3'
+        plugin 'forgedev',    'net.minecraftforge.forgedev'        version '7.0.0-beta.4'
         plugin 'apt',         'com.diffplug.eclipse.apt'           version '4.4.0'
 
         library 'forgespi',           'net.minecraftforge:forgespi:7.1.5'       // Needs modlauncher

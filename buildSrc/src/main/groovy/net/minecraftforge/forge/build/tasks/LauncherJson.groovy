@@ -3,10 +3,12 @@ package net.minecraftforge.forge.build.tasks
 import groovy.json.JsonBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 
+import javax.inject.Inject
 import java.nio.file.Files
 
 import static Util.getArtifacts
@@ -17,8 +19,10 @@ abstract class LauncherJson extends DefaultTask {
     @InputFiles abstract ConfigurableFileCollection getInput()
     @Input Map<String, Object> json = new LinkedHashMap<>()
 
+    protected abstract @Inject ProjectLayout getLayout()
+
     LauncherJson() {
-        output.convention(project.layout.buildDirectory.file('libs/version.json'))
+        output.convention(layout.buildDirectory.file('libs/version.json'))
 
         dependsOn(project.tasks.universalJar)
         input.from(project.tasks.universalJar.archiveFile)
