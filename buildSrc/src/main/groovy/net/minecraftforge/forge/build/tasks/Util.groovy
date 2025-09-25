@@ -3,6 +3,7 @@ package net.minecraftforge.forge.build.tasks
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.gradle.api.Project
@@ -28,52 +29,11 @@ final class Util {
     private static final HttpClient HTTP = HttpClient.newBuilder().build()
 
     /**
-     * @deprecated Meta-programming like this is highly discouraged since it hurts IDE linting and is very hard to
-     * maintain. Move to either using static method or static Kotlin extensions if using Kotlin DSL.
+     * @deprecated Meta-programming like this is highly discouraged since it hurts IDE linting and is very hard to maintain. Move to either using static method or static Kotlin extensions if using Kotlin DSL.
      */
     @Deprecated(forRemoval = true)
-    static void init() { }
-
-    static {
-        File.metaClass.sha1 = { ->
-            MessageDigest md = MessageDigest.getInstance('SHA-1')
-            delegate.eachByte(4096) { byte[] bytes, int size ->
-                md.update(bytes, 0, size)
-            }
-            return md.digest().collect(this.&toHex).join('')
-        }
-        File.metaClass.getSha1 = { !delegate.exists() ? null : delegate.sha1() }
-        File.metaClass.sha256 = { ->
-            MessageDigest md = MessageDigest.getInstance('SHA-256')
-            delegate.eachByte(4096) { byte[] bytes, int size ->
-                md.update(bytes, 0, size)
-            }
-            return md.digest().collect(this.&toHex).join('')
-        }
-        File.metaClass.getSha256 = { !delegate.exists() ? null : delegate.sha256() }
-
-        File.metaClass.json = { -> new JsonSlurper().parseText(delegate.text) }
-        File.metaClass.getJson = { return delegate.exists() ? new JsonSlurper().parse(delegate) : [:] }
-        File.metaClass.setJson = { json -> delegate.text = new JsonBuilder(json).toPrettyString() }
-
-        Date.metaClass.iso8601 = { ->
-            var format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ")
-            var result = format.format(delegate)
-            return result[0..21] + ':' + result[22..-1]
-        }
-
-        String.metaClass.rsplit = { String del, int limit = -1 ->
-            var lst = new ArrayList<String>()
-            int x = 0
-            int idx
-            String tmp = delegate
-            while ((idx = tmp.lastIndexOf(del)) != -1 && (limit === -1 || x++ < limit)) {
-                lst.add(0, tmp.substring(idx + del.length(), tmp.length()))
-                tmp = tmp.substring(0, idx)
-            }
-            lst.add(0, tmp)
-            return lst
-        }
+    static void init() {
+        UtilExtensions.init()
     }
 
     static String[] getClasspath(Project project, Map libs, String artifact) {
@@ -184,7 +144,7 @@ final class Util {
     }
 
     @CompileStatic
-    private static String toHex(byte bite) {
+    @PackageScope static String toHex(byte bite) {
         return String.format('%02x', bite)
     }
 

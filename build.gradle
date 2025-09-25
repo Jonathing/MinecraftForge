@@ -6,6 +6,10 @@ import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
 import org.gradle.api.plugins.jvm.JvmTestSuite
+import org.objectweb.asm.tree.AbstractInsnNode
+import org.objectweb.asm.tree.ClassNode
+import org.objectweb.asm.tree.MethodInsnNode
+import org.objectweb.asm.tree.MethodNode
 
 import java.nio.file.Files
 import net.minecraftforge.forge.build.tasks.*
@@ -390,15 +394,14 @@ for (def run : patcher.runs) {
 }
  */
 
-tasks.register("findFinalizeSpawnTargets", BytecodePredicateFinder) {
+tasks.register('findFinalizeSpawnTargets', BytecodePredicateFinder) {
     jar = createClientOfficial.output
     output = rootProject.file('src/main/resources/coremods/finalize_spawn_targets.json')
-    predicate = {
-        parent, node, insn ->
+    predicate = { ClassNode parent, MethodNode node, AbstractInsnNode insn ->
             return 'net/minecraft/world/level/BaseSpawner' != parent.name // Ignore this class as we special case it.
-            && insn.getOpcode().equals(Opcodes.INVOKEVIRTUAL)
-            && insn.name == 'finalizeSpawn'
-            && insn.desc == '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;';
+            && insn.opcode === Opcodes.INVOKEVIRTUAL
+            && (insn as MethodInsnNode).name == 'finalizeSpawn'
+            && (insn as MethodInsnNode).desc == '(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/world/DifficultyInstance;Lnet/minecraft/world/entity/EntitySpawnReason;Lnet/minecraft/world/entity/SpawnGroupData;)Lnet/minecraft/world/entity/SpawnGroupData;';
     }
 }
 
@@ -457,6 +460,8 @@ tasks.register("createClientOfficial", LegacyRenameJar) {
     dependsOn(downloadClientRaw, downloadClientMappings)
     input = downloadClientRaw.dest
     output = file("build/createClientOfficial/output.jar")
+
+    logging.captureStandardOutput(LogLevel.INFO)
 }
 
 tasks.register("createServerOfficial", LegacyRenameJar) {

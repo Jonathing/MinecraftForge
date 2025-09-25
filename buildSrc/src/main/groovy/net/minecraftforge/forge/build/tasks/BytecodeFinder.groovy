@@ -12,21 +12,22 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.FieldNode
 import org.objectweb.asm.tree.MethodNode
 
+import javax.inject.Inject
+
 @CompileStatic
-abstract class BytecodeFinder extends DefaultTask {
+@PackageScope abstract class BytecodeFinder extends DefaultTask {
     @InputFile abstract RegularFileProperty getJar()
     // It should be fine to mark the output as internal as we want to control when we run it anyways.
     // This also shuts Gradle 8 up about implicit task dependencies.
     @Internal abstract RegularFileProperty getOutput()
 
+    @Inject
     BytecodeFinder() {
         output.convention(project.layout.buildDirectory.dir(name).map { it.file("output.json") })
     }
 
     @TaskAction
     protected void exec() {
-        Util.init()
-
         var outputFile = output.get().asFile
         if (outputFile.exists())
             outputFile.delete()
@@ -36,7 +37,7 @@ abstract class BytecodeFinder extends DefaultTask {
         Util.processClassNodes(jar.get().asFile, this.&process)
 
         post()
-        outputFile.text = new JsonBuilder(getData()).toPrettyString()
+        outputFile.text = new JsonBuilder(data).toPrettyString()
     }
 
 
@@ -49,5 +50,5 @@ abstract class BytecodeFinder extends DefaultTask {
     protected process(ClassNode parent, FieldNode node) {}
     protected process(ClassNode parent, MethodNode node) {}
     protected post() {}
-    @PackageScope abstract Object getData()
+    @PackageScope abstract @Internal Object getData()
 }

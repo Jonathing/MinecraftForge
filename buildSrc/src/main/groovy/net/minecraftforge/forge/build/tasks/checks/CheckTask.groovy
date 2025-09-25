@@ -32,8 +32,6 @@ abstract class CheckTask extends DefaultTask implements VerificationTask {
 
     @TaskAction
     void run() {
-        Util.init()
-
         boolean doFix = getMode().get() === CheckMode.FIX
         final Reporter reporter = new Reporter(doFix)
         check(reporter, doFix)

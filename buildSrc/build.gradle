@@ -19,7 +19,7 @@ dependencies {
     implementation libs.gradle.download
     implementation libs.forgedev
 
-    implementation libs.bundles.asm
+    api libs.bundles.asm
     implementation libs.srgutils
     implementation libs.gson
 }
