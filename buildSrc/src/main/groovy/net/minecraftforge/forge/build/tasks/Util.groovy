@@ -1,6 +1,5 @@
 package net.minecraftforge.forge.build.tasks
 
-import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
@@ -19,7 +18,6 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.concurrent.Semaphore
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream

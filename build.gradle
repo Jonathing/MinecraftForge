@@ -405,34 +405,10 @@ tasks.register('findFinalizeSpawnTargets', BytecodePredicateFinder) {
     }
 }
 
-tasks.register('validateDeprecations', ValidateDeprecations) {
-    input = tasks.jar.archiveFile
-    mcVersion = minecraftVersion
-}
+ValidateDeprecations.register(tasks, tasks.named('jar', Jar), minecraftVersion)
 
-tasks.named('jar', Jar) {
-    finalizedBy 'validateDeprecations'
-}
-
-var downloadInstallerConfig = project.configurations.detachedConfiguration(
-    project.dependencies.create('net.minecraftforge:installer:2.2.+:fatjar') {
-        transitive = false
-        changing = true
-    }
-)
-tasks.register('downloadInstaller') {
-    outputs.files(downloadInstallerConfig)
-}
-
-var downloadServerShimConfig = project.configurations.detachedConfiguration(
-    project.dependencies.create(libs.bootstrap.shim.get()) {
-        transitive = false
-        changing = true
-    }
-)
-tasks.register('downloadServerShim') {
-    outputs.files(downloadServerShimConfig)
-}
+DownloadDependency.register(project, 'downloadInstaller', 'net.minecraftforge:installer:2.2.+:fatjar')
+DownloadDependency.register(project, 'downloadServerShim', libs.bootstrap.shim)
 
 tasks.register('downloadClientMappings', net.minecraftforge.forgedev.tasks.installertools.DownloadMappings) {
     side = 'client'
@@ -444,15 +420,7 @@ tasks.register('downloadServerMappings', net.minecraftforge.forgedev.tasks.insta
     version = minecraftVersion
 }
 
-var createJoinedSRGConfig = project.configurations.detachedConfiguration(
-    project.dependencies.create("net.minecraft:joined:${minecraftVersion}-${mcpVersion}:srg") {
-        transitive = false
-        changing = true
-    }
-)
-tasks.register('createJoinedSRG') {
-    outputs.files(createJoinedSRGConfig)
-}
+DownloadDependency.register(project, 'createJoinedSRG', "net.minecraft:joined:${minecraftVersion}-${mcpVersion}:srg")
 
 tasks.register("createClientOfficial", LegacyRenameJar) {
     additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
