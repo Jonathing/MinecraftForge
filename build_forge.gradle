@@ -152,6 +152,19 @@ dependencies {
     annotationProcessor(libs.eventbus.validator)
 }
 
+tasks.register('jarJarOptionsJson', JarJarMetadataOptions) {
+    add(libs.mixin) {
+        containedJarMetadata {
+            group = 'com.github.LlamaLad7'
+            name = 'MixinExtras'
+            path = 'com/llamalad7/mixinextras/MixinExtrasBootstrap.class'
+        }
+        resource = 'com/llamalad7/mixinextras/platform/forge/MixinExtrasConfigPlugin.class'
+        layer = 'GAMEDATA'
+        id = 'MixinExtras'
+    }
+}
+
 tasks.named('extractRangeMap').configure {
     tool = S2S_TOOL
 }
