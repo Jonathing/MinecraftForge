@@ -410,31 +410,23 @@ ValidateDeprecations.register(tasks, tasks.named('jar', Jar), minecraftVersion)
 DownloadDependency.register(project, 'downloadInstaller', 'net.minecraftforge:installer:2.2.+:fatjar')
 DownloadDependency.register(project, 'downloadServerShim', libs.bootstrap.shim)
 
-tasks.register('downloadClientMappings', net.minecraftforge.forgedev.tasks.installertools.DownloadMappings) {
-    side = 'client'
-    version = minecraftVersion
-}
-
-tasks.register('downloadServerMappings', net.minecraftforge.forgedev.tasks.installertools.DownloadMappings) {
-    side = 'server'
-    version = minecraftVersion
-}
-
 tasks.register("createClientOfficial", LegacyRenameJar) {
+    dependsOn(setupMCP)
+
     additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
-    mappings = downloadClientMappings.output
-    dependsOn(downloadClientRaw, downloadClientMappings)
-    input = downloadClientRaw.dest
+    mappings = setupMCP.clientMappings
+    input = setupMCP.clientRaw
     output = file("build/createClientOfficial/output.jar")
 
-    logging.captureStandardOutput(LogLevel.INFO)
+    standardOutputLogLevel = LogLevel.INFO
 }
 
 tasks.register("createServerOfficial", LegacyRenameJar) {
+    dependsOn(setupMCP)
+
     additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
-    mappings = downloadServerMappings.output
-    dependsOn(downloadServerMappings)
-    input = extractServer.output
+    mappings = setupMCP.serverMappings
+    input = setupMCP.serverExtracted
     output = file("build/createServerOfficial/output.jar")
 }
 
@@ -472,8 +464,8 @@ tasks.register('applyJoinedBinPatches', ApplyBinPatches) {
 }
 
 tasks.register('createServerShimClasspath', BundleList) {
-    dependsOn(downloadServerRaw)
-    serverBundle = downloadServerRaw.dest
+    dependsOn(setupMCP)
+    serverBundle = setupMCP.serverRaw
 }
 
 tasks.register('createServerShimConfig') {
@@ -615,6 +607,7 @@ tasks.register('launcherJson', LauncherJson) {
 }
 
 tasks.register('installerJson', InstallerJson) {
+    dependsOn(setupMCP)
     icon = rootProject.file('icon.ico')
 
     // Json to install into the client's launcher
@@ -622,11 +615,9 @@ tasks.register('installerJson', InstallerJson) {
     input.from(launcherJson.output)
 
     // Download Official Mappings
-    dependsOn(downloadClientMappings, downloadServerMappings)
-    input.from(downloadClientMappings.output, downloadServerMappings.output)
+    input.from(setupMCP.clientMappings, setupMCP.serverMappings)
     // Get 'base' MC jar, Client is straight download, server is extracted from the bundle
-    dependsOn(downloadClientRaw, extractServer)
-    input.from(downloadClientRaw.dest, extractServer.output)
+    input.from(setupMCP.clientRaw, setupMCP.serverExtracted)
     // Rename MC Jar
     dependsOn(createClientOfficial, createServerOfficial)
     input.from(createClientOfficial.output, createServerOfficial.output)
@@ -652,16 +643,16 @@ tasks.register('installerJson', InstallerJson) {
                     server: "[net.minecraft:server:${minecraftVersion}:mappings@tsrg]"
                 ],
                 MOJMAPS_SHA: [
-                    client: "'${downloadClientMappings.output.sha1}'",
-                    server: "'${downloadServerMappings.output.sha1}'"
+                    client: "'${setupMCP.clientMappings.asFile.get().sha1}'",
+                    server: "'${setupMCP.serverMappings.asFile.get().sha1}'"
                 ],
                 MC_UNPACKED: [
                     client: "[net.minecraft:client:${minecraftVersion}]",
                     server: "[net.minecraft:server:${minecraftVersion}:unpacked]"
                 ],
                 MC_UNPACKED_SHA: [
-                    client: "'${downloadClientRaw.dest.sha1}'",
-                    server: "'${extractServer.output.get().asFile.sha1}'"
+                    client: "'${setupMCP.clientRaw.asFile.get().sha1}'",
+                    server: "'${setupMCP.serverExtracted.asFile.get().sha1}'"
                 ],
                 MC_OFF: [
                     client: "[net.minecraft:client:${minecraftVersion}:official]",
