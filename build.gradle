@@ -5,6 +5,7 @@ import net.minecraftforge.forge.build.tasks.checks.CheckExcs
 import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
+import net.minecraftforge.forgedev.tasks.jarcompat.CheckJarCompatibility
 import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
@@ -14,6 +15,7 @@ import org.objectweb.asm.tree.MethodNode
 import java.nio.file.Files
 import net.minecraftforge.forge.build.tasks.*
 import static net.minecraftforge.forge.build.tasks.Util.*
+
 import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches
 //import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
@@ -92,6 +94,7 @@ changelog {
     from '47.999'
 }
 
+// TODO [ForgeDev][Jonathing] Support compileOnlyApi, runtimeOnly, and a consumable annotation processor configuration
 configurations {
     // Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
     register('bootstrap') {
@@ -477,56 +480,10 @@ tasks.named('genPatches', GeneratePatches) {
     lineEndings = '\n'
 }
 
-def baseForgeVersionProperty = project.objects.property(String)
-baseForgeVersionProperty.set(project.provider { getLatestForgeVersion(minecraftVersion) })
-baseForgeVersionProperty.finalizeValueOnRead()
-final jarCompatibilityTaskSetup = { Task task ->
-    task.group = 'jar compatibility'
-    task.onlyIf {
-        baseForgeVersionProperty.getOrNull() !== null
-    }
-}
-
-tasks.register('setupCheckJarCompatibility', SetupCheckJarCompatibility) {
-    inputVersion = baseForgeVersionProperty
-}
-
-tasks.register('applyBaseCompatibilityJarBinPatches', ApplyBinPatches) {
-    jarCompatibilityTaskSetup(it)
-
-    clean.from = project.tasks.rawJoinedJarSrg.outputs.files
-    apply.from = project.tasks.named('setupCheckJarCompatibility', SetupCheckJarCompatibility).flatMap { it.baseBinPatchesOutput }
-    output = project.layout.buildDirectory.dir(name).map { it.file('output.jar') }
-}
-
-tasks.register('mergeBaseForgeJar', MergeJars) {
-    jarCompatibilityTaskSetup(it)
-
-    inputJars.from(project.tasks.named('applyBaseCompatibilityJarBinPatches').flatMap { it.output })
-    inputJars.from(baseForgeVersionProperty.map { inputVersion ->
-        def output = project.layout.buildDirectory.dir(name).map { it.file("forge-${inputVersion}-universal.jar") }.get().asFile
-        project.rootProject.extensions.download.run {
-            src "https://maven.minecraftforge.net/net/minecraftforge/forge/${inputVersion}/forge-${inputVersion}-universal.jar"
-            dest output
-        }
-        return output
-    })
-}
-
-/*
-tasks.register('checkJarCompatibility', CheckJarCompatibility) {
-    jarCompatibilityTaskSetup(it)
-    dependsOn 'setupCheckJarCompatibility'
-
-    baseJar = project.tasks.named('mergeBaseForgeJar').flatMap { it.output }
-    baseLibraries.from(project.tasks.named('rawJoinedJarSrg').flatMap { it.outputs.files })
-
-    inputJar = project.tasks.named('reobfJar').flatMap { it.output }
-
+CheckForgeJarCompatibility.register(project, minecraftVersion) {
     commonLibraries.from(project.configurations.minecraftImplementation)
     commonLibraries.from(project.configurations.installer)
 }
- */
 
 tasks.register('launcherJson', LauncherJson) {
     json.putAll([

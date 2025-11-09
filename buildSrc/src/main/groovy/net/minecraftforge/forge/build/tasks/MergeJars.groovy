@@ -37,9 +37,7 @@ abstract class MergeJars extends DefaultTask {
         }
     }
 
-    @InputFiles
-    abstract ConfigurableFileCollection getInputJars()
+    abstract @InputFiles ConfigurableFileCollection getInputJars()
 
-    @OutputFile
-    abstract RegularFileProperty getOutput()
+    abstract @OutputFile RegularFileProperty getOutput()
 }
