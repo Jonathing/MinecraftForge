@@ -1,18 +1,26 @@
 package net.minecraftforge.forge.build.tasks
 
 import groovy.transform.CompileStatic
+import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.artifacts.ModuleDependency
+import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderConvertible
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskProvider
 
+import javax.inject.Inject
+
 @CompileStatic
-abstract class DownloadDependency {
-    static TaskProvider<Task> register(Project project, String name, Object dependency) {
+abstract class DownloadDependency extends DefaultTask {
+    static TaskProvider<DownloadDependency> register(Project project, String name, Object dependency) {
         final def unpacked
         if (dependency instanceof ProviderConvertible<?>)
             unpacked = dependency.asProvider().get()
@@ -32,8 +40,18 @@ abstract class DownloadDependency {
             }
         )
 
-        project.tasks.register(name) {
-            it.outputs.files(configuration)
+        project.tasks.register(name, DownloadDependency) {
+            it.output.fileProvider(it.providers.provider {
+                try {
+                    configuration.singleFile
+                } catch (IllegalStateException e) {
+                    throw new IllegalArgumentException('Downloaded dependency variant is not a single file', e)
+                }
+            })
         }
     }
+
+    abstract @OutputFile RegularFileProperty getOutput()
+
+    protected abstract @Inject ProviderFactory getProviders()
 }

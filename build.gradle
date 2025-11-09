@@ -39,7 +39,7 @@ plugins {
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
     alias libs.plugins.changelog
-    alias libs.plugins.jarsigner
+    id 'net.minecraftforge.gradlejarsigner'
     id 'net.minecraftforge.forgedev'
     id 'net.minecraftforge.forge.build.convention'
     id 'net.minecraftforge.forge.build.forge'
@@ -410,73 +410,9 @@ ValidateDeprecations.register(tasks, tasks.named('jar', Jar), minecraftVersion)
 DownloadDependency.register(project, 'downloadInstaller', 'net.minecraftforge:installer:2.2.+:fatjar')
 DownloadDependency.register(project, 'downloadServerShim', libs.bootstrap.shim)
 
-tasks.register("createClientOfficial", LegacyRenameJar) {
-    dependsOn(setupMCP)
-
-    additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
-    mappings = setupMCP.clientMappings
-    input = setupMCP.clientRaw
-    output = file("build/createClientOfficial/output.jar")
-
-    standardOutputLogLevel = LogLevel.INFO
-}
-
-tasks.register("createServerOfficial", LegacyRenameJar) {
-    dependsOn(setupMCP)
-
-    additionalArgs.addAll(['--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'])
-    mappings = setupMCP.serverMappings
-    input = setupMCP.serverExtracted
-    output = file("build/createServerOfficial/output.jar")
-}
-
-tasks.named('genClientBinPatches', CreateBinPatches) {
-    clean.from = createClientOfficial.output
-    create.from = jar.archiveFile
-}
-
-tasks.named('genServerBinPatches', CreateBinPatches) {
-    clean.from = createServerOfficial.output
-    create.from = jar.archiveFile
-}
-
-tasks.named('genJoinedBinPatches', CreateBinPatches) {
-    clean.from = rawJoinedJarSrg.outputs.files
-}
-
-tasks.register('applyClientBinPatches', ApplyBinPatches) {
-    clean.from = createClientOfficial.output
-    apply.from = genClientBinPatches.output
-    data = true
-    unpatched = true
-}
-
-tasks.register('applyServerBinPatches', ApplyBinPatches) {
-    clean.from = createServerOfficial.output
-    apply.from = genServerBinPatches.output
-    data = true
-    unpatched = true
-}
-
-tasks.register('applyJoinedBinPatches', ApplyBinPatches) {
-    clean.from = genJoinedBinPatches.clean
-    apply.from = genJoinedBinPatches.output
-}
-
-tasks.register('createServerShimClasspath', BundleList) {
-    dependsOn(setupMCP)
-    serverBundle = setupMCP.serverRaw
-}
-
-tasks.register('createServerShimConfig') {
-    ext.output = file('build/libs/bootstrap-shim.properties')
-    doLast {
-        var cfg = new CleanProperties()
-        cfg['Main-Class'] = 'net.minecraftforge.bootstrap.ForgeBootstrap'
-        cfg['Java-Version'] = '21'
-        cfg['Arguments'] = '--launchTarget forge_server'
-        cfg.store(output)
-    }
+tasks.register('createServerShimConfig', BootstrapShimConfig) {
+    mainClass = 'net.minecraftforge.bootstrap.ForgeBootstrap'
+    args = ['--launchTarget', 'forge_server']
 }
 
 tasks.register('serverShimJar', Jar) {
@@ -485,10 +421,10 @@ tasks.register('serverShimJar', Jar) {
     from (createServerShimClasspath.output) {
         rename { 'bootstrap-shim.list' }
     }
-    from (zipTree(downloadServerShim.outputs.files))
+    from (zipTree(downloadServerShim.output))
     manifest {
         from {
-            zipTree(downloadServerShim.outputs.files).find { it.name == 'MANIFEST.MF' }
+            zipTree(downloadServerShim.output).find { it.name == 'MANIFEST.MF' }
         }
 
         attributes('Class-Path': configurations.bootstrap.resolvedConfiguration.resolvedArtifacts.collect { "libraries/${Util.getMavenInfoFromDep(it).path}" }.join(' '))
@@ -606,7 +542,7 @@ tasks.register('launcherJson', LauncherJson) {
     ] as LinkedHashMap)
 }
 
-tasks.register('installerJson', InstallerJson) {
+tasks.named('installerJson', InstallerJson) {
     dependsOn(setupMCP)
     icon = rootProject.file('icon.ico')
 
@@ -785,33 +721,7 @@ tasks.register('installerJson', InstallerJson) {
     }
 }
 
-tasks.register('officialClassesOnly', Zip) {
-    dependsOn(jar)
-    destinationDirectory = file('build/libs')
-    archiveClassifier = 'official-classes'
-    from zipTree(jar.archiveFile).matching {
-        include '**/*.class'
-        exclude 'mcp/**'
-    }
-}
-
-tasks.named('filterJarNew', LegacyFilterNewJar) {
-    dependsOn('officialClassesOnly')
-    input = officialClassesOnly.archiveFile
-}
-
-tasks.register('filterJarNewSRG', LegacyFilterNewJar) {
-    input = reobfJar.output
-    srg = filterJarNew.srg
-    blacklist = filterJarNew.blacklist
-}
-
 tasks.named('universalJar', Jar) {
-    dependsOn downloadCrowdin
-    from zipTree(downloadCrowdin.dest).matching {
-        include 'assets/forge/lang/*.json'
-    }
-
     from(EXTRA_TXTS)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude '.cache'
@@ -840,34 +750,16 @@ tasks.named('universalJar', Jar) {
     jarSigner.sign(it)
 }
 
-tasks.register('universalJarSrg', Jar) {
-    from zipTree(filterJarNewSRG.output)
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from zipTree(universalJar.archiveFile)
-    destinationDirectory = file('build/libs')
-    archiveClassifier = 'universal-srg'
-    manifest.from(universalJar.manifest)
+tasks.named('universalJarSrg', Jar) {
     jarSigner.sign(it)
 }
 
-/*
-tasks.named('userdevConfig', net.minecraftforge.gradle.patcher.tasks.GenerateUserdevConfig) {
-    universal = "$project.group:$project.name:$project.version:universal-srg@jar"
-}
- */
-
-tasks.register('installerJar', InstallerJar) {
+tasks.named('installerJar', InstallerJar) {
     fat = !System.env.TEAMCITY_VERSION
     //offline = true
     from(EXTRA_TXTS)
     from(rootProject.file('/forge_installer_logo.png')) {
         rename { 'big_logo.png' }
-    }
-    from(genClientBinPatches.output) {
-        rename { 'data/client.lzma' }
-    }
-    from(genServerBinPatches.output) {
-        rename { 'data/server.lzma' }
     }
 
     final var argsFile = rootProject.file('server_files/args.txt')

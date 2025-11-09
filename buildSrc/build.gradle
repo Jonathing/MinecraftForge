@@ -18,6 +18,7 @@ dependencies {
     implementation libs.gradleutils.shared
     implementation libs.gradle.download
     implementation libs.forgedev
+    implementation libs.gradle.jarsigner
 
     api libs.bundles.asm
     implementation libs.srgutils
