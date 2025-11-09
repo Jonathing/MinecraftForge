@@ -6,6 +6,8 @@ import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
 import net.minecraftforge.forgedev.tasks.jarcompat.CheckJarCompatibility
+import net.minecraftforge.forgedev.tasks.srg2source.ApplyRangeMap
+import net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap
 import org.gradle.api.plugins.jvm.JvmTestSuite
 import org.objectweb.asm.tree.AbstractInsnNode
 import org.objectweb.asm.tree.ClassNode
@@ -48,7 +50,7 @@ plugins {
 }
 
 gradleutils.displayName = 'Forge'
-final vendor = 'Forge Development LLC'
+group = 'net.minecraftforge'
 description = 'Modifications to Minecraft to enable mod developers.'
 
 // NOTE: See settings.gradle for all the referenceable version variables.
@@ -496,27 +498,15 @@ tasks.register('launcherJson', LauncherJson) {
                 '-Djava.net.preferIPv6Addresses=system'
             ]
         ]
-    ] as LinkedHashMap)
+    ])
 }
 
 tasks.named('installerJson', InstallerJson) {
-    dependsOn(setupMCP)
     icon = rootProject.file('icon.ico')
 
     // Json to install into the client's launcher
     dependsOn(launcherJson)
     input.from(launcherJson.output)
-
-    // Download Official Mappings
-    input.from(setupMCP.clientMappings, setupMCP.serverMappings)
-    // Get 'base' MC jar, Client is straight download, server is extracted from the bundle
-    input.from(setupMCP.clientRaw, setupMCP.serverExtracted)
-    // Rename MC Jar
-    dependsOn(createClientOfficial, createServerOfficial)
-    input.from(createClientOfficial.output, createServerOfficial.output)
-    // Apply Binary patches to vanilla jar
-    dependsOn(applyClientBinPatches, applyServerBinPatches)
-    input.from(applyClientBinPatches.output, applyServerBinPatches.output, forgedevPlugin.getTool(net.minecraftforge.forgedev.Tools.BINPATCH))
 
     doFirst {
         var libs = libraries
@@ -689,18 +679,18 @@ tasks.named('universalJar', Jar) {
         ])
         attributes([
             'Specification-Title'   : gradleutils.displayName.get(),
-            'Specification-Vendor'  : vendor,
+            'Specification-Vendor'  : gradleutils.vendor.get(),
             'Specification-Version' : gitversion.info.tag,
             'Implementation-Title'  : project.group,
-            'Implementation-Vendor' : vendor,
+            'Implementation-Vendor' : gradleutils.vendor.get(),
             'Implementation-Version': forgeVersion
         ], 'net/minecraftforge/versions/forge/')
         attributes([
             'Specification-Title'   : 'Minecraft',
-            'Specification-Vendor'  : vendor,
+            'Specification-Vendor'  : gradleutils.vendor.get(),
             'Specification-Version' : minecraftVersion,
             'Implementation-Title'  : 'MCP',
-            'Implementation-Vendor' : vendor,
+            'Implementation-Vendor' : gradleutils.vendor.get(),
             'Implementation-Version': mcpVersion
         ], 'net/minecraftforge/versions/mcp/')
     }
@@ -712,7 +702,7 @@ tasks.named('universalJarSrg', Jar) {
 }
 
 tasks.named('installerJar', InstallerJar) {
-    fat = !System.env.TEAMCITY_VERSION
+    fat = providers.systemProperty('TEAMCITY_VERSION').<boolean>map { !it.blank }.orElse(false)
     //offline = true
     from(EXTRA_TXTS)
     from(rootProject.file('/forge_installer_logo.png')) {
@@ -788,14 +778,16 @@ tasks.register('genAllData') {
 }
 
 if (project.hasProperty('UPDATE_MAPPINGS')) {
-    extractRangeMap {
+    tasks.named('extractRangeMap', ExtractRangeMap) {
         sources.from sourceSets.test.java.srcDirs
-        addDependencies compileTestJava.classpath
+        dependencies.from compileTestJava.classpath
     }
-    applyRangeMap {
+
+    tasks.named('applyRangeMap', ApplyRangeMap) {
         sources.from sourceSets.test.java.srcDirs
     }
-    sourceSets.test.java.srcDirs.each { extractMappedNew.addTarget it }
+
+    //sourceSets.test.java.srcDirs.each { extractMappedNew.addTarget it }
 }
 
 tasks.named('javadoc', Javadoc) {

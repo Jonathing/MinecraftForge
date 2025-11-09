@@ -8,8 +8,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 
 abstract class InstallerJar extends Zip {
-    @Input @Optional abstract Property<Boolean> getFat()
-    @Input @Optional abstract Property<Boolean> getOffline()
+    abstract @Input @Optional Property<Boolean> getFat()
+    abstract @Input @Optional Property<Boolean> getOffline()
 
     InstallerJar() {
         archiveClassifier.set('installer')

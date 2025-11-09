@@ -4,6 +4,8 @@ import de.undercouch.gradle.tasks.download.Download;
 import net.minecraftforge.forge.build.tasks.BundleList;
 import net.minecraftforge.forge.build.tasks.InstallerJar;
 import net.minecraftforge.forge.build.tasks.InstallerJson;
+import net.minecraftforge.forgedev.ForgeDevPlugin;
+import net.minecraftforge.forgedev.Tools;
 import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar;
 import net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2;
 import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance;
@@ -60,7 +62,9 @@ abstract class BuildForgePlugin implements Plugin<Project> {
             task.quiet(true);
         });
 
-        project.getPluginManager().withPlugin("net.minecraftforge.forgedev", forgeDevPlugin -> {
+        project.getPluginManager().withPlugin("net.minecraftforge.forgedev", forgedevAppliedPlugin -> {
+            var forgedevPlugin = project.getPlugins().getPlugin(ForgeDevPlugin.class);
+
             var setupMCP = tasks.named("setupMCP", MavenizerMCPSetup.class);
             var jar = tasks.named("jar", Jar.class);
 
@@ -192,6 +196,14 @@ abstract class BuildForgePlugin implements Plugin<Project> {
                 task.getInput().from(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings), setupMCP.flatMap(MavenizerMCPSetup::getServerMappings));
                 // Get 'base' MC jar, Client is straight download, server is extracted from the bundle
                 task.getInput().from(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw), setupMCP.flatMap(MavenizerMCPSetup::getServerExtracted));
+
+                // Rename MC Jar
+                task.dependsOn(createClientOfficial, createServerOfficial);
+                task.getInput().from(
+                    createClientOfficial.flatMap(LegacyRenameJar::getOutput),
+                    createServerOfficial.flatMap(LegacyRenameJar::getOutput),
+                    forgedevPlugin.getTool(Tools.BINPATCH)
+                );
             });
 
             var installerJar = tasks.register("installerJar", InstallerJar.class, task -> {
