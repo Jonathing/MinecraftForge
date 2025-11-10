@@ -1,11 +1,9 @@
-import de.undercouch.gradle.tasks.download.Download
 import groovy.transform.Field
 import net.minecraftforge.forge.build.tasks.checks.CheckATs
 import net.minecraftforge.forge.build.tasks.checks.CheckExcs
 import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
-import net.minecraftforge.forgedev.tasks.jarcompat.CheckJarCompatibility
 import net.minecraftforge.forgedev.tasks.srg2source.ApplyRangeMap
 import net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap
 import org.gradle.api.plugins.jvm.JvmTestSuite
@@ -14,18 +12,10 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
 
-import java.nio.file.Files
 import net.minecraftforge.forge.build.tasks.*
 import static net.minecraftforge.forge.build.tasks.Util.*
 
-import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
-import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches
-//import net.minecraftforge.gradle.common.tasks.CheckJarCompatibility
-//import net.minecraftforge.gradle.common.tasks.DownloadMavenArtifact
-import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance
-import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar
 import net.minecraftforge.forgedev.tasks.patching.diff.GeneratePatches
-import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.objectweb.asm.Opcodes
 
@@ -201,11 +191,96 @@ patcher {
     mcVersion = minecraftVersion
     mappingChannel = mappingsChannel
     mappingVersion = mappingsVersion
-    patches = file("$rootDir/patches/minecraft")
-    patchedSrc = file('src/minecraft/java')
+    patches = rootProject.file('patches/minecraft')
+    patchedSrc = rootProject.file('src/minecraft/java')
     srgPatches = false
-    accessTransformers.from file("$rootDir/src/main/resources/META-INF/accesstransformer.cfg")
-    sideAnnotationStrippers.from file("$rootDir/src/main/resources/forge.sas")
+    accessTransformers.from rootProject.file('src/main/resources/META-INF/accesstransformer.cfg')
+    sideAnnotationStrippers.from rootProject.file('src/main/resources/forge.sas')
+
+    runs {
+        configureEach {
+            workingDir = layout.projectDirectory.dir("runs/$name")
+
+            mainClass = 'net.minecraftforge.bootstrap.ForgeBootstrap'
+            args '--gameDir', '.'
+            jvmArgs '-Djava.net.preferIPv6Addresses=system'
+
+            systemProperty 'bsl.debug', 'true'
+            systemProperty 'terminal.jline', 'true'
+            with(sourceSets.test) {
+                systemProperty 'forge.enableGameTest', 'true'
+                systemProperty 'forgedev.enableTestMods', 'true'
+            }
+        }
+
+        register('client') {
+            systemProperty 'eventbus.checkTypesOnDispatch', 'true'
+            systemProperty 'org.lwjgl.system.SharedLibraryExtractDirectory', 'lwjgl_dll'
+
+            args '--launchTarget', 'forge_dev_client',
+                '--username', 'Dev',
+                '--version', project.name,
+                '--accessToken', '0',
+                '--userType', 'mojang',
+                '--versionType', 'release',
+                '--assetsDir', '{assets_root}',
+                '--assetIndex', '{asset_index}'
+        }
+
+        register('server') {
+            args '--launchTarget', 'forge_dev_server'
+        }
+
+        register('gameTestServer') {
+            args '--launchTarget', 'forge_dev_server_gametest'
+            args '--uniqueWorld' // Unique world is used so that the world regenerates, as well as the world config isn't influenced by other runs
+        }
+
+        register('data') {
+            args '--launchTarget', 'forge_dev_data',
+                '--all',
+                '--validate',
+                '--existing', sourceSets.main.resources.srcDirs[0],
+                '--assetsDir', '{assets_root}',
+                '--assetIndex', '{asset_index}'
+
+            with(sourceSets.main) {
+                args '--mod', 'forge',
+                    '--output', rootProject.file('src/main/generated/')
+
+            }
+
+            with(sourceSets.test) {
+                args '--mod', '.+',
+                    '--existing', sourceSets.test.resources.srcDirs[0],
+                    '--output', rootProject.file('src/test/generated/')
+            }
+        }
+
+        register('clientData') {
+            args '--all',
+                '--validate',
+                '--existing', sourceSets.main.resources.srcDirs[0],
+                '--assetsDir', '{assets_root}',
+                '--assetIndex', '{asset_index}'
+
+            with(sourceSets.main) {
+                args '--launchTarget', 'forge_dev_client_data',
+                    '--mod', 'forge',
+                    '--output', rootProject.file('src/main/generated/'),
+                    '--mod', 'forge'
+            }
+
+            with(sourceSets.test) {
+                args '--launchTarget', 'forge_dev',
+                    '--launchEntry', 'minecraft/net.minecraft.client.data.Main',
+                    '--launchData',
+                    '--mod', '.+',
+                    '--existing', sourceSets.test.resources.srcDirs[0],
+                    '--output', rootProject.file('src/test/generated/')
+            }
+        }
+    }
 
     /*
     runs {
@@ -375,6 +450,7 @@ tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.Genera
     }
 }
 
+// TODO this
 /*
 for (def run in patcher.runs + tasks.userdevConfig.runs) {
     if (run.parents) continue // We already added this to the parent run config

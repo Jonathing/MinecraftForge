@@ -68,7 +68,7 @@ import javax.inject.Inject
             // Merge the resources and classes into the same directory. We'll need to split them at runtime because
             // Minecraft and Forge are in the same sourceSet as they are inter dependent.. for now..
             project.extensions.getByType(JavaPluginExtension).sourceSets.configureEach(sourceSet -> {
-                var dir = layout.buildDirectory.dir("classes/java/${sourceSet.name}")
+                var dir = layout.buildDirectory.dir("sourceSets/${sourceSet.name}")
                 sourceSet.output.resourcesDir = dir
                 sourceSet.java.destinationDirectory.set(dir)
             })
