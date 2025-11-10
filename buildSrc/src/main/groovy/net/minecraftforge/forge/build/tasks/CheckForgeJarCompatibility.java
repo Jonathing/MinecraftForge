@@ -1,6 +1,7 @@
 package net.minecraftforge.forge.build.tasks;
 
 import de.undercouch.gradle.tasks.download.Download;
+import net.minecraftforge.forge.build.values.LatestForgeVersion;
 import net.minecraftforge.forgedev.tasks.jarcompat.CheckJarCompatibility;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerRawArtifact;
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyReobfuscateJar;
@@ -30,7 +31,7 @@ public class CheckForgeJarCompatibility {
         if (project.getTasks().getNames().contains("setupCheckJarCompatibility"))
             throw new IllegalStateException("Cannot register setupCheckJarCompatibility more than once");
 
-        var baseForgeVersion = project.getObjects().property(String.class).value(project.provider(() -> Util.getLatestForgeVersion(minecraftVersion)));
+        var baseForgeVersion = project.getObjects().property(String.class).value(project.getProviders().of(LatestForgeVersion.class, LatestForgeVersion.parameters(project, minecraftVersion)));
         Spec<? super Task> baseForgeVersionOnlyIf = t -> baseForgeVersion.isPresent();
         var baseForgeUserdev = project.getLayout().getBuildDirectory().file(project.provider(() -> "setupCheckJarCompatibility/forge-" + baseForgeVersion.getOrElse("null") + "-userdev.jar"));
         var baseForgeUniversal = project.getLayout().getBuildDirectory().file(project.provider(() -> "setupCheckJarCompatibility/forge-" + baseForgeVersion.getOrElse("null") + "-universal.jar"));

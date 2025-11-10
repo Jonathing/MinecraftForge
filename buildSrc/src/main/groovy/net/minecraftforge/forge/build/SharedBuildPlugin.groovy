@@ -23,7 +23,7 @@ import org.gradle.plugins.ide.eclipse.model.EclipseModel
 import javax.inject.Inject
 
 @CompileStatic
-@PackageScope abstract class BuildSharedPlugin implements Plugin<Project> {
+@PackageScope abstract class SharedBuildPlugin implements Plugin<Project> {
     static {
         Util.init()
     }
@@ -31,7 +31,7 @@ import javax.inject.Inject
     protected abstract @Inject ProjectLayout getLayout()
 
     @Inject
-    BuildSharedPlugin() { }
+    SharedBuildPlugin() { }
 
     @Override
     void apply(Project project) {

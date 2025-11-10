@@ -15,11 +15,14 @@ import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar;
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyReobfuscateJar;
 import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches;
 import net.minecraftforge.forgedev.tasks.patching.binary.CreateBinPatches;
-import org.gradle.api.Plugin;
+import net.minecraftforge.forgedev.tasks.patching.diff.ApplyPatches;
+import net.minecraftforge.gradleutils.shared.EnhancedPlugin;
 import org.gradle.api.Project;
 import org.gradle.api.file.ArchiveOperations;
+import org.gradle.api.file.Directory;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.ProjectLayout;
+import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.bundling.Jar;
 import org.gradle.api.tasks.bundling.Zip;
@@ -30,7 +33,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-abstract class BuildForgePlugin implements Plugin<Project> {
+abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
+    static final String NAME = "forge-build";
+    static final String DISPLAY_NAME = "Forge Build";
+
+    private final ForgeBuildProblems problems = getObjects().newInstance(ForgeBuildProblems.class);
+
+    protected abstract @Inject ObjectFactory getObjects();
+
     protected abstract @Inject ProviderFactory getProviders();
 
     protected abstract @Inject ProjectLayout getLayout();
@@ -38,11 +48,13 @@ abstract class BuildForgePlugin implements Plugin<Project> {
     protected abstract @Inject ArchiveOperations getArchiveOperations();
 
     @Inject
-    public BuildForgePlugin() { }
+    public ForgeBuildPlugin() {
+        super(NAME, DISPLAY_NAME, "forgeTools");
+    }
 
     // NOTE: IF ANY CHANGES ARE MADE, PLEASE UPDATE THE BUILDSCRIPT.MD TO REFLECT THEM!
     @Override
-    public void apply(Project project) {
+    public void setup(Project project) {
         project.getPluginManager().apply("de.undercouch.download");
 
         var providers = getProviders();
@@ -138,6 +150,12 @@ abstract class BuildForgePlugin implements Plugin<Project> {
             var applyJoinedBinPatches = tasks.register("applyJoinedBinPatches", ApplyBinPatches.class, task -> {
                 task.getClean().setFrom(genJoinedBinPatches.map(CreateBinPatches::getClean));
                 task.getApply().setFrom(genJoinedBinPatches.flatMap(CreateBinPatches::getOutput));
+            });
+
+            var applyPatches = tasks.named("applyPatches", ApplyPatches.class, task -> {
+                task.getFailOnError().set(!problems.test("net.minecraftforge.forge.build.updating"));
+                task.getRejects().convention(project.getRootProject().getLayout().getProjectDirectory().dir(providers.provider(() -> "rejects")).map(Directory::getAsFile));
+                task.getArchiveRejects().unsetConvention();
             });
 
             var reobfJar = tasks.named("reobfJar", LegacyReobfuscateJar.class);

@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
@@ -30,7 +31,7 @@ abstract class DownloadDependency extends DefaultTask {
             unpacked = dependency
 
         var configuration = project.configurations.detachedConfiguration(
-            project.dependencies.create(unpacked instanceof Dependency ? unpacked.copy() : unpacked) { ModuleDependency it ->
+            project.dependencies.create(unpacked instanceof Dependency && !(unpacked instanceof MinimalExternalModuleDependency) ? unpacked.copy() : unpacked) { ModuleDependency it ->
                 if (it instanceof ModuleDependency) {
                     it.transitive = false
                     if (it instanceof ExternalModuleDependency) {

@@ -80,6 +80,7 @@ dependencyResolutionManagement.versionCatalogs {
 
         // TODO [Forge][Buildscript We should not be needing to manually add transitive dependencies
         //      If we need to make strict versions for dependencies, we should do so using dependency constraints
+        library 'installer',          'net.minecraftforge',  'installer' version '2.2.+'
         library 'forgespi',           'net.minecraftforge',  'forgespi' version '7.1.5'       // Needs modlauncher
         library 'modlauncher',        'net.minecraftforge',  'modlauncher' version '10.2.4'   // Needs securemodules
         library 'securemodules',      'net.minecraftforge',  'securemodules' version '2.2.21' // Needs unsafe

@@ -1,6 +1,7 @@
 package net.minecraftforge.forge.build.tasks
 
 import groovy.json.JsonSlurper
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
@@ -22,6 +23,7 @@ import java.util.concurrent.Semaphore
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
+@CompileStatic
 final class Util {
     public static final int ASM_LEVEL = Opcodes.ASM9
     private static final HttpClient HTTP = HttpClient.newBuilder().build()
@@ -34,6 +36,7 @@ final class Util {
         UtilExtensions.init()
     }
 
+    @CompileDynamic
     static String[] getClasspath(Project project, Map libs, String artifact) {
         def ret = []
         artifactTree(project, artifact).each { key, lib ->
@@ -44,7 +47,6 @@ final class Util {
         return ret
     }
 
-    @CompileStatic
     static Map getArtifacts(Configuration config) {
         var ret = [:]
         var semaphore = new Semaphore(1, true)
@@ -85,7 +87,6 @@ final class Util {
         ])
     }
 
-    @CompileStatic
     static Map getMavenInfoFromTask(AbstractArchiveTask task) {
         return getMavenInfoFromMap([
             group: task.project.group.toString(),
@@ -96,7 +97,6 @@ final class Util {
         ])
     }
 
-    @CompileStatic
     static Map getMavenInfoFromTask(Task task, String classifier) {
         return getMavenInfoFromMap([
             group: task.project.group.toString(),
@@ -107,7 +107,6 @@ final class Util {
         ])
     }
 
-    @CompileStatic
     private static Map getMavenInfoFromMap(Map<String, String> art) {
         var key = "$art.group:$art.name"
         var name = "$art.group:$art.name:$art.version"
@@ -130,9 +129,9 @@ final class Util {
         ]
     }
 
+    @CompileDynamic
     static String iso8601Now() { new Date().iso8601() }
 
-    @CompileStatic
     static String sha1(File file) {
         MessageDigest md = MessageDigest.getInstance('SHA-1')
         file.eachByte(4096) { byte[] bytes, int size ->
@@ -141,11 +140,11 @@ final class Util {
         return md.digest().collect(this.&toHex).join('')
     }
 
-    @CompileStatic
     @PackageScope static String toHex(byte bite) {
         return String.format('%02x', bite)
     }
 
+    @CompileDynamic
     private static Map artifactTree(Project project, String artifact, boolean transitive = true) {
         if (!project.ext.has('tree_resolver'))
             project.ext.tree_resolver = 1
@@ -157,7 +156,6 @@ final class Util {
         return getArtifacts(cfg)
     }
 
-    @CompileStatic
     static boolean checkExists(String url) {
         try {
             return HTTP.send(HttpRequest.newBuilder(new URI(url))
@@ -170,13 +168,13 @@ final class Util {
         }
     }
 
+    @CompileDynamic
     static String getLatestForgeVersion(String mcVersion) {
         final json = new JsonSlurper().parseText(new URL('https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json').getText('UTF-8'))
         final ver = json.promos["$mcVersion-latest"]
         ver === null ? null : (mcVersion + '-' + ver)
     }
 
-    @CompileStatic
     static void processClassNodes(File file, @ClosureParams(value = SimpleType, options = 'org.objectweb.asm.tree.ClassNode') Closure process) {
         file.withInputStream { i ->
             new ZipInputStream(i).withCloseable { zin ->

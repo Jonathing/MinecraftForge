@@ -23,6 +23,8 @@ dependencies {
     api libs.bundles.asm
     implementation libs.srgutils
     implementation libs.gson
+
+    implementation libs.bundles.utils
 }
 
 afterEvaluate {
@@ -42,12 +44,12 @@ gradlePlugin {
     plugins {
         register('forge') {
             id = 'net.minecraftforge.forge.build.forge'
-            implementationClass = 'net.minecraftforge.forge.build.BuildForgePlugin'
+            implementationClass = 'net.minecraftforge.forge.build.ForgeBuildPlugin'
         }
 
         register('convention') {
             id = 'net.minecraftforge.forge.build.convention'
-            implementationClass = 'net.minecraftforge.forge.build.BuildSharedPlugin'
+            implementationClass = 'net.minecraftforge.forge.build.SharedBuildPlugin'
         }
     }
 }

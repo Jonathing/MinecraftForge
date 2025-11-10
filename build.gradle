@@ -247,7 +247,6 @@ patcher {
             with(sourceSets.main) {
                 args '--mod', 'forge',
                     '--output', rootProject.file('src/main/generated/')
-
             }
 
             with(sourceSets.test) {
@@ -281,103 +280,11 @@ patcher {
             }
         }
     }
-
-    /*
-    runs {
-        forge_client {
-            property 'eventbus.checkTypesOnDispatch', 'true'
-            property 'org.lwjgl.system.SharedLibraryExtractDirectory', 'lwjgl_dll'
-
-            args '--launchTarget', 'forge_dev_client',
-                 '--username', 'Dev',
-                 '--version', project.name,
-                 '--accessToken', '0',
-                 '--userType', 'mojang',
-                 '--versionType', 'release',
-                 '--assetsDir', downloadAssets.output,
-                 '--assetIndex', "{asset_index}"
-        }
-
-        forge_client_test {
-            parent runs.forge_client
-            source sourceSets.test
-        }
-
-        forge_server {
-            args '--launchTarget', 'forge_dev_server'
-        }
-
-        forge_server_test {
-            parent runs.forge_server
-            source sourceSets.test
-        }
-
-        forge_server_gametest {
-            args '--launchTarget', 'forge_dev_server_gametest'
-            args '--uniqueWorld' // Unique world is used so that the world regenerates, as well as the world config isn't influenced by other runs
-        }
-
-        forge_server_gametest_test {
-            parent runs.forge_server_gametest
-            source sourceSets.test
-        }
-
-        forge_data {
-            args '--launchTarget', 'forge_dev_data',
-                 '--mod', 'forge',
-                 '--all',
-                 '--validate',
-                 '--output', rootProject.file('src/main/generated/'),
-                 '--existing', sourceSets.main.resources.srcDirs[0],
-                 '--assetsDir', downloadAssets.output,
-                 '--assetIndex', "{asset_index}"
-        }
-
-        forge_data_test {
-            source sourceSets.test
-            args '--launchTarget', 'forge_dev_data',
-                 '--mod', '.+',
-                 '--all',
-                 '--validate',
-                 '--output', rootProject.file('src/test/generated/'),
-                 '--existing', sourceSets.main.resources.srcDirs[0],
-                 '--existing', sourceSets.test.resources.srcDirs[0],
-                 '--assetsDir', downloadAssets.output,
-                 '--assetIndex', "{asset_index}"
-        }
-
-        forge_client_data {
-            args '--launchTarget', 'forge_dev_client_data',
-                 '--mod', 'forge',
-                 '--all',
-                 '--output', rootProject.file('src/main/generated/'),
-                 '--existing', sourceSets.main.resources.srcDirs[0],
-                 '--assetsDir', downloadAssets.output,
-                 '--assetIndex', "{asset_index}"
-        }
-
-        forge_client_data_test {
-            source sourceSets.test
-            args '--launchTarget', 'forge_dev',
-                 '--launchEntry', 'minecraft/net.minecraft.client.data.Main',
-                 '--launchData',
-                 '--mod', '.+',
-                 '--all',
-                 '--output', rootProject.file('src/test/generated/'),
-                 '--existing', sourceSets.main.resources.srcDirs[0],
-                 '--existing', sourceSets.test.resources.srcDirs[0],
-                 '--assetsDir', downloadAssets.output,
-                 '--assetIndex', "{asset_index}"
-        }
-    }
-     */
 }
 
 tasks.named('applyPatches', ApplyPatches) {
+    standardOutputLogLevel = LogLevel.WARN
     logLevel = 'WARN'
-    failOnError = providers.gradleProperty('net.minecraftforge.forge.build.updating').<boolean>map { !Boolean.parseBoolean(it) }
-    rejects = rootProject.layout.projectDirectory.dir('rejects')
-    archiveRejects.unset()
 }
 
 afterEvaluate {
@@ -488,7 +395,7 @@ tasks.register('findFinalizeSpawnTargets', BytecodePredicateFinder) {
 
 ValidateDeprecations.register(tasks, tasks.named('jar', Jar), minecraftVersion)
 
-DownloadDependency.register(project, 'downloadInstaller', 'net.minecraftforge:installer:2.2.+:fatjar')
+DownloadDependency.register(project, 'downloadInstaller', dependencies.variantOf(libs.installer) { classifier 'fatjar' })
 DownloadDependency.register(project, 'downloadServerShim', libs.bootstrap.shim)
 
 tasks.register('createServerShimConfig', BootstrapShimConfig) {
