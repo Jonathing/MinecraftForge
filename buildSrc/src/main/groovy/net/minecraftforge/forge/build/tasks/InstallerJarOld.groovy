@@ -7,11 +7,11 @@ import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 
-abstract class InstallerJar extends Zip {
+abstract class InstallerJarOld extends Zip {
     abstract @Input @Optional Property<Boolean> getFat()
     abstract @Input @Optional Property<Boolean> getOffline()
 
-    InstallerJar() {
+    InstallerJarOld() {
         archiveClassifier.set('installer')
         archiveExtension.set('jar') // Needs to be Zip task to not override Manifest, so set extension
         destinationDirectory.set(project.layout.buildDirectory.dir('libs'))
@@ -30,7 +30,7 @@ abstract class InstallerJar extends Zip {
             from(project.zipTree(downloadInstaller.outputs.files)) {
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
-            
+
             if (fat.get() || offline.get()) {
                 def cfg = project.tasks.register(name + "Config", Configure)
                 cfg.get().configure {
@@ -52,7 +52,7 @@ abstract class InstallerJar extends Zip {
             }
         }
     }
-    
+
     static abstract class Configure extends DefaultTask {
         public Zip parent
         private int count = 0;

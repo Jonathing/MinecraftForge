@@ -4,6 +4,8 @@ import net.minecraftforge.forge.build.tasks.checks.CheckExcs
 import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
+import net.minecraftforge.forge.build.values.MavenInfo
+import net.minecraftforge.forge.build.values.MinimalResolvedArtifact
 import net.minecraftforge.forgedev.tasks.srg2source.ApplyRangeMap
 import net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap
 import org.gradle.api.plugins.jvm.JvmTestSuite
@@ -415,7 +417,7 @@ tasks.register('serverShimJar', Jar) {
             zipTree(downloadServerShim.output).find { it.name == 'MANIFEST.MF' }
         }
 
-        attributes('Class-Path': configurations.bootstrap.resolvedConfiguration.resolvedArtifacts.collect { "libraries/${Util.getMavenInfoFromDep(it).path}" }.join(' '))
+        attributes('Class-Path': configurations.bootstrap.incoming.artifacts.collect { "libraries/${MavenInfo.from(project, it).get().path()}" }.join(' '))
     }
     archiveClassifier = 'shim'
     jarSigner.sign(it)
@@ -466,11 +468,12 @@ tasks.named('genPatches', GeneratePatches) {
 }
 
 CheckForgeJarCompatibility.register(project, minecraftVersion) {
-    commonLibraries.from(project.configurations.minecraftImplementation)
-    commonLibraries.from(project.configurations.installer)
+    it.commonLibraries.from(project.configurations.named('installer'))
 }
 
 tasks.register('launcherJson', LauncherJson) {
+    addLibraries(configurations.installer, configurations.installerextra)
+
     json.putAll([
         mainClass: 'net.minecraftforge.bootstrap.ForgeBootstrap',
         arguments: [
@@ -487,13 +490,19 @@ tasks.register('launcherJson', LauncherJson) {
 tasks.named('installerJson', InstallerJson) {
     icon = rootProject.file('icon.ico')
 
+    addArtifacts(
+        tasks.named('universalJar', Jar),
+        tasks.named('serverShimJar', Jar)
+    )
+
     // Json to install into the client's launcher
     dependsOn(launcherJson)
-    input.from(launcherJson.output)
+
+    inputs.property('installerToolsClasspath', getClasspath(project, INSTALLER_TOOLS))
 
     doFirst {
         var libs = libraries
-        String[] INSTALLER_TOOLS_CLASSPATH = getClasspath(project, libs, INSTALLER_TOOLS)
+        var installerToolsClasspath = inputs.properties.installerToolsClasspath
         json.putAll([
             _comment: launcherJson.json._comment,
             hideExtract: true,
@@ -686,6 +695,10 @@ tasks.named('universalJarSrg', Jar) {
 
 tasks.named('installerJar', InstallerJar) {
     fat = providers.systemProperty('TEAMCITY_VERSION').<boolean>map { !it.blank }.orElse(false)
+
+    using libs.installer
+    dependenciesFrom configurations.installer
+
     //offline = true
     from(EXTRA_TXTS)
     from(rootProject.file('/forge_installer_logo.png')) {
@@ -794,7 +807,6 @@ tasks.named('javadoc', Javadoc) {
     }
     exclude 'mcp/**'
 
-    options.addStringOption('Xdoclint:all,-missing', '-public')
     options {
         stylesheetFile = new File(docsDir, 'stylesheet.css')
 

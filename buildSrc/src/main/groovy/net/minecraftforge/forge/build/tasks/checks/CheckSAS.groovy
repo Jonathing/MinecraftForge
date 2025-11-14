@@ -1,8 +1,8 @@
 package net.minecraftforge.forge.build.tasks.checks
 
 import groovy.transform.CompileStatic
-import net.minecraftforge.forge.build.tasks.Annotatable
 import net.minecraftforge.forge.build.tasks.InheritanceData
+import net.minecraftforge.forge.build.tasks.InheritanceDataAnnotatable
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.InputFile
@@ -51,8 +51,8 @@ abstract class CheckSAS extends CheckTask {
                     } */
 
                     final clsInh = inheritance[cls]
-                    if (clsInh.methods) {
-                        for (entry in clsInh.methods) {
+                    if (clsInh.methods()) {
+                        for (entry in clsInh.methods()) {
                             if (isSided(entry.value)) {
                                 sided = true
                                 toAdd.add('\t' + cls + ' ' + entry.key.replaceAll(' ', ''))
@@ -80,7 +80,7 @@ abstract class CheckSAS extends CheckTask {
                     reporter.report("Invalid: $line")
                 } else { // Methods
                     final clsInh = inheritance[cls]
-                    if (clsInh.methods === null || !isSided(clsInh.methods[name + ' ' + desc]))
+                    if (clsInh.methods() === null || !isSided(clsInh.methods()[name + ' ' + desc]))
                         reporter.report("Invalid: $line")
                     else {
                         lines.add(cls + ' ' + name + desc + (comment == null ? '' : ' ' + comment))
@@ -94,17 +94,17 @@ abstract class CheckSAS extends CheckTask {
         }
     }
 
-    protected static boolean isSided(Annotatable annotatable) {
+    protected static boolean isSided(InheritanceDataAnnotatable annotatable) {
         if (annotatable === null) return false
-        for (ann in annotatable.annotations) {
-            if ('Lnet/minecraftforge/api/distmarker/OnlyIn;' == ann.desc)
+        for (ann in annotatable.annotations()) {
+            if ('Lnet/minecraftforge/api/distmarker/OnlyIn;' == ann.desc())
                 return true
         }
         return false
     }
     
     protected static findChildMethods(Map<String, InheritanceData> json, String cls, String desc) {
-        return json.values().findAll{ it.methods !== null && it.methods[desc] !== null && it.methods[desc].override == cls && isSided(it.methods[desc]) }
-                .collect { it.name + ' ' + desc.replace(' ', '') } as TreeSet
+        return json.values().findAll{ it.methods() !== null && it.methods()[desc] !== null && it.methods()[desc].override() == cls && isSided(it.methods()[desc]) }
+                .collect { it.name() + ' ' + desc.replace(' ', '') } as TreeSet
     }
 }

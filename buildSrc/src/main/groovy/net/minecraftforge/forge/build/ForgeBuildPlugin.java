@@ -211,13 +211,13 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 task.dependsOn(setupMCP);
 
                 // Official Mappings
-                task.getInput().from(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings), setupMCP.flatMap(MavenizerMCPSetup::getServerMappings));
+                task.getInputs().files(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings), setupMCP.flatMap(MavenizerMCPSetup::getServerMappings));
                 // Get 'base' MC jar, Client is straight download, server is extracted from the bundle
-                task.getInput().from(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw), setupMCP.flatMap(MavenizerMCPSetup::getServerExtracted));
+                task.getInputs().files(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw), setupMCP.flatMap(MavenizerMCPSetup::getServerExtracted));
 
                 // Rename MC Jar
                 task.dependsOn(createClientOfficial, createServerOfficial);
-                task.getInput().from(
+                task.getInputs().files(
                     createClientOfficial.flatMap(LegacyRenameJar::getOutput),
                     createServerOfficial.flatMap(LegacyRenameJar::getOutput),
                     forgedevPlugin.getTool(Tools.BINPATCH)

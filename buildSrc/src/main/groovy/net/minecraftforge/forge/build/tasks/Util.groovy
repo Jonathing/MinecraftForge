@@ -6,10 +6,12 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import net.minecraftforge.forge.build.values.LibraryInfo
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
@@ -37,47 +39,19 @@ final class Util {
     }
 
     @CompileDynamic
-    static String[] getClasspath(Project project, Map libs, String artifact) {
-        def ret = []
-        artifactTree(project, artifact).each { key, lib ->
-            libs[lib.name] = lib
-            if (lib.name != artifact)
-                ret.add(lib.name)
+    static Provider<String[]> getClasspath(Project project, String artifact) {
+        artifactTree(project, artifact).<String[]>map { map ->
+            var ret = []
+            for (var lib in map.values()) {
+                if (lib.name() != artifact)
+                    ret.add(lib.name())
+            }
+            return ret
         }
-        return ret
-    }
-
-    static Map getArtifacts(Configuration config) {
-        var ret = [:]
-        var semaphore = new Semaphore(1, true)
-        config.resolvedConfiguration.resolvedArtifacts.parallelStream().forEachOrdered(dep -> {
-            var info = getMavenInfoFromDep(dep)
-            var domain = 'libraries.minecraft.net'
-            var url = "https://$domain/$info.path"
-            if (!checkExists(url))
-                url.values[0] = 'maven.minecraftforge.net'
-
-            var sha1 = sha1(dep.file)
-
-            semaphore.acquire()
-            ret[info.key] = [
-                name: info.name,
-                downloads: [
-                    artifact: [
-                        path: info.path,
-                        url: url.toString(),
-                        sha1: sha1,
-                        size: dep.file.length()
-                    ]
-                ]
-            ]
-            semaphore.release()
-        })
-        return ret
     }
 
     @CompileStatic
-    static Map getMavenInfoFromDep(ResolvedArtifact dep) {
+    static Map<String, ?> getMavenInfoFromDep(ResolvedArtifact dep) {
         return getMavenInfoFromMap([
             group: dep.moduleVersion.id.group,
             name: dep.moduleVersion.id.name,
@@ -87,7 +61,7 @@ final class Util {
         ])
     }
 
-    static Map getMavenInfoFromTask(AbstractArchiveTask task) {
+    static Map<String, ?> getMavenInfoFromTask(AbstractArchiveTask task) {
         return getMavenInfoFromMap([
             group: task.project.group.toString(),
             name: task.project.name,
@@ -97,7 +71,7 @@ final class Util {
         ])
     }
 
-    static Map getMavenInfoFromTask(Task task, String classifier) {
+    static Map<String, ?> getMavenInfoFromTask(Task task, String classifier) {
         return getMavenInfoFromMap([
             group: task.project.group.toString(),
             name: task.project.name,
@@ -107,7 +81,7 @@ final class Util {
         ])
     }
 
-    private static Map getMavenInfoFromMap(Map<String, String> art) {
+    private static Map<String, ?> getMavenInfoFromMap(Map<String, String> art) {
         var key = "$art.group:$art.name"
         var name = "$art.group:$art.name:$art.version"
         var path = "${art.group.replace('.', '/')}/$art.name/$art.version/$art.name-$art.version"
@@ -145,15 +119,10 @@ final class Util {
     }
 
     @CompileDynamic
-    private static Map artifactTree(Project project, String artifact, boolean transitive = true) {
-        if (!project.ext.has('tree_resolver'))
-            project.ext.tree_resolver = 1
-        def cfg = project.configurations.create('tree_resolver_' + project.ext.tree_resolver++)
-        cfg.transitive = transitive
-        def dep = project.dependencies.create(artifact)
-        cfg.dependencies.add(dep)
-        def files = cfg.resolve()
-        return getArtifacts(cfg)
+    private static Provider<Map<String, LibraryInfo>> artifactTree(Project project, String artifact, boolean transitive = true) {
+        return LibraryInfo.from(project, project.configurations.detachedConfiguration(
+            project.dependencies.create(artifact)
+        ).tap { it.transitive = transitive })
     }
 
     static boolean checkExists(String url) {

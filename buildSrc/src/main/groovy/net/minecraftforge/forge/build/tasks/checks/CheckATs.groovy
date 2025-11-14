@@ -53,13 +53,13 @@ abstract class CheckATs extends CheckTask {
                     itr.remove()
                     reporter.report("Invalid group: $key")
                 } else if ('*' == entry.desc) {
-                    if (!jcls.fields) {
+                    if (!jcls.fields()) {
                         itr.remove()
                         reporter.report("Invalid group, class has no fields: $key")
                     } else {
-                        jcls.fields.each { field, value ->
+                        jcls.fields().each { field, value ->
                             final fkey = entry.cls + ' ' + field
-                            if (accessLevel(value.access) < accessStr(entry.modifier)) {
+                            if (accessLevel(value.access()) < accessStr(entry.modifier)) {
                                 if (lines.containsKey(fkey)) {
                                     toRemove.add(fkey)
                                 } else if (!entry.existing.contains(fkey)) {
@@ -74,14 +74,14 @@ abstract class CheckATs extends CheckTask {
                         entry.existing.findAll { it !in entry.children }.each { println('Removed: ' + it) }
                     }
                 } else if ('*()' == entry.desc) {
-                    if (!jcls.methods) {
+                    if (!jcls.methods()) {
                         itr.remove()
                         reporter.report("Invalid group, class has no methods: $key")
                     } else {
-                        jcls.methods.each { mtd, value ->
+                        jcls.methods().each { mtd, value ->
                             if (mtd.startsWith('<clinit>') || mtd.startsWith('lambda$')) return
                             key = entry.cls + ' ' + mtd.replace(' ', '')
-                            if (accessLevel(value.access) < accessStr(entry.modifier)) {
+                            if (accessLevel(value.access()) < accessStr(entry.modifier)) {
                                 if (lines.containsKey(key)) {
                                     toRemove.add(key)
                                 } else if (!entry.existing.contains(key)) {
@@ -107,29 +107,29 @@ abstract class CheckATs extends CheckTask {
                     itr.remove()
                     reporter.report("Invalid: $key")
                 } else if (entry.desc == '') {
-                    if (accessLevel(jcls.access) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
+                    if (accessLevel(jcls.access()) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
                         itr.remove()
                         reporter.report("Invalid Narrowing: $key")
                     }
                 } else if (!entry.desc.contains('(')) {
-                    if (!jcls.fields || !jcls.fields.containsKey(entry.desc)) {
+                    if (!jcls.fields() || !jcls.fields().containsKey(entry.desc)) {
                         itr.remove()
                         reporter.report("Invalid: $key")
                     } else {
-                        final value = jcls.fields[entry.desc]
-                        if (accessLevel(value.access) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
+                        final value = jcls.fields()[entry.desc]
+                        if (accessLevel(value.access()) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
                             itr.remove()
                             reporter.report("Invalid Narrowing: $key - ${entry.comment}")
                         }
                     }
                 } else {
                     final jdesc = entry.desc.replace('(', ' (')
-                    if (!jcls.methods || !jcls.methods.containsKey(jdesc)) {
+                    if (!jcls.methods() || !jcls.methods().containsKey(jdesc)) {
                         itr.remove()
                         reporter.report("Invalid: $key")
                     } else {
-                        final value = jcls.methods[jdesc]
-                        if (accessLevel(value.access) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
+                        final value = jcls.methods()[jdesc]
+                        if (accessLevel(value.access()) > accessStr(entry.modifier) && (entry.comment === null || !entry.comment.startsWith('#force '))) {
                             itr.remove()
                             reporter.report("Invalid Narrowing: $key")
                         }
@@ -139,14 +139,14 @@ abstract class CheckATs extends CheckTask {
         }
 
         inheritance.each { tcls, value ->
-            if (!value.methods || ((value.access & Opcodes.ACC_ABSTRACT) !== 0)) return
+            if (!value.methods() || ((value.access() & Opcodes.ACC_ABSTRACT) !== 0)) return
             String parent = tcls
             while (parent !== null) {
                 constructorGroups[parent]?.tap { entry ->
-                    value.methods.each { mtd, v ->
+                    value.methods().each { mtd, v ->
                         if (mtd.startsWith('<init>')) {
                             final child = tcls.replaceAll('/', '\\.') + ' ' + mtd.replace(' ', '')
-                            if (accessLevel(v.access) < 3) {
+                            if (accessLevel(v.access()) < 3) {
                                 if (lines.containsKey(child)) {
                                     toRemove.add(child)
                                 } else if (child !in entry.existing) {
@@ -160,7 +160,7 @@ abstract class CheckATs extends CheckTask {
                         }
                     }
                 }
-                parent = inheritance[parent]?.superName
+                parent = inheritance[parent]?.superName()
             }
         }
         constructorGroups.values().each { entry -> entry.existing.findAll { it !in entry.children }.each{  reporter.report("Found invalid group entry: $it") } }
@@ -176,7 +176,7 @@ abstract class CheckATs extends CheckTask {
             if (!mappings || !entry || !entry.desc) return null
             final comment = entry.comment?.substring(1)?.trim()
             final jsonCls = inheritance.get(entry.cls.replaceAll('\\.', '/'))
-            final mappingsClass = mappings?.getClass(jsonCls.name)
+            final mappingsClass = mappings?.getClass(jsonCls.name())
             if (mappingsClass === null) return entry.comment
             final idx = entry.desc.indexOf('(')
 

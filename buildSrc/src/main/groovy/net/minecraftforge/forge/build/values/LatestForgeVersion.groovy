@@ -16,12 +16,12 @@ import org.gradle.api.provider.ValueSourceSpec
 import org.jetbrains.annotations.Nullable
 
 @CompileStatic
-abstract class LatestForgeVersion implements ValueSource<String, LatestForgeVersion.Parameters> {
+abstract class LatestForgeVersion implements ValueSource<String, Parameters> {
     private static final Logger LOGGER = Logging.getLogger(LatestForgeVersion)
 
     private static final String PROMOTIONS_SLIM = 'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'
 
-    interface Parameters extends ValueSourceParameters {
+    static interface Parameters extends ValueSourceParameters {
         Property<Boolean> getOffline();
 
         RegularFileProperty getPromotions();
