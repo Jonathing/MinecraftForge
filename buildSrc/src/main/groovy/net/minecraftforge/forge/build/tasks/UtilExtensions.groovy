@@ -25,6 +25,7 @@ final class UtilExtensions {
         File.metaClass.sha1 = { sha1(delegate) }
         File.metaClass.getSha1 = { getSha1(delegate) }
         File.metaClass.sha256 = { sha256(delegate) }
+        File.metaClass.getSha256 = { sha256(delegate) }
 
         File.metaClass.json = { json(delegate) }
         File.metaClass.getJson = { getJson(delegate) }
@@ -54,6 +55,10 @@ final class UtilExtensions {
             md.update(bytes, 0, size)
         }
         md.digest().collect(UtilExtensions.&toHex).join('')
+    }
+
+    static @Nullable String getSha256(File self) {
+        !self.exists() ? null : sha256(self)
     }
     //endregion
 

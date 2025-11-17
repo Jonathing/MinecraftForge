@@ -1,12 +1,12 @@
 package net.minecraftforge.forge.build.tasks;
 
 import net.minecraftforge.forge.build.values.LibraryInfo;
-import net.minecraftforge.forge.build.values.MavenInfo;
 import net.minecraftforge.forge.build.values.MinimalResolvedArtifact;
 import org.codehaus.groovy.runtime.ResourceGroovyMethods;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.ProjectDependency;
+import org.gradle.api.attributes.Bundling;
 import org.gradle.api.file.ArchiveOperations;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.ProjectLayout;
@@ -28,7 +28,6 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.TreeMap;
 
 public abstract class InstallerJar extends Zip {
@@ -51,7 +50,6 @@ public abstract class InstallerJar extends Zip {
         getArchiveExtension().set("jar");
         getDestinationDirectory().set(getLayout().getBuildDirectory().dir("libs"));
 
-        var installerDependencies = getProject().getConfigurations().named("installer");
         var installerJson = getProject().getTasks().named("installerJson", InstallerJson.class);
         var launcherJson = getProject().getTasks().named("launcherJson", LauncherJson.class);
 
@@ -78,7 +76,8 @@ public abstract class InstallerJar extends Zip {
     }
 
     private void using(Configuration configuration) {
-        from(getProviders().provider(() -> getArchiveOperations().zipTree(configuration)), copy ->
+        configuration.attributes(a -> a.attribute(Bundling.BUNDLING_ATTRIBUTE, getObjectFactory().named(Bundling.class, Bundling.SHADOWED)));
+        from(getProviders().provider(() -> getArchiveOperations().zipTree(configuration.getSingleFile())), copy ->
             copy.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE)
         );
     }
@@ -96,10 +95,36 @@ public abstract class InstallerJar extends Zip {
         // So we may have local modified versions
         for (var dependency : configuration.getDependencies()) {
             if (dependency instanceof ProjectDependency projectDependency) {
-                var subproject = project.project(projectDependency.getPath());
-                allArtifacts.add(MinimalResolvedArtifact.from(subproject, subproject.getTasks().named("jar", Jar.class)));
+               dependenciesFrom(projectDependency);
             } else {
                 var c = configurations.detachedConfiguration(dependency);
+                for (var artifact : c.getIncoming().getArtifacts().getResolvedArtifacts().get()) {
+                    allArtifacts.add(MinimalResolvedArtifact.from(project, artifact));
+                }
+            }
+        }
+    }
+
+    private void dependenciesFrom(ProjectDependency projectDependency) {
+        var project = getProject();
+        var configurations = project.getConfigurations();
+        var allArtifacts = getAllArtifacts();
+
+        var subproject = project.project(projectDependency.getPath());
+
+        var singleFile = configurations.detachedConfiguration(projectDependency);
+        singleFile.setTransitive(false);
+        allArtifacts.add(MinimalResolvedArtifact.from(subproject, singleFile));
+
+        var transitive = configurations.detachedConfiguration(projectDependency);
+        for (var d : transitive.getAllDependencies()) {
+            if (d.equals(projectDependency)) {
+                continue;
+            } else if (d instanceof ProjectDependency nestedProjectDependency) {
+                dependenciesFrom(nestedProjectDependency);
+            } else {
+                var c = configurations.detachedConfiguration(d);
+                c.setTransitive(false);
                 for (var artifact : c.getIncoming().getArtifacts().getResolvedArtifacts().get()) {
                     allArtifacts.add(MinimalResolvedArtifact.from(project, artifact));
                 }

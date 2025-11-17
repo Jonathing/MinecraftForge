@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
@@ -55,14 +56,16 @@ public class CleanProperties extends Properties {
 
     @Override
     public synchronized Enumeration<Object> keys() {
-        var ret = new TreeSet<>();
+        var ret = new TreeSet<>(Comparator.comparing(Object::toString));
         for (Enumeration<?> e = super.keys(); e.hasMoreElements(); ) ret.add(e.nextElement());
         return Collections.enumeration(ret);
     }
 
     @Override
     public Set<Map.Entry<Object, Object>> entrySet() {
-        return new TreeSet<>(super.entrySet());
+        var ret = new TreeSet<Map.Entry<Object, Object>>(Comparator.comparing(e -> e.getKey().toString()));
+        ret.addAll(super.entrySet());
+        return ret;
     }
 
     @Override

@@ -417,7 +417,7 @@ tasks.register('serverShimJar', Jar) {
             zipTree(downloadServerShim.output).find { it.name == 'MANIFEST.MF' }
         }
 
-        attributes('Class-Path': configurations.bootstrap.incoming.artifacts.collect { "libraries/${MavenInfo.from(project, it).get().path()}" }.join(' '))
+        attributes('Class-Path': configurations.bootstrap.incoming.artifacts.collect { "libraries/${MavenInfo.from(project, it).path()}" }.join(' '))
     }
     archiveClassifier = 'shim'
     jarSigner.sign(it)
@@ -472,6 +472,9 @@ CheckForgeJarCompatibility.register(project, minecraftVersion) {
 }
 
 tasks.register('launcherJson', LauncherJson) {
+    it.forgeVersion = project.ext.forgeVersion
+    it.minecraftVersion = project.ext.minecraftVersion
+
     addLibraries(configurations.installer, configurations.installerextra)
 
     json.putAll([
@@ -554,7 +557,7 @@ tasks.named('installerJson', InstallerJson) {
                 [
                     sides: ['server'],
                     jar: INSTALLER_TOOLS,
-                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    classpath: installerToolsClasspath,
                     args: [
                         '--task', 'EXTRACT_FILES',
                         '--archive', '{INSTALLER}',
@@ -582,7 +585,7 @@ tasks.named('installerJson', InstallerJson) {
                 ], [
                     sides: ['server'],
                     jar: INSTALLER_TOOLS,
-                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    classpath: installerToolsClasspath,
                     args: [
                         '--task', 'BUNDLER_EXTRACT',
                         '--input', '{MINECRAFT_JAR}',
@@ -592,7 +595,7 @@ tasks.named('installerJson', InstallerJson) {
                 ], [
                     sides: ['server'],
                     jar: INSTALLER_TOOLS,
-                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    classpath: installerToolsClasspath,
                     args: [
                         '--task', 'BUNDLER_EXTRACT',
                         '--input', '{MINECRAFT_JAR}',
@@ -604,7 +607,7 @@ tasks.named('installerJson', InstallerJson) {
                     ]
                 ], [
                     jar: INSTALLER_TOOLS,
-                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    classpath: installerToolsClasspath,
                     args: [
                         '--task', 'DOWNLOAD_MOJMAPS',
                         '--sanitize',
@@ -618,7 +621,7 @@ tasks.named('installerJson', InstallerJson) {
                 ], [
                     sides: ['server'],
                     jar: FART,
-                    classpath: getClasspath(project, libs, FART),
+                    classpath: getClasspath(project, FART),
                     args: [
                         '--input', '{MC_UNPACKED}',
                         '--output', '{MC_OFF}',
@@ -631,7 +634,7 @@ tasks.named('installerJson', InstallerJson) {
                 ], [
                     sides: ['client'],
                     jar: FART,
-                    classpath: getClasspath(project, libs, FART),
+                    classpath: getClasspath(project, FART),
                     args: [
                         '--input', '{MINECRAFT_JAR}',
                         '--output', '{MC_OFF}',
@@ -643,7 +646,7 @@ tasks.named('installerJson', InstallerJson) {
                     ]
                 ], [
                     jar: BINPATCH_TOOL.rsplit(':', 1)[0], // remove :fatjar
-                    classpath: getClasspath(project, libs, BINPATCH_TOOL.rsplit(':', 1)[0]),
+                    classpath: getClasspath(project, BINPATCH_TOOL.rsplit(':', 1)[0]),
                     args: [
                         '--clean', '{MC_OFF}',
                         '--output', '{PATCHED}',
@@ -656,7 +659,7 @@ tasks.named('installerJson', InstallerJson) {
                 ]
             ]
         ] as LinkedHashMap)
-        getClasspath(project, libs, MCP_ARTIFACT) //Tell it to download mcp_config
+        getClasspath(project, MCP_ARTIFACT) //Tell it to download mcp_config
     }
 }
 

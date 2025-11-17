@@ -10,12 +10,46 @@ import org.gradle.internal.component.external.model.DefaultModuleComponentArtifa
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
 import org.jetbrains.annotations.Nullable;
 
-public record MavenInfo(String key, String name, String path, ArtifactInfo art) {
-    public record ArtifactInfo(String group, String name, String version, @Nullable String classifier, String extension) { }
+import java.io.Serializable;
+import java.text.MessageFormat;
+
+public record MavenInfo(String key, String name, String path, ArtifactInfo art) implements Serializable {
+    public record ArtifactInfo(String group, String name, String version, @Nullable String classifier,
+                               String extension) implements Serializable { }
+
+    public static MavenInfo from(String artGroup, String artName, String artVersion, @Nullable String artClassifier, @Nullable String artExtension) {
+        if (artExtension == null)
+            artExtension = "jar";
+
+        var key = artGroup + ':' + artName;
+        var name = key + ':' + artVersion;
+        var path = MessageFormat.format("{0}/{1}/{2}/{1}-{2}", artGroup.replace('.', '/'), artName, artVersion);
+        if (artClassifier != null) {
+            name += ':' + artClassifier;
+            path += '-' + artClassifier;
+        }
+        if (!"jar".equals(artExtension)) {
+            name += '@' + artExtension;
+        }
+        path += '.' + artExtension;
+
+        return new MavenInfo(
+            key,
+            name,
+            path,
+            new MavenInfo.ArtifactInfo(
+                artGroup,
+                artName,
+                artVersion,
+                artClassifier,
+                artExtension
+            )
+        );
+    }
 
     // NOTE: Relies on Gradle internals
     //       See https://github.com/gradle/gradle/issues/23702
-    public static Provider<MavenInfo> from(Project project, ResolvedArtifactResult dependency) {
+    public static MavenInfo from(Project project, ResolvedArtifactResult dependency) {
         String group, name, version, classifier, extension;
         {
             var component = dependency.getId();
@@ -45,31 +79,28 @@ public record MavenInfo(String key, String name, String path, ArtifactInfo art) 
             }
         }
 
-        return project.getProviders().of(MavenInfoSource.class, spec -> spec.parameters(parameters -> {
-            parameters.getGroup().set(group);
-            parameters.getName().set(name);
-            parameters.getVersion().set(version);
-            parameters.getClassifier().set(classifier);
-            parameters.getExtension().set(extension);
-        }));
+        return from(group, name, version, classifier, extension);
+    }
+
+    public static MavenInfo from(Project project) {
+        return from(project, (String) null);
+    }
+
+    public static MavenInfo from(Project project, String classifier) {
+        return from(project.getGroup().toString(), project.getName(), project.getVersion().toString(), classifier, null);
     }
 
     public static Provider<MavenInfo> from(Project project, TaskProvider<? extends AbstractArchiveTask> task) {
-        return project.getProviders().of(MavenInfoSource.class, spec -> spec.parameters(parameters -> {
-            parameters.getGroup().set(project.provider(() -> project.getGroup().toString()));
-            parameters.getName().set(project.getName());
-            parameters.getVersion().set(project.provider(() -> project.getVersion().toString()));
-            parameters.getClassifier().set(task.flatMap(AbstractArchiveTask::getArchiveClassifier));
-            parameters.getExtension().set(task.flatMap(AbstractArchiveTask::getArchiveExtension));
-        }));
-    }
+        var ret = project.getObjects().property(MavenInfo.class).value(project.getProviders().zip(task.flatMap(AbstractArchiveTask::getArchiveClassifier), task.flatMap(AbstractArchiveTask::getArchiveExtension), (classifier, extension) ->
+            from(project.getGroup().toString(), project.getName(), project.getVersion().toString(), classifier, extension)
+        ));
 
-    public static Provider<MavenInfo> from(Project project, String classifier) {
-        return project.getProviders().of(MavenInfoSource.class, spec -> spec.parameters(parameters -> {
-            parameters.getGroup().set(project.provider(() -> project.getGroup().toString()));
-            parameters.getName().set(project.getName());
-            parameters.getVersion().set(project.provider(() -> project.getVersion().toString()));
-            parameters.getClassifier().set(classifier);
-        }));
+        ret.disallowChanges();
+        ret.finalizeValueOnRead();
+        if (project.getState().getExecuted()) {
+            ret.finalizeValue();
+        }
+
+        return ret;
     }
 }

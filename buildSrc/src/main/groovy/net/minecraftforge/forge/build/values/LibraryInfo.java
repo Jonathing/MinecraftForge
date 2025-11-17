@@ -4,20 +4,21 @@ import net.minecraftforge.forge.build.tasks.Util;
 import org.gradle.api.Project;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.provider.Provider;
-import org.gradle.api.provider.ProviderFactory;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.HashMap;
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.Semaphore;
 
-public record LibraryInfo(String name, Downloads downloads) {
-    public record Downloads(ArtifactInfo artifact) {
-        public static final class ArtifactInfo {
+public record LibraryInfo(String name, Downloads downloads) implements Serializable {
+    public record Downloads(ArtifactInfo artifact) implements Serializable {
+        public static final class ArtifactInfo implements Serializable {
+            private static final @Serial long serialVersionUID = 4951121326971837726L;
+
             private final String path;
             private String url;
             private final String sha1;
@@ -106,9 +107,13 @@ public record LibraryInfo(String name, Downloads downloads) {
 
     public static Provider<Map<String, LibraryInfo>> from(Project project, Configuration configuration) {
         return project.getProviders().of(LibraryInfoSource.class, spec -> spec.parameters(parameters -> {
-            for (var artifact : configuration.getIncoming().getArtifacts()) {
-                parameters.getDependencies().add(MinimalResolvedArtifact.from(project, artifact));
-            }
+            parameters.getDependencies().addAll(configuration.getIncoming().getArtifacts().getResolvedArtifacts().map(artifacts -> {
+                var ret = new HashSet<MinimalResolvedArtifact>(artifacts.size());
+                for (var artifact : artifacts) {
+                    ret.add(MinimalResolvedArtifact.from(project, artifact));
+                }
+                return ret;
+            }));
         }));
     }
 }

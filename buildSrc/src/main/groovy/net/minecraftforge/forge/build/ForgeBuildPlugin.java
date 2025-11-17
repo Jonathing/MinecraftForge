@@ -97,7 +97,7 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
 
             var createClientOfficial = tasks.register("createClientOfficial", LegacyRenameJar.class, task -> {
                 task.dependsOn(setupMCP);
-                
+
                 task.getAdditionalArgs().addAll("--ann-fix", "--ids-fix", "--src-fix", "--record-fix", "--strip-sigs", "--reverse");
                 task.getMappings().set(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings));
                 task.getInput().set(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw));
@@ -188,15 +188,18 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
 
             var universalJar = tasks.named("universalJar", Jar.class, task -> {
                 task.dependsOn(downloadCrowdin);
-                task.from(providers.provider(() -> archiveOperations.zipTree(downloadCrowdin.map(Download::getDest))), copy -> copy
+                var crowdin = downloadCrowdin.map(Download::getDest);
+                task.from(providers.provider(() -> archiveOperations.zipTree(crowdin)), copy -> copy
                     .include("assets/forge/lang/*.json"));
             });
 
             var universalJarSrg = tasks.register("universalJarSrg", Jar.class, task -> {
                 task.dependsOn(filterJarNewSrg, universalJar);
 
-                task.from(providers.provider(() -> archiveOperations.zipTree(filterJarNewSrg.flatMap(LegacyFilterNewJar::getOutput))));
-                task.from(providers.provider(() -> archiveOperations.zipTree(universalJar.flatMap(Jar::getArchiveFile))));
+                var filterNewJarSrgOutput = filterJarNewSrg.flatMap(LegacyFilterNewJar::getOutput);
+                var universalJarOutput = universalJar.flatMap(Jar::getArchiveFile);
+                task.from(providers.provider(() -> archiveOperations.zipTree(filterNewJarSrgOutput)));
+                task.from(providers.provider(() -> archiveOperations.zipTree(universalJarOutput)));
                 task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 
                 task.getArchiveClassifier().set("universal-srg");
@@ -220,7 +223,7 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 task.getInputs().files(
                     createClientOfficial.flatMap(LegacyRenameJar::getOutput),
                     createServerOfficial.flatMap(LegacyRenameJar::getOutput),
-                    forgedevPlugin.getTool(Tools.BINPATCH)
+                    forgedevPlugin.getTool(Tools.BINPATCH).getClasspath()
                 );
             });
 

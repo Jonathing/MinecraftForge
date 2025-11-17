@@ -15,12 +15,20 @@ abstract class BundleList extends DefaultTask {
     @OutputFile abstract RegularFileProperty getOutput()
 
     BundleList() {
+
+
         config.setFrom(project.configurations.installer)
         configExtra.setFrom(project.configurations.installerextra)
         output.convention(project.layout.buildDirectory.file("$name/output.list"))
         configure {
-            dependsOn(project.tasks.universalJar)
-            inputs.file(project.tasks.universalJar.archiveFile)
+            dependsOn(
+                project.tasks.universalJar,
+                project.tasks.applyServerBinPatches
+            )
+            inputs.files(
+                project.tasks.universalJar.archiveFile,
+                project.tasks.applyServerBinPatches.output
+            )
         }
     }
     
@@ -31,7 +39,7 @@ abstract class BundleList extends DefaultTask {
         for (def dep : resolved) {
             def info = Util.getMavenInfoFromDep(dep)
             //println("$dep.file.sha1\t$info.name\t$info.path")
-            entries.put("$info.art.group:$info.art.name", "$dep.file.sha256\t$info.name\t$info.path")
+            entries.put("$info.art.group:$info.art.name", "${dep.file.sha256}\t$info.name\t$info.path")
         }
 
         resolved = project.configurations.installerextra.resolvedConfiguration.resolvedArtifacts

@@ -34,7 +34,6 @@ abstract class LauncherJson extends DefaultTask {
     abstract @Input Property<String> getProjectName()
     abstract @Input Property<String> getMinecraftVersion()
     abstract @Input Property<String> getForgeVersion()
-    abstract @Input Property<String> getTimestamp()
     abstract @InputFile RegularFileProperty getPackedJar()
     abstract @Input Property<MavenInfo> getPackedJarInfo()
     abstract @InputFile RegularFileProperty getPatchedJar()
