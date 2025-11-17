@@ -21,7 +21,7 @@ import java.nio.file.Files
 
 @CompileStatic
 abstract class LauncherJson extends DefaultTask {
-    private static final String COMMENT = '''
+    public static final String COMMENT = '''
         Please do not automate the download and installation of Forge.
         Our efforts are supported by ads from the download page.
         If you MUST automate this, please consider supporting the project through https://www.patreon.com/LexManos/'''.stripIndent()
@@ -63,6 +63,7 @@ abstract class LauncherJson extends DefaultTask {
         patchedJar.set(applyClientBinPatches.flatMap(ApplyBinPatches.&getOutput))
         patchedJarInfo.set(MavenInfo.from(project, 'client'))
 
+        json.empty()
         json.put('_comment', COMMENT.split('\n'))
         json.put('inheritsFrom', minecraftVersion)
         json.putAll([
@@ -96,7 +97,7 @@ abstract class LauncherJson extends DefaultTask {
     @TaskAction
     protected void exec() {
         var timestamp = Util.iso8601Now()
-        var json = new HashMap<String, ?>(json.get())
+        var json = new TreeMap<String, ?>(json.get())
         json.putAll([
             id: "${minecraftVersion.get()}-${projectName.get()}-${forgeVersion.get()}",
             time: timestamp,
@@ -106,8 +107,11 @@ abstract class LauncherJson extends DefaultTask {
         var libraries = new ArrayList<LibraryInfo>(this.libraries.get().values())
         libraries.add(0, new LibraryInfo(packedJarInfo.get(), packedJar.asFile.get(), "https://maven.minecraftforge.net/${packedJarInfo.get().path()}"))
         libraries.add(0, new LibraryInfo(patchedJarInfo.get(), patchedJar.asFile.get(), "https://maven.minecraftforge.net/${patchedJarInfo.get().path()}"))
-        for (var library in libraries) {
-            library.validateUrl(getOffline().getOrElse(false))
+
+        var itor = libraries.listIterator()
+        while (itor.hasNext()) {
+            var library = itor.next();
+            itor.set(library.validateUrl(getOffline().getOrElse(false)))
         }
         json.put('libraries', libraries)
 

@@ -16,70 +16,15 @@ import java.util.Objects;
 
 public record LibraryInfo(String name, Downloads downloads) implements Serializable {
     public record Downloads(ArtifactInfo artifact) implements Serializable {
-        public static final class ArtifactInfo implements Serializable {
-            private static final @Serial long serialVersionUID = 4951121326971837726L;
-
-            private final String path;
-            private String url;
-            private final String sha1;
-            private final long size;
-
-            public ArtifactInfo(String path, String url, String sha1, long size) {
-                this.path = path;
-                this.url = url;
-                this.sha1 = sha1;
-                this.size = size;
-            }
-
-            public String path() {
-                return path;
-            }
-
-            public String url() {
-                return url;
-            }
-
-            public void validateUrl(boolean offline) {
+        public record ArtifactInfo(String path, String url, String sha1, long size) implements Serializable {
+            public ArtifactInfo validateUrl(boolean offline) {
                 if (offline || !url.startsWith("https://libraries.minecraft.net/"))
-                    return;
+                    return this;
 
                 if (!Util.checkExists(url))
-                    url = "https://maven.minecraftforge.net/" + url.substring("https://libraries.minecraft.net/".length());
-            }
+                    return new ArtifactInfo(path, "https://maven.minecraftforge.net/" + url.substring("https://libraries.minecraft.net/".length()), sha1, size);
 
-            public String sha1() {
-                return sha1;
-            }
-
-            public long size() {
-                return size;
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return super.equals(obj) || obj instanceof ArtifactInfo that &&
-                    Objects.equals(this.path, that.path) &&
-                    Objects.equals(this.url, that.url) &&
-                    Objects.equals(this.sha1, that.sha1) &&
-                    this.size == that.size;
-            }
-
-            @Override
-            public int hashCode() {
-                int result = Objects.hashCode(path);
-                result = 31 * result + Objects.hashCode(url);
-                result = 31 * result + Objects.hashCode(sha1);
-                result = 31 * result + Long.hashCode(size);
-                return result;
-            }
-
-            @Override
-            public String toString() {
-                return "ArtifactInfo[" +
-                    "path=" + path + ", " +
-                    "url=" + url + ", " +
-                    "sha1=" + sha1 + ", " +
-                    "size=" + size + ']';
+                return this;
             }
         }
     }
@@ -92,8 +37,12 @@ public record LibraryInfo(String name, Downloads downloads) implements Serializa
         this(info.name(), info.path(), url, Util.sha1(file), file.length());
     }
 
-    public void validateUrl(boolean offline) {
-        this.downloads.artifact.validateUrl(offline);
+    public LibraryInfo validateUrl(boolean offline) {
+        var artifact = this.downloads.artifact.validateUrl(offline);
+        if (this.downloads.artifact == artifact)
+            return this;
+
+        return new LibraryInfo(name, new Downloads(artifact));
     }
 
     @SafeVarargs
