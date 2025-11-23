@@ -855,7 +855,7 @@ tasks.named('javadoc', Javadoc) {
         noHelp = true
 
         bottom = "Minecraft Forge is an open source modding API for Minecraft: Java Edition, licensed under the Lesser GNU General Public License, version 2.1."
-        windowTitle = "Minecraft Forge API ${VERSION}"
+        windowTitle = "Minecraft Forge API ${version}"
         docTitle = "Minecraft Forge API - ${forgeVersion} for Minecraft ${minecraftVersion}"
         header = "<div style=\"margin-top: 9px;padding: 5px 6px;\"><strong>${forgeVersion} for Minecraft ${minecraftVersion}</strong></div>"
     }

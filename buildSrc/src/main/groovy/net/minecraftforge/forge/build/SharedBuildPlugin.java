@@ -87,5 +87,14 @@ abstract class SharedBuildPlugin implements Plugin<Project> {
 
         var jar = project.getPluginManager().hasPlugin("net.minecraftforge.forgedev") ? "universalJar" : "jar";
         WriteManifest.register(project, tasks.named(jar, Jar.class));
+
+        for (var sourceSet : project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets()) {
+            if (!tasks.getNames().contains(sourceSet.getSourcesJarTaskName()))
+                continue;
+
+            var sourcesJar = tasks.named(sourceSet.getSourcesJarTaskName(), task ->
+                task.dependsOn(tasks.named("processResources"), tasks.named("generateResources"))
+            );
+        }
     }
 }
