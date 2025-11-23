@@ -43,6 +43,49 @@ final class Util {
         UtilExtensions.init()
     }
 
+    @CompileStatic
+    @Deprecated(forRemoval = true)
+    static Map getArtifacts(Configuration config) {
+        var ret = [:]
+        var semaphore = new Semaphore(1, true)
+        config.resolvedConfiguration.resolvedArtifacts.parallelStream().forEachOrdered(dep -> {
+            var info = getMavenInfoFromDep(dep)
+            var domain = 'libraries.minecraft.net'
+            var url = "https://$domain/$info.path"
+            if (!checkExists(url))
+                url.values[0] = 'maven.minecraftforge.net'
+
+            var sha1 = sha1(dep.file)
+
+            semaphore.acquire()
+            ret[info.key] = [
+                name: info.name,
+                downloads: [
+                    artifact: [
+                        path: info.path,
+                        url: url.toString(),
+                        sha1: sha1,
+                        size: dep.file.length()
+                    ]
+                ]
+            ]
+            semaphore.release()
+        })
+        return ret
+    }
+
+    @CompileDynamic
+    @Deprecated(forRemoval = true)
+    static String[] getClasspath(Project project, Map libs, String artifact) {
+        def ret = []
+        artifactTreeOld(project, artifact).each { key, lib ->
+            libs[lib.name] = lib
+            if (lib.name != artifact)
+                ret.add(lib.name)
+        }
+        return ret
+    }
+
     @CompileDynamic
     static String[] getClasspath(Project project, MapProperty<String, LibraryInfo> libs, String artifact) {
         var ret = []
@@ -146,6 +189,19 @@ final class Util {
             }
             return map
         }
+    }
+
+    @CompileDynamic
+    @Deprecated(forRemoval = true)
+    private static Map artifactTreeOld(Project project, String artifact, boolean transitive = true) {
+        if (!project.ext.has('tree_resolver'))
+            project.ext.tree_resolver = 1
+        def cfg = project.configurations.create('tree_resolver_' + project.ext.tree_resolver++)
+        cfg.transitive = transitive
+        def dep = project.dependencies.create(artifact)
+        cfg.dependencies.add(dep)
+        def files = cfg.resolve()
+        return getArtifacts(cfg)
     }
 
     static boolean checkExists(String url) {

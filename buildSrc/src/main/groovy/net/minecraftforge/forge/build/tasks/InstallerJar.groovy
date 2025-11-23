@@ -1,5 +1,6 @@
 package net.minecraftforge.forge.build.tasks
 
+
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.api.tasks.bundling.Zip
@@ -7,11 +8,11 @@ import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 
-abstract class InstallerJarOld extends Zip {
-    abstract @Input @Optional Property<Boolean> getFat()
-    abstract @Input @Optional Property<Boolean> getOffline()
+abstract class InstallerJar extends Zip {
+    @Input @Optional abstract Property<Boolean> getFat()
+    @Input @Optional abstract Property<Boolean> getOffline()
 
-    InstallerJarOld() {
+    InstallerJar() {
         archiveClassifier.set('installer')
         archiveExtension.set('jar') // Needs to be Zip task to not override Manifest, so set extension
         destinationDirectory.set(project.layout.buildDirectory.dir('libs'))
@@ -27,7 +28,7 @@ abstract class InstallerJarOld extends Zip {
 
         from(project.rootProject.file('/src/main/resources/url.png'))
         project.afterEvaluate {
-            from(project.zipTree(downloadInstaller.outputs.files)) {
+            from(project.zipTree(downloadInstaller.output)) {
                 duplicatesStrategy = DuplicatesStrategy.EXCLUDE
             }
 
@@ -39,7 +40,7 @@ abstract class InstallerJarOld extends Zip {
                 }
                 dependsOn(cfg)
             } else {
-                // Things we ALWAYS bundle, this just the server shim jar, because the installer spec only says to extract the file. 
+                // Things we ALWAYS bundle, this just the server shim jar, because the installer spec only says to extract the file.
                 // I should make it allow downloads but thats a spec break, and this is just a ~14KB jar
                 [
                     project.tasks.serverShimJar // Server bootstrap executable jar
@@ -56,23 +57,23 @@ abstract class InstallerJarOld extends Zip {
     static abstract class Configure extends DefaultTask {
         public Zip parent
         private int count = 0;
-        
+
         @TaskAction
         protected void exec() {
             def deps = [:] as java.util.TreeMap
-            
+
             // Gather all things that need downloading
             [
-                project.tasks.installerJson, 
+                project.tasks.installerJson,
                 project.tasks.launcherJson
             ].each { task ->
                 def json = task.output.get().asFile.json
-                json.getLauncherLibraries.each { lib ->
+                json.libraries.each { lib ->
                     if (lib.downloads?.artifact?.url !== null && !lib.downloads.artifact.url.isEmpty())
                         deps.put(lib.name, lib.downloads.artifact)
                 }
             }
-            
+
             // First find things we build in this project.
             [
                 project.tasks.universalJar, // Forge runtime code
@@ -87,7 +88,7 @@ abstract class InstallerJarOld extends Zip {
                     }
                 }
             }
-            
+
             // Find any artifacts from the 'installer' config
             // This config specifies the runtime files we intend for the interaller to have.
             // And are typically what we would be developing and testing alongside Forge. 
@@ -108,16 +109,16 @@ abstract class InstallerJarOld extends Zip {
                     found++
                     addFile(dep.file, info)
                 }
-                
+
                 if (deps.isEmpty()) {
                     cfg = null
                     continue
                 }
-                
+
                 // Prevent infinite loops if something fucky happens
                 if (found == 0)
-                    throw new IllegalStateException("Failed to find any installer dependencies") 
-                
+                    throw new IllegalStateException("Failed to find any installer dependencies")
+
                 def seen = [] as Set
                 cfg = project.configurations.detachedConfiguration()
                 cfg.transitive = false
@@ -131,10 +132,10 @@ abstract class InstallerJarOld extends Zip {
                 }
             }
         }
-        
+
         void addFile(file, info) {
             boolean pack = parent.offline.get() || info.url.isEmpty()
-            
+
             // If it's a offline jar just always pack
             if (!pack) {
                 try {
@@ -145,7 +146,7 @@ abstract class InstallerJarOld extends Zip {
                     // Oh noes its not there!
                 }
             }
-            
+
             if (pack) {
                 println("Adding: $file.absolutePath")
                 parent.from(file) {

@@ -2,8 +2,6 @@ package net.minecraftforge.forge.build;
 
 import de.undercouch.gradle.tasks.download.Download;
 import net.minecraftforge.forge.build.tasks.BundleList;
-import net.minecraftforge.forge.build.tasks.InstallerJar;
-import net.minecraftforge.forge.build.tasks.InstallerJarDependencies;
 import net.minecraftforge.forge.build.tasks.InstallerJson;
 import net.minecraftforge.forgedev.ForgeDevPlugin;
 import net.minecraftforge.forgedev.Tools;
@@ -209,43 +207,6 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
 
             var userdevConfig = tasks.named("userdevConfig", GeneratePatcherConfigV2.class, task -> {
                 task.getUniversal().set("%s:%s:%s:universal-srg@jar".formatted(project.getGroup(), project.getName(), project.getVersion()));
-            });
-
-            var installerJson = tasks.register("installerJson", InstallerJson.class, task -> {
-                task.dependsOn(setupMCP);
-
-                // Official Mappings
-                task.getInputs().files(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings), setupMCP.flatMap(MavenizerMCPSetup::getServerMappings));
-                // Get 'base' MC jar, Client is straight download, server is extracted from the bundle
-                task.getInputs().files(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw), setupMCP.flatMap(MavenizerMCPSetup::getServerExtracted));
-
-                // Rename MC Jar
-                task.dependsOn(createClientOfficial, createServerOfficial);
-                task.getInputs().files(
-                    createClientOfficial.flatMap(LegacyRenameJar::getOutput),
-                    createServerOfficial.flatMap(LegacyRenameJar::getOutput),
-                    forgedevPlugin.getTool(Tools.BINPATCH).getClasspath()
-                );
-            });
-
-            var serverShimJar = tasks.named("serverShimJar", Jar.class);
-            var installerJarDependencies = tasks.register("installerJarDependencies", InstallerJarDependencies.class, task -> {
-                task.builtFrom(serverShimJar);
-            });
-//            var installerJarFatDependencies = tasks.register("installerJarFatDependencies", InstallerJarDependencies.class, task -> {
-//
-//            })
-
-            var installerJar = tasks.register("installerJar", InstallerJar.class, task -> {
-                task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
-                task.setDescription("Creates the JAR file containing the installer.");
-
-                task.with(installerJarDependencies.get());
-
-                task.from(tasks.named("genClientBinPatches", CreateBinPatches.class), copy -> copy
-                    .rename(s -> "data/client.lzma"));
-                task.from(tasks.named("genServerBinPatches", CreateBinPatches.class), copy -> copy
-                    .rename(s -> "data/server.lzma"));
             });
         });
     }

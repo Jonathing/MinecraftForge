@@ -178,7 +178,7 @@ final List<File> EXTRA_TXTS = [
     tasks.named('createChangelog', GenerateChangelog).flatMap(GenerateChangelog.&getOutputFile)
 ]
 
-final String mavenPath = "${group.toString().replace('.', '/')}/${project.name}/${version}".toString()
+final mavenPath = "${group.toString().replace('.', '/')}/${project.name}/${version}".toString()
 
 private static final @Field String BINPATCH_TOOL = 'net.minecraftforge:binarypatcher:1.2.0:fatjar'
 private static final @Field String INSTALLER_TOOLS = 'net.minecraftforge:installertools:1.4.3'
@@ -471,12 +471,7 @@ CheckForgeJarCompatibility.register(project, minecraftVersion) {
     it.commonLibraries.from(project.configurations.named('installer'))
 }
 
-final launcherJson = tasks.register('launcherJson', LauncherJson) {
-    it.forgeVersion = project.ext.forgeVersion
-    it.minecraftVersion = project.ext.minecraftVersion
-
-    addLibraries(configurations.installer, configurations.installerextra)
-
+tasks.register('launcherJson', LauncherJson).configure {
     json.putAll([
         mainClass: 'net.minecraftforge.bootstrap.ForgeBootstrap',
         arguments: [
@@ -487,182 +482,180 @@ final launcherJson = tasks.register('launcherJson', LauncherJson) {
                 '-Djava.net.preferIPv6Addresses=system'
             ]
         ]
-    ])
+    ] as LinkedHashMap)
 }
 
-tasks.named('installerJson', InstallerJson) {
+tasks.register('installerJson', InstallerJson) {
     icon = rootProject.file('icon.ico')
-
-    addArtifacts(
-        tasks.named('universalJar', Jar),
-        tasks.named('serverShimJar', Jar)
-    )
 
     // Json to install into the client's launcher
     dependsOn(launcherJson)
+    input.from(launcherJson.output)
 
-    // TODO [ForgeDev] getClasspath also affected getLibraries
-    //      Fix
+    dependsOn(setupMCP)
+    input.from(
+        setupMCP.clientMappings, setupMCP.clientRaw, createClientOfficial, applyClientBinPatches,
+        setupMCP.serverMappings, setupMCP.serverExtracted, createServerOfficial, applyServerBinPatches
+    )
 
-    var installerToolsClasspath = getClasspath(project, INSTALLER_TOOLS)
-    inputs.property('installerToolsClasspath', installerToolsClasspath)
+    doFirst {
+        var libs = libraries
+        String[] INSTALLER_TOOLS_CLASSPATH = getClasspath(project, libs, INSTALLER_TOOLS)
+        getClasspath(project, libs, MCP_ARTIFACT) //Tell it to download mcp_config
+        json.putAll([
+            _comment: launcherJson.json._comment,
+            hideExtract: true,
+            spec: 1,
+            profile: project.name,
+            version: launcherJson.json.id,
+            path: Util.getMavenInfoFromTask(tasks.serverShimJar).name,
+            minecraft: minecraftVersion,
+            serverJarPath: '{LIBRARY_DIR}/net/minecraft/server/{MINECRAFT_VERSION}/server-{MINECRAFT_VERSION}-bundled.jar',
+            data: [
+                MOJMAPS: [
+                    client: "[net.minecraft:client:${minecraftVersion}:mappings@tsrg]",
+                    server: "[net.minecraft:server:${minecraftVersion}:mappings@tsrg]"
+                ],
+                MOJMAPS_SHA: [
+                    client: "'${setupMCP.clientMappings.asFile.get().sha1}'",
+                    server: "'${setupMCP.serverMappings.asFile.get().sha1}'"
+                ],
+                MC_UNPACKED: [
+                    client: "[net.minecraft:client:${minecraftVersion}]",
+                    server: "[net.minecraft:server:${minecraftVersion}:unpacked]"
+                ],
+                MC_UNPACKED_SHA: [
+                    client: "'${setupMCP.clientRaw.asFile.get().sha1}'",
+                    server: "'${setupMCP.serverExtracted.asFile.get().sha1}'"
+                ],
+                MC_OFF: [
+                    client: "[net.minecraft:client:${minecraftVersion}:official]",
+                    server: "[net.minecraft:server:${minecraftVersion}:official]"
+                ],
+                MC_OFF_SHA: [
+                    client: "'${createClientOfficial.output.get().asFile.sha1}'",
+                    server: "'${createServerOfficial.output.get().asFile.sha1}'"
+                ],
+                BINPATCH: [
+                    client: '/data/client.lzma',
+                    server: '/data/server.lzma'
+                ],
+                PATCHED: [
+                    client: "[${project.group}:${project.name}:${project.version}:client]",
+                    server: "[${project.group}:${project.name}:${project.version}:server]"
+                ],
+                PATCHED_SHA: [
+                    client: "'${applyClientBinPatches.output.get().asFile.sha1}'",
+                    server: "'${applyServerBinPatches.output.get().asFile.sha1}'"
+                ]
+            ],
+            processors: [
+                [
+                    sides: ['server'],
+                    jar: INSTALLER_TOOLS,
+                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    args: [
+                        '--task', 'EXTRACT_FILES',
+                        '--archive', '{INSTALLER}',
 
-    json.putAll([
-        _comment: LauncherJson.COMMENT,
-        hideExtract: true,
-        spec: 1,
-        profile: project.name
-    ])
-    json.put('version', "${minecraftVersion}-${project.name}-${forgeVersion}")
-    json.put('path', MavenInfo.from(project, tasks.named('serverShimJar', Jar)).map(MavenInfo.&name))
-    json.putAll([
-        minecraft: minecraftVersion,
-        serverJarPath: '{LIBRARY_DIR}/net/minecraft/server/{MINECRAFT_VERSION}/server-{MINECRAFT_VERSION}-bundled.jar',
-        data: [
-            MOJMAPS: [
-                client: "[net.minecraft:client:${minecraftVersion}:mappings@tsrg]",
-                server: "[net.minecraft:server:${minecraftVersion}:mappings@tsrg]"
-            ],
-            MOJMAPS_SHA: [
-                client: "'${setupMCP.clientMappings.asFile.get().sha1}'",
-                server: "'${setupMCP.serverMappings.asFile.get().sha1}'"
-            ],
-            MC_UNPACKED: [
-                client: "[net.minecraft:client:${minecraftVersion}]",
-                server: "[net.minecraft:server:${minecraftVersion}:unpacked]"
-            ],
-            MC_UNPACKED_SHA: [
-                client: "'${setupMCP.clientRaw.asFile.get().sha1}'",
-                server: "'${setupMCP.serverExtracted.asFile.get().sha1}'"
-            ],
-            MC_OFF: [
-                client: "[net.minecraft:client:${minecraftVersion}:official]",
-                server: "[net.minecraft:server:${minecraftVersion}:official]"
-            ],
-            MC_OFF_SHA: [
-                client: "'${createClientOfficial.output.get().asFile.sha1}'",
-                server: "'${createServerOfficial.output.get().asFile.sha1}'"
-            ],
-            BINPATCH: [
-                client: '/data/client.lzma',
-                server: '/data/server.lzma'
-            ],
-            PATCHED: [
-                client: "[${project.group}:${project.name}:${project.version}:client]",
-                server: "[${project.group}:${project.name}:${project.version}:server]"
-            ],
-            PATCHED_SHA: [
-                client: "'${applyClientBinPatches.output.get().asFile.sha1}'",
-                server: "'${applyServerBinPatches.output.get().asFile.sha1}'"
+                        '--from', 'data/README.txt',
+                        '--to', '{ROOT}/README.txt',
+
+                        '--from', 'data/run.sh',
+                        '--to', '{ROOT}/run.sh',
+                        '--exec', '{ROOT}/run.sh',
+
+                        '--from', 'data/run.bat',
+                        '--to', '{ROOT}/run.bat',
+
+                        '--from', 'data/user_jvm_args.txt',
+                        '--to', '{ROOT}/user_jvm_args.txt',
+                        '--optional', '{ROOT}/user_jvm_args.txt',
+
+                        '--from', 'data/unix_args.txt',
+                        '--to', "{ROOT}/libraries/${mavenPath}/unix_args.txt",
+
+                        '--from', 'data/win_args.txt',
+                        '--to', "{ROOT}/libraries/${mavenPath}/win_args.txt"
+                    ]
+                ], [
+                    sides: ['server'],
+                    jar: INSTALLER_TOOLS,
+                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    args: [
+                        '--task', 'BUNDLER_EXTRACT',
+                        '--input', '{MINECRAFT_JAR}',
+                        '--output', '{ROOT}/libraries/',
+                        '--libraries'
+                    ]
+                ], [
+                    sides: ['server'],
+                    jar: INSTALLER_TOOLS,
+                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    args: [
+                        '--task', 'BUNDLER_EXTRACT',
+                        '--input', '{MINECRAFT_JAR}',
+                        '--output', '{MC_UNPACKED}',
+                        '--jar-only'
+                    ],
+                    outputs: [
+                        '{MC_UNPACKED}': '{MC_UNPACKED_SHA}'
+                    ]
+                ], [
+                    jar: INSTALLER_TOOLS,
+                    classpath: INSTALLER_TOOLS_CLASSPATH,
+                    args: [
+                        '--task', 'DOWNLOAD_MOJMAPS',
+                        '--sanitize',
+                        '--version', minecraftVersion,
+                        '--side', '{SIDE}',
+                        '--output', '{MOJMAPS}'
+                    ],
+                    outputs: [
+                        '{MOJMAPS}': '{MOJMAPS_SHA}'
+                    ]
+                ], [
+                    sides: ['server'],
+                    jar: FART,
+                    classpath: getClasspath(project, libs, FART),
+                    args: [
+                        '--input', '{MC_UNPACKED}',
+                        '--output', '{MC_OFF}',
+                        '--names', '{MOJMAPS}',
+                        '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'
+                    ],
+                    outputs: [
+                        '{MC_OFF}': '{MC_OFF_SHA}'
+                    ]
+                ], [
+                    sides: ['client'],
+                    jar: FART,
+                    classpath: getClasspath(project, libs, FART),
+                    args: [
+                        '--input', '{MINECRAFT_JAR}',
+                        '--output', '{MC_OFF}',
+                        '--names', '{MOJMAPS}',
+                        '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'
+                    ],
+                    outputs: [
+                        '{MC_OFF}': '{MC_OFF_SHA}'
+                    ]
+                ], [
+                    jar: BINPATCH_TOOL.rsplit(':', 1)[0], // remove :fatjar
+                    classpath: getClasspath(project, libs, BINPATCH_TOOL.rsplit(':', 1)[0]),
+                    args: [
+                        '--clean', '{MC_OFF}',
+                        '--output', '{PATCHED}',
+                        '--apply', '{BINPATCH}',
+                        '--data', '--unpatched'
+                    ],
+                    outputs: [
+                        '{PATCHED}': '{PATCHED_SHA}'
+                    ]
+                ]
             ]
-        ],
-        processors: [
-            [
-                sides: ['server'],
-                jar: INSTALLER_TOOLS,
-                classpath: installerToolsClasspath,
-                args: [
-                    '--task', 'EXTRACT_FILES',
-                    '--archive', '{INSTALLER}',
-
-                    '--from', 'data/README.txt',
-                    '--to', '{ROOT}/README.txt',
-
-                    '--from', 'data/run.sh',
-                    '--to', '{ROOT}/run.sh',
-                    '--exec', '{ROOT}/run.sh',
-
-                    '--from', 'data/run.bat',
-                    '--to', '{ROOT}/run.bat',
-
-                    '--from', 'data/user_jvm_args.txt',
-                    '--to', '{ROOT}/user_jvm_args.txt',
-                    '--optional', '{ROOT}/user_jvm_args.txt',
-
-                    '--from', 'data/unix_args.txt',
-                    '--to', "{ROOT}/libraries/${mavenPath}/unix_args.txt",
-
-                    '--from', 'data/win_args.txt',
-                    '--to', "{ROOT}/libraries/${mavenPath}/win_args.txt"
-                ]
-            ], [
-                sides: ['server'],
-                jar: INSTALLER_TOOLS,
-                classpath: installerToolsClasspath,
-                args: [
-                    '--task', 'BUNDLER_EXTRACT',
-                    '--input', '{MINECRAFT_JAR}',
-                    '--output', '{ROOT}/libraries/',
-                    '--libraries'
-                ]
-            ], [
-                sides: ['server'],
-                jar: INSTALLER_TOOLS,
-                classpath: installerToolsClasspath,
-                args: [
-                    '--task', 'BUNDLER_EXTRACT',
-                    '--input', '{MINECRAFT_JAR}',
-                    '--output', '{MC_UNPACKED}',
-                    '--jar-only'
-                ],
-                outputs: [
-                    '{MC_UNPACKED}': '{MC_UNPACKED_SHA}'
-                ]
-            ], [
-                jar: INSTALLER_TOOLS,
-                classpath: installerToolsClasspath,
-                args: [
-                    '--task', 'DOWNLOAD_MOJMAPS',
-                    '--sanitize',
-                    '--version', minecraftVersion,
-                    '--side', '{SIDE}',
-                    '--output', '{MOJMAPS}'
-                ],
-                outputs: [
-                    '{MOJMAPS}': '{MOJMAPS_SHA}'
-                ]
-            ], [
-                sides: ['server'],
-                jar: FART,
-                classpath: getClasspath(project, FART),
-                args: [
-                    '--input', '{MC_UNPACKED}',
-                    '--output', '{MC_OFF}',
-                    '--names', '{MOJMAPS}',
-                    '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'
-                ],
-                outputs: [
-                    '{MC_OFF}': '{MC_OFF_SHA}'
-                ]
-            ], [
-                sides: ['client'],
-                jar: FART,
-                classpath: getClasspath(project, FART),
-                args: [
-                    '--input', '{MINECRAFT_JAR}',
-                    '--output', '{MC_OFF}',
-                    '--names', '{MOJMAPS}',
-                    '--ann-fix', '--ids-fix', '--src-fix', '--record-fix', '--strip-sigs', '--reverse'
-                ],
-                outputs: [
-                    '{MC_OFF}': '{MC_OFF_SHA}'
-                ]
-            ], [
-                jar: BINPATCH_TOOL.rsplit(':', 1)[0], // remove :fatjar
-                classpath: getClasspath(project, BINPATCH_TOOL.rsplit(':', 1)[0]),
-                args: [
-                    '--clean', '{MC_OFF}',
-                    '--output', '{PATCHED}',
-                    '--apply', '{BINPATCH}',
-                    '--data', '--unpatched'
-                ],
-                outputs: [
-                    '{PATCHED}': '{PATCHED_SHA}'
-                ]
-            ]
-        ]
-    ] as LinkedHashMap)
-    getClasspath(project, MCP_ARTIFACT) //Tell it to download mcp_config
+        ] as LinkedHashMap)
+    }
 }
 
 tasks.named('universalJar', Jar) {
@@ -698,22 +691,24 @@ tasks.named('universalJarSrg', Jar) {
     jarSigner.sign(it)
 }
 
-tasks.named('installerJar', InstallerJar) {
-    fat = providers.systemProperty('TEAMCITY_VERSION').<boolean>map { !it.blank }.orElse(false)
-
-    using libs.installer
-    dependenciesFrom configurations.installer
-
+tasks.register('installerJar', InstallerJar) {
+    fat = providers.systemProperty('CI').<boolean>map { !it.blank }.orElse(false)
     //offline = true
     from(EXTRA_TXTS)
     from(rootProject.file('/forge_installer_logo.png')) {
         rename { 'big_logo.png' }
     }
+    from(genClientBinPatches.output) {
+        rename { 'data/client.lzma' }
+    }
+    from(genServerBinPatches.output) {
+        rename { 'data/server.lzma' }
+    }
 
     final var argsFile = rootProject.file('server_files/args.txt')
     final Map<String, Map<String, String>> tokens = [tokens: [
-            SHIM_JAR_FILE: serverShimJar.archiveFileName.get(),
-            MAVEN_PATH: mavenPath
+        SHIM_JAR_FILE: serverShimJar.archiveFileName.get(),
+        MAVEN_PATH: mavenPath
     ]]
     from(argsFile) {
         filter(tokens, ReplaceTokens)
