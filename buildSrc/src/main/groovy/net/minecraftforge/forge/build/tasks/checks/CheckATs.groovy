@@ -234,77 +234,77 @@ abstract class CheckATs extends CheckTask {
         if ((access & Opcodes.ACC_PRIVATE)   !== 0) return 0
         return 1
     }
-}
 
-@CompileStatic
-class ATParser {
-    static TreeMap<String, Entry> parse(List<String> lines, CheckTask.Reporter reporter) {
-        TreeMap<String, Entry> outLines = new TreeMap<>()
-        Entry group = null
-        for (final line : lines) {
-            if (line.isEmpty()) continue
-            if (line.startsWith('#group ')) {
-                final entry = parseEntry(line.substring(7))
+    @CompileStatic
+    private static final class ATParser {
+        static TreeMap<String, Entry> parse(List<String> lines, CheckTask.Reporter reporter) {
+            TreeMap<String, Entry> outLines = new TreeMap<>()
+            Entry group = null
+            for (final line : lines) {
+                if (line.isEmpty()) continue
+                if (line.startsWith('#group ')) {
+                    final entry = parseEntry(line.substring(7))
 
-                if (entry.desc != '*' && entry.desc != '*()' && entry.desc != '<init>') {
-                    reporter.report("Invalid group: $line", false)
-                }
+                    if (entry.desc != '*' && entry.desc != '*()' && entry.desc != '<init>') {
+                        reporter.report("Invalid group: $line", false)
+                    }
 
-                entry.group = true
-                entry.children = []
-                entry.existing = []
+                    entry.group = true
+                    entry.children = []
+                    entry.existing = []
 
-                group = entry
+                    group = entry
 
-                if (outLines.containsKey(entry.key)) {
-                    reporter.report("Duplicate group: $line", false)
-                }
+                    if (outLines.containsKey(entry.key)) {
+                        reporter.report("Duplicate group: $line", false)
+                    }
 
-                outLines[entry.key] = group
-            } else if (group !== null) {
-                if (line.startsWith('#endgroup')) {
-                    group = null
+                    outLines[entry.key] = group
+                } else if (group !== null) {
+                    if (line.startsWith('#endgroup')) {
+                        group = null
+                    } else {
+                        final key = parseEntry(line).key
+                        group.existing.add(key)
+                    }
+                } else if (line.startsWith('#endgroup')) {
+                    reporter.report("Invalid group ending: $line", false)
+                } else if (line.startsWith('#')) {
+                    //Nom
                 } else {
-                    final key = parseEntry(line).key
-                    group.existing.add(key)
+                    final entry = parseEntry(line)
+                    if (outLines.containsKey(entry.key)) {
+                        reporter.report("Found duplicate: $line")
+                        continue
+                    }
+                    outLines[entry.key] = entry
                 }
-            } else if (line.startsWith('#endgroup')) {
-                reporter.report("Invalid group ending: $line", false)
-            } else if (line.startsWith('#')) {
-                //Nom
-            } else {
-                final entry = parseEntry(line)
-                if (outLines.containsKey(entry.key)) {
-                    reporter.report("Found duplicate: $line")
-                    continue
-                }
-                outLines[entry.key] = entry
             }
+            return outLines
         }
-        return outLines
-    }
 
-    static Entry parseEntry(String line) {
-        final idx = line.indexOf('#')
-        final String comment = idx === -1 ? null : line.substring(idx)
-        if (idx !== -1) line = line.substring(0, idx - 1)
-        final data = (line.trim() + '     ').split(' ', -1)
-        new Entry(data[0], data[1], data[2], comment)
-    }
+        static Entry parseEntry(String line) {
+            final idx = line.indexOf('#')
+            final String comment = idx === -1 ? null : line.substring(idx)
+            if (idx !== -1) line = line.substring(0, idx - 1)
+            final data = (line.trim() + '     ').split(' ', -1)
+            new Entry(data[0], data[1], data[2], comment)
+        }
 
-    @TupleConstructor
-    static final class Entry {
-        String modifier, cls, desc, comment
+        @TupleConstructor
+        static final class Entry {
+            String modifier, cls, desc, comment
 
-        Set<String> existing
-        TreeSet<String> children
-        boolean group = false
+            Set<String> existing
+            TreeSet<String> children
+            boolean group = false
 
-        @Lazy
-        String key = {cls + (desc.isEmpty() ? '' : ' ' + desc)}()
+            @Lazy
+            String key = {cls + (desc.isEmpty() ? '' : ' ' + desc)}()
 
-        Object getAt(String key) {
-            return getProperty(key)
+            Object getAt(String key) {
+                return getProperty(key)
+            }
         }
     }
 }

@@ -74,8 +74,6 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
         });
 
         project.getPluginManager().withPlugin("net.minecraftforge.forgedev", forgedevAppliedPlugin -> {
-            var forgedevPlugin = project.getPlugins().getPlugin(ForgeDevPlugin.class);
-
             var setupMCP = tasks.named("setupMCP", MavenizerMCPSetup.class);
             var jar = tasks.named("jar", Jar.class);
 

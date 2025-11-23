@@ -18,13 +18,13 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 /**
  * Eclipse config files are literally just java properties, with the header cleaned up.
- * <p>
- * This does the same thing, as well as sorting alphabetically. It also ignores all comments. We can add them latter if
- * someone cares.
+ * <p>This does the same thing, as well as sorting alphabetically. It also ignores all comments. We can add them later
+ * if someone cares.</p>
  *
  * @see <a
  * href="https://github.com/eclipse/buildship/blob/5b2c7fca7fa86cd74d71b3c099c7b1559eba038e/org.eclipse.buildship.core/src/main/java/org/eclipse/buildship/core/internal/configuration/PreferenceStore.java#L238">PreferenceStore.java:238
@@ -32,6 +32,7 @@ import java.util.TreeSet;
  */
 public class CleanProperties extends Properties {
     private static final @Serial long serialVersionUID = 1L;
+
     private static final String LINE_SEP = System.lineSeparator();
     private static final String UNIX_LINE_SEP = "\n";
     private static final Charset ENCODING = StandardCharsets.UTF_8;
@@ -42,6 +43,7 @@ public class CleanProperties extends Properties {
                 super.load(is);
             }
         }
+
         return this;
     }
 
@@ -57,15 +59,15 @@ public class CleanProperties extends Properties {
     @Override
     public synchronized Enumeration<Object> keys() {
         var ret = new TreeSet<>(Comparator.comparing(Object::toString));
-        for (Enumeration<?> e = super.keys(); e.hasMoreElements(); ) ret.add(e.nextElement());
+        super.keys().asIterator().forEachRemaining(ret::add);
         return Collections.enumeration(ret);
     }
 
     @Override
-    public Set<Map.Entry<Object, Object>> entrySet() {
+    public SortedSet<Map.Entry<Object, Object>> entrySet() {
         var ret = new TreeSet<Map.Entry<Object, Object>>(Comparator.comparing(e -> e.getKey().toString()));
         ret.addAll(super.entrySet());
-        return ret;
+        return Collections.synchronizedSortedSet(ret);
     }
 
     @Override

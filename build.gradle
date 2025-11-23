@@ -1,3 +1,12 @@
+/*
+ * READ ME
+ *
+ * The Forge buildscript is currently undergoing a massive overhaul and will take some time before it is fully complete.
+ * For now, you should know the following:
+ * - buildSrc/net.minecraftforge.forge.build.ForgeBuildPlugin contains task creation and defaults.
+ * - This buildscript contains mostly configuration on top of those tasks.
+ */
+
 import groovy.transform.Field
 import net.minecraftforge.forge.build.tasks.checks.CheckATs
 import net.minecraftforge.forge.build.tasks.checks.CheckExcs
@@ -5,7 +14,6 @@ import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
 import net.minecraftforge.forge.build.values.MavenInfo
-import net.minecraftforge.forge.build.values.MinimalResolvedArtifact
 import net.minecraftforge.forgedev.tasks.srg2source.ApplyRangeMap
 import net.minecraftforge.forgedev.tasks.srg2source.ExtractRangeMap
 import org.gradle.api.plugins.jvm.JvmTestSuite
@@ -88,7 +96,7 @@ changelog {
     from '47.999'
 }
 
-// TODO [ForgeDev][Jonathing] Support compileOnlyApi, runtimeOnly, and a consumable annotation processor configuration
+// TODO [ForgeDev] Support compileOnlyApi, runtimeOnly, and a consumable annotation processor configuration
 configurations {
     // Don't pull all libraries, if we're missing something, add it to the installer list so the installer knows to download it.
     register('bootstrap') {
@@ -122,8 +130,8 @@ mcp {
 // The new versioning sceme is <MCVersion>-<ForgeMC>.<RB>.<CommitsSinceRB>
 // ForgeMC is a unique identifier for every MC version we have supported.
 // Essentially, the same as the old, except dropping the first number, and the builds are no longer unique.
-final String MCP_ARTIFACT = mcp.config.get()
-var mcpArtifactBullshit = MCP_ARTIFACT.split('(:|@)')
+final String mcpArtifact = mcp.config.get()
+var mcpArtifactSplit = mcpArtifact.split('(:|@)')
 
 dependencies {
     // These need to actually be on the classpath at the start. This is only used for the server shim jar.
@@ -160,7 +168,7 @@ dependencies {
     installer projects.lowcodelanguage
     installer projects.mclanguage
 
-    installerextra "${mcpArtifactBullshit[0]}:${mcpArtifactBullshit[1]}:${mcpArtifactBullshit[2]}:srg2off"
+    installerextra "${mcpArtifactSplit[0]}:${mcpArtifactSplit[1]}:${mcpArtifactSplit[2]}:srg2off"
 
     runtimeOnly libs.bootstrap
     runtimeOnly libs.bootstrap.dev
@@ -184,8 +192,6 @@ private static final @Field String BINPATCH_TOOL = 'net.minecraftforge:binarypat
 private static final @Field String INSTALLER_TOOLS = 'net.minecraftforge:installertools:1.4.3'
 private static final @Field String FART = 'net.minecraftforge:ForgeAutoRenamingTool:1.0.6'
 private static final @Field String S2S_TOOL = 'net.minecraftforge:Srg2Source:8.1.1:fatjar'
-
-final forgedevPlugin = project.plugins.getPlugin(net.minecraftforge.forgedev.ForgeDevPlugin)
 
 patcher {
     //excs.from file("$rootDir/src/main/resources/forge.exc")
@@ -297,9 +303,8 @@ afterEvaluate {
             input = project(':mcp').setupMCP.output
         }
          */
-        tasks.getByName('userdevJar').enabled = true
-        def patches = project.file('build/genPatchesForUserdev/output/')
-        patches.mkdirs()
+        tasks.named('userdevJar') { enabled = true }
+        def patches = layout.buildDirectory.dir('genPatchesForUserdev/output/').map { it.asFile.mkdirs(); it }
         def genPatchesForUserdev = tasks.register('genPatchesForUserdev', GeneratePatches) {
             input = setupMCP.output
             modified = applyRangeMapBase.output
@@ -318,7 +323,10 @@ afterEvaluate {
 
 tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2) {
     configurations.installer.allDependencies.forEach {
-        libraries.add(it.toString())
+        if (it instanceof ProjectDependency)
+            libraries.add("$it.group:$it.name:$it.version")
+        else
+            libraries.add(it.toString())
     }
 
     inject = '' // We don't have a userdev sourceset anymore. Empty as a gradle workaround...
@@ -423,37 +431,33 @@ tasks.register('serverShimJar', Jar) {
     jarSigner.sign(it)
 }
 
-tasks.register('checkAll') {
-    dependsOn 'checkLicenses'
-    group = 'checks'
+tasks.register('checkAndFix') {
+    dependsOn findFinalizeSpawnTargets
+
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
 }
 
-tasks.register('checkAllAndFix') {
-    dependsOn 'findFinalizeSpawnTargets', 'checkLicenses'
-    group = 'checks'
-}
-
-CheckTask.registerTask(tasks, 'ATs', CheckATs) {
+CheckTask.register(tasks, 'ATs', CheckATs) {
     dependsOn extractInheritance, createSrg2Mcp
     ats.from patcher.accessTransformers
     inheritance = extractInheritance.output
     mappings = createSrg2Mcp.output
 }
 
-CheckTask.registerTask(tasks, 'SAS', CheckSAS) {
+CheckTask.register(tasks, 'SAS', CheckSAS) {
     dependsOn extractInheritance
     sass.from patcher.sideAnnotationStrippers
     inheritance = extractInheritance.output
 }
 
-CheckTask.registerTask(tasks, 'Excs', CheckExcs) {
+CheckTask.register(tasks, 'Excs', CheckExcs) {
     dependsOn jar
-    binary = jar.archiveFile.get().asFile
+    binary = jar.archiveFile
     excs.from patcher.excs
 }
 
-CheckTask.registerTask(tasks, 'Patches', CheckPatches) {
-    dependsOn 'genPatches'
+CheckTask.register(tasks, 'Patches', CheckPatches) {
+    dependsOn genPatches
     patchDir = file("$rootDir/patches")
     patchesWithS2SArtifact = [
             'minecraft/net/minecraft/client/renderer/ViewArea.java.patch',
@@ -468,9 +472,10 @@ tasks.named('genPatches', GeneratePatches) {
 }
 
 CheckForgeJarCompatibility.register(project, minecraftVersion) {
-    it.commonLibraries.from(project.configurations.named('installer'))
+    commonLibraries.from(project.configurations.named('installer'))
 }
 
+// TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('launcherJson', LauncherJson).configure {
     json.putAll([
         mainClass: 'net.minecraftforge.bootstrap.ForgeBootstrap',
@@ -485,6 +490,7 @@ tasks.register('launcherJson', LauncherJson).configure {
     ] as LinkedHashMap)
 }
 
+// TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('installerJson', InstallerJson) {
     icon = rootProject.file('icon.ico')
 
@@ -501,7 +507,7 @@ tasks.register('installerJson', InstallerJson) {
     doFirst {
         var libs = libraries
         String[] INSTALLER_TOOLS_CLASSPATH = getClasspath(project, libs, INSTALLER_TOOLS)
-        getClasspath(project, libs, MCP_ARTIFACT) //Tell it to download mcp_config
+        getClasspath(project, libs, mcpArtifact) //Tell it to download mcp_config
         json.putAll([
             _comment: launcherJson.json._comment,
             hideExtract: true,
@@ -691,6 +697,7 @@ tasks.named('universalJarSrg', Jar) {
     jarSigner.sign(it)
 }
 
+// TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('installerJar', InstallerJar) {
     fat = providers.systemProperty('CI').<boolean>map { !it.blank }.orElse(false)
     //offline = true
