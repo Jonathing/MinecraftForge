@@ -67,7 +67,7 @@ abstract class InstallerJarOld extends Zip {
                 project.tasks.launcherJson
             ].each { task ->
                 def json = task.output.get().asFile.json
-                json.libraries.each { lib -> 
+                json.getLauncherLibraries.each { lib ->
                     if (lib.downloads?.artifact?.url !== null && !lib.downloads.artifact.url.isEmpty())
                         deps.put(lib.name, lib.downloads.artifact)
                 }

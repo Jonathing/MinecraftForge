@@ -110,8 +110,8 @@ abstract class LauncherJson extends DefaultTask {
 
         var itor = libraries.listIterator()
         while (itor.hasNext()) {
-            var library = itor.next();
-            itor.set(library.validateUrl(getOffline().getOrElse(false)))
+            var library = itor.next()
+            itor.set(library.validateUrl(offline.getOrElse(false)))
         }
         json.put('libraries', libraries)
 

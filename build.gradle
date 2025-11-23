@@ -501,6 +501,9 @@ tasks.named('installerJson', InstallerJson) {
     // Json to install into the client's launcher
     dependsOn(launcherJson)
 
+    // TODO [ForgeDev] getClasspath also affected getLibraries
+    //      Fix
+
     var installerToolsClasspath = getClasspath(project, INSTALLER_TOOLS)
     inputs.property('installerToolsClasspath', installerToolsClasspath)
 

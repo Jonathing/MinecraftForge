@@ -3,6 +3,7 @@ package net.minecraftforge.forge.build;
 import de.undercouch.gradle.tasks.download.Download;
 import net.minecraftforge.forge.build.tasks.BundleList;
 import net.minecraftforge.forge.build.tasks.InstallerJar;
+import net.minecraftforge.forge.build.tasks.InstallerJarDependencies;
 import net.minecraftforge.forge.build.tasks.InstallerJson;
 import net.minecraftforge.forgedev.ForgeDevPlugin;
 import net.minecraftforge.forgedev.Tools;
@@ -227,9 +228,19 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 );
             });
 
+            var serverShimJar = tasks.named("serverShimJar", Jar.class);
+            var installerJarDependencies = tasks.register("installerJarDependencies", InstallerJarDependencies.class, task -> {
+                task.builtFrom(serverShimJar);
+            });
+//            var installerJarFatDependencies = tasks.register("installerJarFatDependencies", InstallerJarDependencies.class, task -> {
+//
+//            })
+
             var installerJar = tasks.register("installerJar", InstallerJar.class, task -> {
                 task.setGroup(LifecycleBasePlugin.BUILD_GROUP);
                 task.setDescription("Creates the JAR file containing the installer.");
+
+                task.with(installerJarDependencies.get());
 
                 task.from(tasks.named("genClientBinPatches", CreateBinPatches.class), copy -> copy
                     .rename(s -> "data/client.lzma"));

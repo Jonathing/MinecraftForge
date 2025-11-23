@@ -1,6 +1,7 @@
 package net.minecraftforge.forge.build.values;
 
 import org.gradle.api.Project;
+import org.gradle.api.artifacts.ProjectDependency;
 import org.gradle.api.artifacts.component.ProjectComponentIdentifier;
 import org.gradle.api.artifacts.result.ResolvedArtifactResult;
 import org.gradle.api.provider.Provider;
@@ -8,14 +9,20 @@ import org.gradle.api.tasks.TaskProvider;
 import org.gradle.api.tasks.bundling.AbstractArchiveTask;
 import org.gradle.internal.component.external.model.DefaultModuleComponentArtifactIdentifier;
 import org.gradle.internal.component.external.model.ModuleComponentArtifactIdentifier;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
 
-public record MavenInfo(String key, String name, String path, ArtifactInfo art) implements Serializable {
+public record MavenInfo(String key, String name, String path, ArtifactInfo art) implements Serializable, Comparable<MavenInfo> {
     public record ArtifactInfo(String group, String name, String version, @Nullable String classifier,
                                String extension) implements Serializable { }
+
+    @Override
+    public int compareTo(MavenInfo that) {
+        return this.key.compareTo(that.key);
+    }
 
     public static MavenInfo from(String artGroup, String artName, String artVersion, @Nullable String artClassifier, @Nullable String artExtension) {
         if (artExtension == null)
@@ -84,6 +91,10 @@ public record MavenInfo(String key, String name, String path, ArtifactInfo art) 
 
     public static MavenInfo from(Project project) {
         return from(project, (String) null);
+    }
+
+    public static MavenInfo from(ProjectDependency project) {
+        return from(project.getGroup(), project.getName(), project.getVersion(), null, null);
     }
 
     public static MavenInfo from(Project project, String classifier) {

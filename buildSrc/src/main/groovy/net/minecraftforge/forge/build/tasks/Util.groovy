@@ -7,11 +7,15 @@ import groovy.transform.PackageScope
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import net.minecraftforge.forge.build.values.LibraryInfo
+import net.minecraftforge.forge.build.values.MinimalResolvedArtifact
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
@@ -22,6 +26,7 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.security.MessageDigest
 import java.util.concurrent.Semaphore
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
@@ -39,15 +44,27 @@ final class Util {
     }
 
     @CompileDynamic
-    static Provider<String[]> getClasspath(Project project, String artifact) {
-        artifactTree(project, artifact).<String[]>map { map ->
-            var ret = []
-            for (var lib in map.values()) {
-                if (lib.name() != artifact)
-                    ret.add(lib.name())
-            }
-            return ret
+    static String[] getClasspath(Project project, MapProperty<String, LibraryInfo> libs, String artifact) {
+        var ret = []
+        artifactTree(project, artifact).get().forEach { key, lib ->
+            libs.put(lib.name(), lib)
+            if (lib.name() != artifact)
+                ret.add(lib.name())
         }
+        return ret
+    }
+
+    @CompileDynamic
+    static String[] getClasspath(Project project, SetProperty<MinimalResolvedArtifact> libs, String artifact) {
+        var ret = []
+        var artifacts = artifactTree(project, artifact).get()
+        var libraries = LibraryInfo.from(artifacts.values())
+        libraries.forEach { key, lib ->
+            libs.add(artifacts.get(lib.name()))
+            if (lib.name() != artifact)
+                ret.add(lib.name())
+        }
+        return ret
     }
 
     @CompileStatic
@@ -119,10 +136,16 @@ final class Util {
     }
 
     @CompileDynamic
-    private static Provider<Map<String, LibraryInfo>> artifactTree(Project project, String artifact, boolean transitive = true) {
-        return LibraryInfo.from(project, project.configurations.detachedConfiguration(
+    private static Provider<Map<String, MinimalResolvedArtifact>> artifactTree(Project project, String artifact, boolean transitive = true) {
+        return MinimalResolvedArtifact.from(project, project.configurations.detachedConfiguration(
             project.dependencies.create(artifact)
-        ).tap { it.transitive = transitive })
+        ).tap { it.transitive = transitive }).map { list ->
+            var map = new HashMap<String, MinimalResolvedArtifact>(list.size())
+            for (var minimal in list) {
+                map.put(minimal.info().key(), minimal)
+            }
+            return map
+        }
     }
 
     static boolean checkExists(String url) {

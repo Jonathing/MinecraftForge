@@ -11,7 +11,6 @@ import org.gradle.api.file.ArchiveOperations;
 import org.gradle.api.file.DuplicatesStrategy;
 import org.gradle.api.file.ProjectLayout;
 import org.gradle.api.provider.ListProperty;
-import org.gradle.api.provider.MapProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.provider.ProviderConvertible;
@@ -28,13 +27,11 @@ import javax.inject.Inject;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.TreeMap;
 
 public abstract class InstallerJar extends Zip {
     public abstract @Input @Optional Property<Boolean> getFat();
     public abstract @Input @Optional Property<Boolean> getOffline();
 
-    public abstract @Input MapProperty<String, LibraryInfo> getLibraries();
     public abstract @Input ListProperty<MinimalResolvedArtifact> getBuiltTasks();
     public abstract @Internal SetProperty<MinimalResolvedArtifact> getAllArtifacts();
 
@@ -138,7 +135,7 @@ public abstract class InstallerJar extends Zip {
             this.copyOffline();
         } else {
             for (var packed : getSlimArtifacts().get()) {
-                from(packed.file(), copy ->
+                this.from(packed.file(), copy ->
                     copy.rename(it -> "maven/" + packed.info().path())
                 );
             }
@@ -148,39 +145,19 @@ public abstract class InstallerJar extends Zip {
     }
 
     private void copyOffline() {
-        var dependencies = new TreeMap<String, LibraryInfo.Downloads.ArtifactInfo>();
-
-        // Gather all things that need downloading
-        var libraries = getLibraries().get();
-        for (var library : libraries.values()) {
-            var artifact = library.downloads().artifact();
-            var url = artifact.url();
-            if (url != null && !url.isBlank())
-                dependencies.put(library.name(), artifact);
-        }
-
         // First find things we build in this project.
         for (var packed : getBuiltTasks().get()) {
             var name = packed.info().name();
-            var info = dependencies.remove(name);
-            if (info != null) {
-                getLogger().lifecycle("Adding: " + packed.info().art().name() + ' ' + name);
-                this.from(packed.file(), copy -> copy
-                    .rename(it -> "maven/" + info.path())
-                );
-            }
+            getLogger().lifecycle("Adding: " + packed.info().art().name() + ' ' + name);
+            this.from(packed.file(), copy -> copy
+                .rename(it -> "maven/" + packed.info().path())
+            );
         }
 
         for (var resolved : getAllArtifacts().get()) {
             var name = resolved.info().name();
-            var info = dependencies.remove(name);
-            if (info == null) {
-                getLogger().lifecycle("Skipping " + name);
-                continue;
-            }
-
             getLogger().lifecycle("-" + name);
-            addFile(resolved.file(), info);
+            addFile(resolved.file(), resolved.info().art());
         }
     }
 
