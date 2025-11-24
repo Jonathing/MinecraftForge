@@ -61,10 +61,7 @@ tasks.register('setup') {
     dependsOn ':extractMapped'
 }
 
-java {
-    toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
-    withSourcesJar()
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(javaVersion)
 
 jarSigner.autoDetect('forge')
 
@@ -93,6 +90,7 @@ license {
 
 changelog {
     from '47.999'
+    publishAll = true
 }
 
 // TODO [ForgeDev] Support compileOnlyApi, runtimeOnly, and a consumable annotation processor configuration
@@ -879,7 +877,7 @@ publishing {
         artifact installerJar
         artifact mdkZip
         artifact userdevJar
-        artifact sourcesJar
+        artifact legacySourcesJar
         artifact serverShimJar
 
         pom {
