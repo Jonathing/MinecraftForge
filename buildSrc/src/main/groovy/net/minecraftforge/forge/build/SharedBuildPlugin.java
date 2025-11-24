@@ -18,6 +18,7 @@ import org.gradle.plugins.ide.eclipse.GenerateEclipseProject;
 import org.gradle.plugins.ide.eclipse.model.EclipseModel;
 
 import javax.inject.Inject;
+import java.util.List;
 
 abstract class SharedBuildPlugin implements Plugin<Project> {
     static {
@@ -54,10 +55,9 @@ abstract class SharedBuildPlugin implements Plugin<Project> {
             });
 
             tasks.withType(JavaCompile.class).configureEach(task -> {
-                // Needed because we merge the output of this with the output of the compile task. And gradle detects downstream tasks using the output without a hard dep
-                task.dependsOn(generateResources, processResources);
-                task.getOptions().setWarnings(false); // Shutup deprecated for removal warnings
-                task.getOptions().getForkOptions().setMemoryMaximumSize("6G"); // Needed to make compiling faster, and not run out of heap space in some cases.
+                var options = task.getOptions();
+                options.setWarnings(false); // Shutup deprecated for removal warnings
+                options.getForkOptions().setMemoryMaximumSize("6G"); // Needed to make compiling faster, and not run out of heap space in some cases.
             });
 
             // TODO This is also done by ForgeDev. Consolidate.
@@ -89,12 +89,21 @@ abstract class SharedBuildPlugin implements Plugin<Project> {
         WriteManifest.register(project, tasks.named(jar, Jar.class));
 
         for (var sourceSet : project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets()) {
-            if (!tasks.getNames().contains(sourceSet.getSourcesJarTaskName()))
+            var existing = tasks.getNames();
+            if (!existing.contains(sourceSet.getSourcesJarTaskName())
+                || !existing.contains(sourceSet.getProcessResourcesTaskName()))
                 continue;
 
-            var sourcesJar = tasks.named(sourceSet.getSourcesJarTaskName(), task ->
-                task.dependsOn(tasks.named("processResources"), tasks.named("generateResources"))
+            var processResources = tasks.named(sourceSet.getProcessResourcesTaskName());
+            var names = List.of(
+                sourceSet.getCompileJavaTaskName(),
+                sourceSet.getCompileTaskName("groovy"),
+                sourceSet.getSourcesJarTaskName()
             );
+            for (var name : names) {
+                if (existing.contains(name))
+                    tasks.named(name, task -> task.dependsOn(processResources));
+            }
         }
     }
 }

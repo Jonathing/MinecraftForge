@@ -70,7 +70,6 @@ jarSigner.autoDetect('forge')
 
 sourceSets {
     named('main') {
-        java.srcDir 'src/minecraft/java'
         resources.srcDir 'src/main/generated'
     }
 }
@@ -303,7 +302,7 @@ afterEvaluate {
             input = project(':mcp').setupMCP.output
         }
          */
-        tasks.named('userdevJar') { enabled = true }
+        tasks.named('userdevJar') { onlyIf = { true } }
         def patches = layout.buildDirectory.dir('genPatchesForUserdev/output/').map { it.asFile.mkdirs(); it }
         def genPatchesForUserdev = tasks.register('genPatchesForUserdev', GeneratePatches) {
             input = setupMCP.output

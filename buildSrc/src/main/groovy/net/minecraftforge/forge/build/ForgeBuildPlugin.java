@@ -200,7 +200,7 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 task.setDuplicatesStrategy(DuplicatesStrategy.EXCLUDE);
 
                 task.getArchiveClassifier().set("universal-srg");
-                task.getManifest().from(jar.map(Jar::getManifest));
+                task.setManifest(jar.map(Jar::getManifest).get());
             });
 
             var userdevConfig = tasks.named("userdevConfig", GeneratePatcherConfigV2.class, task -> {
