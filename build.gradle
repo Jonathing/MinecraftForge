@@ -131,6 +131,8 @@ final String mcpArtifact = mcp.config.get()
 var mcpArtifactSplit = mcpArtifact.split('(:|@)')
 
 dependencies {
+    compileOnly libs.forgedev
+
     // These need to actually be on the classpath at the start. This is only used for the server shim jar.
     // And this is only needed because custom file systems are REQUIRED to be on the boot classloader.
     // This has ASM/BootStrap/Unsafe all because I haven't gotten around to moving UnionFileSystem out to its own project.
