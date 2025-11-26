@@ -7,6 +7,7 @@ import net.minecraftforge.forgedev.ForgeDevPlugin;
 import net.minecraftforge.forgedev.Tools;
 import net.minecraftforge.forgedev.tasks.filtering.LegacyFilterNewJar;
 import net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2;
+import net.minecraftforge.forgedev.tasks.installertools.DownloadMappings;
 import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerMCPSetup;
 import net.minecraftforge.forgedev.tasks.mcp.MavenizerRawArtifact;
@@ -75,6 +76,8 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
 
         project.getPluginManager().withPlugin("net.minecraftforge.forgedev", forgedevAppliedPlugin -> {
             var setupMCP = tasks.named("setupMCP", MavenizerMCPSetup.class);
+            var downloadClientMappings = tasks.named("downloadClientMappings", DownloadMappings.class);
+            var downloadServerMappings = tasks.named("downloadServerMappings", DownloadMappings.class);
             var jar = tasks.named("jar", Jar.class);
 
             var extractInheritance = tasks.register("extractInheritance", ExtractInheritance.class, task -> {
@@ -96,7 +99,7 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 task.dependsOn(setupMCP);
 
                 task.getAdditionalArgs().addAll("--ann-fix", "--ids-fix", "--src-fix", "--record-fix", "--strip-sigs", "--reverse");
-                task.getMappings().set(setupMCP.flatMap(MavenizerMCPSetup::getClientMappings));
+                task.getMappings().set(downloadClientMappings.flatMap(DownloadMappings::getOutput));
                 task.getInput().set(setupMCP.flatMap(MavenizerMCPSetup::getClientRaw));
                 task.getOutput().set(task.getDefaultOutputFile());
             });
@@ -105,7 +108,7 @@ abstract class ForgeBuildPlugin extends EnhancedPlugin<Project> {
                 task.dependsOn(setupMCP);
 
                 task.getAdditionalArgs().addAll("--ann-fix", "--ids-fix", "--src-fix", "--record-fix", "--strip-sigs", "--reverse");
-                task.getMappings().set(setupMCP.flatMap(MavenizerMCPSetup::getServerMappings));
+                task.getMappings().set(downloadServerMappings.flatMap(DownloadMappings::getOutput));
                 task.getInput().set(setupMCP.flatMap(MavenizerMCPSetup::getServerExtracted));
                 task.getOutput().set(task.getDefaultOutputFile());
             });
