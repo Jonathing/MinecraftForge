@@ -333,6 +333,10 @@ afterEvaluate {
 }
 
 tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2) {
+    patches = 'patches/'
+    patchesOriginalPrefix = genPatches.basePathPrefix
+    patchesModifiedPrefix = genPatches.modifiedPathPrefix
+
     configurations.installer.allDependencies.forEach {
         if (it instanceof ProjectDependency)
             libraries.add("$it.group:$it.name:$it.version")
@@ -540,8 +544,8 @@ tasks.register('installerJson', InstallerJson) {
 
     dependsOn(setupMCP)
     input.from(
-        setupMCP.clientMappings, setupMCP.clientRaw, createClientOfficial, applyClientBinPatches,
-        setupMCP.serverMappings, setupMCP.serverExtracted, createServerOfficial, applyServerBinPatches
+        downloadClientMappings.output, setupMCP.clientRaw, createClientOfficial, applyClientBinPatches,
+        downloadServerMappings.output, setupMCP.serverExtracted, createServerOfficial, applyServerBinPatches
     )
 
     var installertools = asArtifactString(buildLibs.installertools)
@@ -572,8 +576,8 @@ tasks.register('installerJson', InstallerJson) {
                     server: "[net.minecraft:server:${minecraftVersion}:mappings@tsrg]"
                 ],
                 MOJMAPS_SHA: [
-                    client: "'${setupMCP.clientMappings.asFile.get().sha1}'",
-                    server: "'${setupMCP.serverMappings.asFile.get().sha1}'"
+                    client: "'${downloadClientMappings.output.asFile.get().sha1}'",
+                    server: "'${downloadServerMappings.output.asFile.get().sha1}'"
                 ],
                 MC_UNPACKED: [
                     client: "[net.minecraft:client:${minecraftVersion}]",
