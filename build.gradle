@@ -200,12 +200,14 @@ def asArtifactString = {
 
     def classifier = value.hasProperty('classifier') ? ":$value.classifier" : ''
     def extension = value.hasProperty('artifactType') ? "@$value.artifactType" : value.hasProperty('extension') ? "@$value.extension" : ''
+    classifier = classifier != ':null' ? classifier : ''
+    extension = extension != '@null' ? extension : ''
 
     "$value.group:$value.name:$value.version$classifier$extension".toString()
 }
 
 patcher {
-    //excs.from file("$rootDir/src/main/resources/forge.exc")
+    excs.from file("$rootDir/src/main/resources/forge.exc")
     //parent = project(':mcp')
     mcVersion = minecraftVersion
     mappingChannel = mappingsChannel
@@ -333,9 +335,7 @@ afterEvaluate {
 }
 
 tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.GeneratePatcherConfigV2) {
-    patches = 'patches/'
-    patchesOriginalPrefix = genPatches.basePathPrefix
-    patchesModifiedPrefix = genPatches.modifiedPathPrefix
+    binpatcherVersion = asArtifactString(dependencies.variantOf(buildLibs.binarypatcher) { classifier 'fatjar' })
 
     configurations.installer.allDependencies.forEach {
         if (it instanceof ProjectDependency)
@@ -752,8 +752,8 @@ tasks.named('universalJarSrg', Jar) {
 
 // TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('installerJar', InstallerJar) {
-    fat = providers.systemProperty('CI').<boolean>map { !it.blank }.orElse(false)
-    //offline = true
+    //fat = true // default = !System.getEnv('CI')
+    //offline = true // default = false
     from(EXTRA_TXTS)
     from(rootProject.file('/forge_installer_logo.png')) {
         rename { 'big_logo.png' }

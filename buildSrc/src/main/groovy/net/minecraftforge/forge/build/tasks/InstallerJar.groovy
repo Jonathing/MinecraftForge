@@ -1,22 +1,29 @@
 package net.minecraftforge.forge.build.tasks
 
-
+import net.minecraftforge.forge.build.values.CIRuntime
 import org.gradle.api.file.DuplicatesStrategy
+import org.gradle.api.file.ProjectLayout
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.*
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 
+import javax.inject.Inject
+
 abstract class InstallerJar extends Zip {
     @Input @Optional abstract Property<Boolean> getFat()
     @Input @Optional abstract Property<Boolean> getOffline()
 
+    protected abstract @Inject ProjectLayout getLayout()
+    protected abstract @Inject ProviderFactory getProviders()
+
     InstallerJar() {
         archiveClassifier.set('installer')
         archiveExtension.set('jar') // Needs to be Zip task to not override Manifest, so set extension
-        destinationDirectory.set(project.layout.buildDirectory.dir('libs'))
-        fat.convention(false)
+        destinationDirectory.set(layout.buildDirectory.dir('libs'))
+        fat.convention(providers.of(CIRuntime) { }.<Boolean>map { !it })
         offline.convention(false)
 
         def installerJson = project.tasks.installerJson
