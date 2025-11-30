@@ -87,10 +87,10 @@ dependencyResolutionManagement.versionCatalogs {
         plugin 'changelog',   'net.minecraftforge.changelog'       version '3.2.1'
         plugin 'download',    'de.undercouch.download'             version '5.6.0'
         plugin 'jarsigner',   'net.minecraftforge.gradlejarsigner' version '1.2.0'
-        plugin 'forgedev',    'net.minecraftforge.forgedev'        version '7.0.0-beta.24'
+        plugin 'forgedev',    'net.minecraftforge.forgedev'        version '7.0.0-beta.25'
         plugin 'apt',         'com.diffplug.eclipse.apt'           version '4.4.1'
 
-        library 'forgedev', 'net.minecraftforge.forgedev', 'net.minecraftforge.forgedev.gradle.plugin' version '7.0.0-beta.24'
+        library 'forgedev', 'net.minecraftforge.forgedev', 'net.minecraftforge.forgedev.gradle.plugin' version '7.0.0-beta.25'
 
         // TODO [Forge][Buildscript We should not be needing to manually add transitive dependencies
         //      If we need to make strict versions for dependencies, we should do so using dependency constraints

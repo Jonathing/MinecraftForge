@@ -347,9 +347,20 @@ tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.Genera
     }
 
     inject = '' // We don't have a userdev sourceset anymore. Empty as a gradle workaround...
+
+    // TODO [ForgeDev] Support for parent configs? At the time of conversion to ForgeDev 7, they were never used.
+    // TODO [ForgeDev] Consolidate Patcher + UserDev Config runs in a sane way
     runs {
-        client {
+        configureEach {
+            parents = []
+            main = 'net.minecraftforge.bootstrap.ForgeBootstrap'
+            args '--gameDir', '.'
+            jvmArgs '-Djava.net.preferIPv6Addresses=system'
+            client = it.name.containsIgnoreCase('client')
             environment 'MCP_MAPPINGS', '{mcp_mappings}'
+        }
+
+        client {
             property 'forge.enableGameTest', 'true'
             args '--launchTarget', "forge_userdev_client"
             args '--version', 'MOD_DEV'
@@ -358,56 +369,27 @@ tasks.named('userdevConfig', net.minecraftforge.forgedev.tasks.generation.Genera
         }
 
         clientData {
-            environment 'MCP_MAPPINGS', '{mcp_mappings}'
             args '--launchTarget', "forge_userdev_client_data"
             args '--assetIndex', '{asset_index}'
             args '--assetsDir', '{assets_root}'
         }
 
         server {
-            environment 'MCP_MAPPINGS', '{mcp_mappings}'
             property 'forge.enableGameTest', 'true'
             args '--launchTarget', "forge_userdev_server"
         }
 
         gameTestServer {
-            environment 'MCP_MAPPINGS', '{mcp_mappings}'
             args '--launchTarget', "forge_userdev_server_gametest"
         }
 
         data {
-            environment 'MCP_MAPPINGS', '{mcp_mappings}'
             args '--launchTarget', "forge_userdev_data"
             args '--assetIndex', '{asset_index}'
             args '--assetsDir', '{assets_root}'
         }
     }
 }
-
-// TODO this
-/*
-for (def run in patcher.runs + tasks.userdevConfig.runs) {
-    if (run.parents) continue // We already added this to the parent run config
-    //run.property 'bsl.debug', 'true'
-    run.args '--gameDir', '.'
-    run.jvmArgs '-Djava.net.preferIPv6Addresses=system'
-    run.client run.name.contains('client')
-    run.main 'net.minecraftforge.bootstrap.ForgeBootstrap'
-}
-
-for (def run : patcher.runs) {
-    def isTest = run.name.endsWith('_test')
-    run.taskName = run.name
-    run.workingDirectory file('run/' + run.name)
-    run.ideaModule rootProject.name + '.' + project.name + '.' + (isTest ? 'test' : 'main')
-    run.property 'bsl.debug', 'true'
-    run.property 'terminal.jline', 'true'
-    if (isTest) {
-        run.property 'forge.enableGameTest', 'true'
-        run.property 'forgedev.enableTestMods', 'true'
-    }
-}
- */
 
 tasks.register('findFinalizeSpawnTargets', BytecodePredicateFinder) {
     jar = createClientOfficial.output
