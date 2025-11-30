@@ -14,6 +14,7 @@ import net.minecraftforge.forge.build.tasks.checks.CheckPatches
 import net.minecraftforge.forge.build.tasks.checks.CheckSAS
 import net.minecraftforge.forge.build.tasks.checks.CheckTask
 import net.minecraftforge.forge.build.values.MavenInfo
+import net.minecraftforge.forgedev.tasks.installertools.DownloadMappings
 import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar
 import net.minecraftforge.forgedev.tasks.patching.binary.ApplyBinPatches
@@ -421,6 +422,12 @@ tasks.register('findFinalizeSpawnTargets', BytecodePredicateFinder) {
 ValidateDeprecations.register(tasks, tasks.named('jar', Jar), minecraftVersion)
 
 // TODO [ForgeDev][Jonathing] Streamline all of this in ForgeBuildPlugin
+tasks.named('downloadClientMappings', DownloadMappings) {
+    using(buildLibs.installertools) { classifier 'fatjar' }
+}
+tasks.named('downloadServerMappings', DownloadMappings) {
+    using(buildLibs.installertools) { classifier 'fatjar' }
+}
 tasks.named('extractInheritance', ExtractInheritance) {
     using(buildLibs.installertools) { classifier 'fatjar' }
 }
@@ -447,6 +454,9 @@ tasks.named('applyServerBinPatches', ApplyBinPatches) {
 }
 tasks.named('applyJoinedBinPatches', ApplyBinPatches) {
     using(buildLibs.binarypatcher) { classifier 'fatjar' }
+}
+tasks.named('extractRangeMap', ExtractRangeMap) {
+    usingDirectly('https://maven.minecraftforge.net/net/minecraftforge/Srg2Source/8.1.1/Srg2Source-8.1.1-fatjar.jar')
 }
 
 DownloadDependency.register(project, 'downloadInstaller', dependencies.variantOf(libs.installer) { classifier 'fatjar' })

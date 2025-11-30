@@ -46,7 +46,7 @@ dependencyResolutionManagement.versionCatalogs.register('libs') {
     // Plugins
     library 'gradle-download', 'de.undercouch.download', 'de.undercouch.download.gradle.plugin' version '5.6.0'
     library 'gradle-jarsigner', 'net.minecraftforge.gradlejarsigner', 'net.minecraftforge.gradlejarsigner.gradle.plugin' version '1.2.0'
-    library 'forgedev', 'net.minecraftforge', 'forgedev' version '7.0.0-beta.22'
+    library 'forgedev', 'net.minecraftforge', 'forgedev' version '7.0.0-beta.23'
 
     version 'asm', '9.8'
     library 'asm',      'org.ow2.asm', 'asm'      versionRef 'asm'
