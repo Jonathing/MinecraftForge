@@ -515,6 +515,13 @@ CheckForgeJarCompatibility.register(project, minecraftVersion) {
     commonLibraries.from(project.configurations.named('installer'))
 }
 
+if (!providers.environmentVariable('MAVEN_USER').orElse(providers.environmentVariable('MAVEN_PASSWORD')).present
+    && providers.gradleProperty('net.minecraftforge.forge.build.check.compatibility').map(Boolean.&parseBoolean).getOrElse(false)) {
+    tasks.named('check') {
+        dependsOn checkJarCompatibility
+    }
+}
+
 // TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('launcherJson', LauncherJson).configure {
     json.putAll([
@@ -943,7 +950,3 @@ publishing {
         }
     }
 }
-
-// Make sure we run bin compat checking during local testing.
-//if ((!System.env.MAVEN_USER || !System.env.MAVEN_PASSWORD) && providers.gradleProperty('net.minecraftforge.forge.build.check.compatibility').map(Boolean.&parseBoolean).getOrElse(false))
-//    tasks.named('publish') { dependsOn(':checkJarCompatibility') }

@@ -1,8 +1,10 @@
 pluginManagement {
-    // TODO [Forge][Buildscript] Remove once ForgeDev is on the plugin portal
+    if (new File('forgedev/settings.gradle').exists()) {
+        includeBuild 'forgedev'
+    }
+
     repositories {
         gradlePluginPortal()
-        mavenCentral()
         maven { url = 'https://maven.minecraftforge.net/' }
         mavenLocal()
     }
@@ -82,7 +84,7 @@ dependencyResolutionManagement.versionCatalogs {
 
         plugin 'licenser',    'net.minecraftforge.licenser'        version '1.2.0'
         plugin 'versions',    'com.github.ben-manes.versions'      version '0.53.0'
-        plugin 'gradleutils', 'net.minecraftforge.gradleutils'     version '3.3.32'
+        plugin 'gradleutils', 'net.minecraftforge.gradleutils'     version '3.3.35'
         plugin 'gitversion',  'net.minecraftforge.gitversion'      version '3.1.7'
         plugin 'changelog',   'net.minecraftforge.changelog'       version '3.2.1'
         plugin 'download',    'de.undercouch.download'             version '5.6.0'
