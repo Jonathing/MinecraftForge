@@ -1,14 +1,20 @@
 import groovy.transform.Field
 
 pluginManagement {
-    private static final @Field FORGEDEV_VERSION = '7.0.0-beta.26'
+    private static final @Field FORGEDEV_VERSION = '7.0.0-beta.27'
 
     if (new File('forgedev/settings.gradle').exists()) {
         includeBuild 'forgedev'
     } else {
         resolutionStrategy.eachPlugin {
-            if (requested.id.id == 'net.minecraftforge.forgedev')
-                useVersion(FORGEDEV_VERSION)
+            // TODO [ForgeDev] Consolidate these entry-points
+            switch (requested.id.id) {
+                case 'net.minecraftforge.forgedev':
+                case 'net.minecraftforge.forge.build.forge':
+                case 'net.minecraftforge.forge.build.convention':
+                    useVersion(FORGEDEV_VERSION)
+                    break
+            }
         }
     }
 
