@@ -8,12 +8,13 @@
  */
 
 import groovy.transform.Field
-import net.minecraftforge.forge.build.tasks.checks.CheckATs
-import net.minecraftforge.forge.build.tasks.checks.CheckExcs
-import net.minecraftforge.forge.build.tasks.checks.CheckPatches
-import net.minecraftforge.forge.build.tasks.checks.CheckSAS
-import net.minecraftforge.forge.build.tasks.checks.CheckTask
-import net.minecraftforge.forge.build.values.MavenInfo
+import net.minecraftforge.forgedev.legacy.tasks.checks.CheckATs
+import net.minecraftforge.forgedev.legacy.tasks.checks.CheckExcs
+import net.minecraftforge.forgedev.legacy.tasks.checks.CheckPatches
+import net.minecraftforge.forgedev.legacy.tasks.checks.CheckSAS
+import net.minecraftforge.forgedev.legacy.tasks.checks.CheckTask
+import net.minecraftforge.forgedev.legacy.values.MavenInfo
+import de.undercouch.gradle.tasks.download.Download
 import net.minecraftforge.forgedev.tasks.installertools.DownloadMappings
 import net.minecraftforge.forgedev.tasks.installertools.ExtractInheritance
 import net.minecraftforge.forgedev.tasks.obfuscation.LegacyRenameJar
@@ -28,8 +29,8 @@ import org.objectweb.asm.tree.ClassNode
 import org.objectweb.asm.tree.MethodInsnNode
 import org.objectweb.asm.tree.MethodNode
 
-import net.minecraftforge.forge.build.tasks.*
-import static net.minecraftforge.forge.build.tasks.Util.*
+import net.minecraftforge.forgedev.legacy.tasks.*
+import static net.minecraftforge.forgedev.legacy.tasks.Util.*
 
 import net.minecraftforge.forgedev.tasks.patching.diff.GeneratePatches
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -49,7 +50,8 @@ plugins {
     alias libs.plugins.gradleutils
     alias libs.plugins.gitversion
     alias libs.plugins.changelog
-    id 'net.minecraftforge.gradlejarsigner'
+    id 'net.minecraftforge.gradlejarsigner' version '1.2.0'
+    id 'de.undercouch.download' version '5.6.0'
     id 'net.minecraftforge.forgedev'
     id 'net.minecraftforge.forge.build.convention'
     id 'net.minecraftforge.forge.build.forge'
@@ -139,8 +141,6 @@ final String mcpSrg2OffString = mcpArtifactString.split('(:|@)').with {
 }
 
 dependencies {
-    compileOnly libs.forgedev
-
     // These need to actually be on the classpath at the start. This is only used for the server shim jar.
     // And this is only needed because custom file systems are REQUIRED to be on the boot classloader.
     // This has ASM/BootStrap/Unsafe all because I haven't gotten around to moving UnionFileSystem out to its own project.
@@ -522,6 +522,17 @@ if (!providers.environmentVariable('MAVEN_USER').orElse(providers.environmentVar
     }
 }
 
+tasks.register('downloadCrowdin', Download) {
+    group = 'Forge downloads'
+    description = 'Downloads the Forge translations from Crowdin.'
+
+    src 'https://files.minecraftforge.net/crowdin.zip'
+    dest layout.getBuildDirectory().file('crowdin.zip')
+    useETag 'all'
+    onlyIfModified true
+    quiet true
+}
+
 // TODO [ForgeDev] Rework to be friendly with Gradle 10 + configuration cache
 tasks.register('launcherJson', LauncherJson).configure {
     json.putAll([
@@ -724,6 +735,12 @@ tasks.named('universalJar', Jar) {
     from(EXTRA_TXTS)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude '.cache'
+
+    dependsOn downloadCrowdin
+    var crowdin = downloadCrowdin.dest
+    from(provider { zipTree(crowdin) }) {
+        include 'assets/forge/lang/*.json'
+    }
 
     manifest {
         attributes([

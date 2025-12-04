@@ -1,3 +1,0 @@
-moduleName=forge-buildSrc
-moduleVersion=1.0.0
-extensionClasses=net.minecraftforge.forge.build.tasks.UtilExtensions
